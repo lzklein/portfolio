@@ -6,10 +6,9 @@ import {Routes, Route, useNavigate} from 'react-router-dom';
 // components
 import Header from './components/Header';
 import Footer from './components/Footer';
-import Home from './components/Home';
-import Links from './components/Links';
-import Navbar from './components/Navbar';
-import Projects from './components/Projects';
+import Home from './components/home';
+import Links from './components/links';
+import Projects from './components/projects';
 import Summary from './components/Summary';
 
 function App() {
@@ -17,6 +16,14 @@ function App() {
     <div className="App">
       <Header/>
       Unga Bunga
+      <Routes>
+        <Route path="/projects" element={<Projects/>}/>
+        <Route path="/about" element={<Summary/>}/>
+        <Route path="/contact" element={<Links/>}/>
+        <Route path="/" element={<Home/>}/>
+        <Route path="/" element={<Home/>}/>
+        <Route path="/" element={<Home/>}/>
+      </Routes>
       <Footer/>
     </div>
     
