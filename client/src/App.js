@@ -10,6 +10,7 @@ import Home from './components/Home';
 import Links from './components/Links';
 import Projects from './components/Projects';
 import Summary from './components/Summary';
+import Resume from './components/Resume';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/projects" element={<Projects/>}/>
         <Route path="/about" element={<Summary/>}/>
         <Route path="/contact" element={<Links/>}/>
+        <Route path="/resume" element={<Resume/>}/>
         <Route path="/" element={<Home/>}/>
       </Routes>
       <Footer/>
