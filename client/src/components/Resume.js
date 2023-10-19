@@ -1,15 +1,14 @@
-// In your Resume component
 import React, { useEffect } from 'react';
+import MyResume from "../Resume.pdf";
 
 const Resume = () => {
-  useEffect(() => {
-    // Open the PDF in a new tab when the component mounts
-    window.open(`${process.env.PUBLIC_URL}/Resume 2023.pdf`, '_blank');
-  }, []);
 
   return (
     <div>
-      {/* Your Resume content */}
+        <a href={MyResume} target="_blank"
+            rel="noreferrer">
+            Resume
+        </a> 
     </div>
   );
 }
