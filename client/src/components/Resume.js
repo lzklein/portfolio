@@ -3,6 +3,7 @@ import MyResume from "../Resume.pdf";
 
 const Resume = () => {
 
+  // later attach this to "about" page
   return (
     <div>
         <a href={MyResume} target="_blank"
