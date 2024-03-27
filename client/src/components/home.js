@@ -1,8 +1,13 @@
 import React from 'react'
+import Navbar from './Navbar'
 
 const home = () => {
+  // navbar on left vertical => update with scroll?
   return (
-    <div>home</div>
+    <div>
+      home
+      <Navbar/>
+    </div>
   )
 }
 
