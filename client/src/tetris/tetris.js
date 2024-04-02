@@ -1,6 +1,10 @@
 import React from 'react'
 
 const tetris = () => {
+    // plan:
+    // main page: name and title (Louis Klein - Software Engineer)
+    // letters clickable => click letters to spell T E T R I S to engage tetris mode
+    // include hint somewhere somehow of this
   return (
     <div>tetris</div>
   )
