@@ -5,7 +5,7 @@ export const useGameOver = () => {
 
     const resetGameOver = useCallBack(() => {
         setGameOver(false);
-    });
+    }, []);
 
     return [gameOver, setGameOver, resetGameOver];
 }
