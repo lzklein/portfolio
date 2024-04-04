@@ -1,11 +1,11 @@
-import {useState, useCallBack} from 'react';
+import { useState, useCallback } from 'react';
 
 export const useGameOver = () => {
-    const [gameOver, setGameOver] = useState(true);
+    const [gameOver, setGameOver] = useState(false);
 
-    const resetGameOver = useCallBack(() => {
+    const resetGameOver = useCallback(() => {
         setGameOver(false);
     }, []);
 
     return [gameOver, setGameOver, resetGameOver];
-}
+};
