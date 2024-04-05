@@ -1,6 +1,6 @@
 import React from 'react';
 import Board from './Board.js';
-import useBoard from '../../hooks/useBoard.js'; 
+import useBoard from '../../hooks/useBoard.js';
 import GameStats from '../GameStats.js';
 
 const Tetris = ({ rows, columns, setGameOver }) => {
