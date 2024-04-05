@@ -4,6 +4,10 @@
     position: relative;
 }
 
+.Tetris {
+    position: relative;
+  }
+
 .tetromino {
     border-top: 3px solid rgba(255, 255, 255, 0.1);
     border-left: 3px solid rgba(255, 255, 255, 0.1);
@@ -54,7 +58,7 @@
     background-color: rgba(240, 80, 195, 1);
 }
   
-
+/* board */
 .Board {
     margin: 2em auto;
     display: grid;
@@ -65,5 +69,31 @@
     border: 10px solid rgb(32, 0, 64);
     border-radius: 10px;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  }
+  
+/* gamestats */
+  .GameStats {
+    position: absolute;
+    width: 22vw;
+    list-style-type: none;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .GameStats__left {
+    right: 0;
+    top: 22vh;
+    text-align: left;
+  }
+  
+  .GameStats__right {
+    right: 0;
+    bottom: 0;
+    text-align: left;
+  }
+  
+  .GameStats .value {
+    font-size: 2.8rem;
+    margin-bottom: 0.5em;
+    color: rgba(255, 255, 255, 1);
   }
   

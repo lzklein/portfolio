@@ -11,7 +11,6 @@ const Board = ({ board }) => {
 
     return (
         <div className='Board' style={boardStyles}>
-          Board
           {board.rows.map((row, y) => 
             row.map((cell, x) => {
               <BoardCell key = {x * board.size.columns + x} cell = {cell}/>
