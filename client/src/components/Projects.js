@@ -1,5 +1,6 @@
 import React from 'react'
 
+// maybe add arcade easter egg here
 const projects = () => {
   return (
     <div>
