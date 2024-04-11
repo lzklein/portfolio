@@ -1,8 +1,7 @@
 import React from 'react'
 import  Game from '../games/Game.js';
 
-const home = () => {
-  // navbar on left vertical => update with scroll?
+const Home = () => {
   return (
     <div>
       Home
@@ -11,4 +10,4 @@ const home = () => {
   )
 }
 
-export default home
+export default Home
