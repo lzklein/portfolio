@@ -5,7 +5,7 @@ const Resume = () => {
   // later attach this to "about" page
   return (
     <div>
-        <embed src={MyResume} type="application/pdf" width="100%" height="600px" />
+        <embed src={MyResume} type="application/pdf" width="75%" height="1000px" />
 
         <a href={MyResume} target="_blank"
             rel="noreferrer">
