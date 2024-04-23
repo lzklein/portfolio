@@ -1,8 +1,11 @@
 import React from 'react'
-
+import Links from './Links.js'
 const Contact = () => {
   return (
-    <div>Contact Me</div>
+    <div>
+      <h1>Contact Me</h1>
+      <Links />
+    </div>
   )
 }
 
