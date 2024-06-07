@@ -5,7 +5,7 @@ const Links = () => {
     <div>
       <a href="https://www.linkedin.com/in/louis-klein-audio/" target="_blank">LinkedIn</a>
       <a href="https://github.com/lzklein" target="_blank">GitHub</a>
-      <a>Email</a>
+      <a href="mailto:louisklein71@gmail.com">Send Email</a>
       <p>Phone</p>
     </div>
   )
