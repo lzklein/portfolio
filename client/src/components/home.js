@@ -7,6 +7,7 @@ const Home = () => {
     <div>
       <h1>Louis Klein</h1>
       <h3>Software Engineer</h3>
+      {/* make website "3d" */}
     </div>
   )
 }
