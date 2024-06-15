@@ -2,6 +2,7 @@ import React from 'react'
 
 // maybe add arcade easter egg here
 // have side nav thing to jump around the page with project name, https://brittanychiang.com/ like this thing
+// 3d effect, put projects in cards and hover moves card forward?
 const projects = () => {
   return (
     <div>
