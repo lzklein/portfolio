@@ -9,7 +9,7 @@ const projects = () => {
       <h1>Projects</h1>
       <div className='project-card'>
         <h2>SmokePlus Online Storefront</h2>
-        <a href="https://smokeplus.onrender.com/" target="_blank">https://smokeplus.onrender.com/</a>
+        <a href="https://smokeplus.onrender.com/" target="_blank" rel="noreferrer">https://smokeplus.onrender.com/</a>
         {/* replace a with screenshot image, links to site */}
         <p>description goes here</p>
         {/* 3 bullet points of site function, technology used */}
