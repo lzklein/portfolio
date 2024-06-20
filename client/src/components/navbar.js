@@ -4,11 +4,11 @@ import { NavLink, useNavigate } from 'react-router-dom';
 const navbar = () => {
   return (
       <nav>
-        <NavLink to="/">Home</NavLink>
-        <NavLink to="/about">About Me</NavLink>
-        <NavLink to="/resume">Resume</NavLink>
-        <NavLink to="/projects">Projects</NavLink>
-        <NavLink to="/contact">Contact</NavLink>
+        <NavLink to="/" className='navlink'>Home</NavLink>
+        <NavLink to="/about" className='navlink'>About Me</NavLink>
+        <NavLink to="/resume" className='navlink'>Resume</NavLink>
+        <NavLink to="/projects" className='navlink'>Projects</NavLink>
+        <NavLink to="/contact" className='navlink'>Contact</NavLink>
       </nav>
   )
 }
