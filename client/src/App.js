@@ -16,7 +16,6 @@ function App() {
   return (
     <div className="App">
       <Header/>
-      Unga Bunga
       <Routes>
         <Route path="/projects" element={<Projects/>}/>
         <Route path="/about" element={<Summary/>}/>
