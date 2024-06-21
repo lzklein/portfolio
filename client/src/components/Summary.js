@@ -5,6 +5,7 @@ import Links from './Links.js';
 const Summary = () => {
   return (
     <div>
+      {/* use intro transition with h1 fade to p? */}
       <h1>About Me</h1>
       <p>Blurb</p>
       <Links/>
