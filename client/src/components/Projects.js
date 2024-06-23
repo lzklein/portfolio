@@ -11,7 +11,9 @@ const projects = () => {
         <h2>SmokePlus Online Storefront</h2>
         <a href="https://smokeplus.onrender.com/" target="_blank" rel="noreferrer">https://smokeplus.onrender.com/</a>
         {/* replace a with screenshot image, links to site */}
-        <p>description goes here</p>
+        <ul>
+          <li>ReactJS ExpressJS</li>
+        </ul>
         {/* 3 bullet points of site function, technology used */}
         {/* maybe technology used as separate thing */}
         {/* hard code or auto components? */}
