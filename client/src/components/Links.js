@@ -1,6 +1,7 @@
 import React from 'react'
 
 const Links = () => {
+  // maybe favicon images instead of text links
   return (
     <div>
       <a href="https://www.linkedin.com/in/louis-klein-audio/" target="_blank" rel="noreferrer" className='contact-link'>LinkedIn</a>
