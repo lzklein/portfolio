@@ -10,13 +10,13 @@ const Links = () => {
   return (
     <div>
       <a href="https://www.linkedin.com/in/louis-klein-audio/" target="_blank" rel="noreferrer">
-        <img src={linkedinIcon} alt="LinkedIn" />
+        <img src={linkedinIcon} alt="LinkedIn" className='favicon'/>
       </a>
       <a href="https://github.com/lzklein" target="_blank" rel="noreferrer">
-        <img src={githubIcon} alt="GitHub" />
+        <img src={githubIcon} alt="GitHub"  className='favicon'/>
       </a>
       <a href="mailto:louisklein71@gmail.com" target="_blank" rel="noreferrer">
-        <img src={emailIcon} alt="Email" />
+        <img src={emailIcon} alt="Email"  className='favicon'/>
       </a>
     </div>
 
