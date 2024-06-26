@@ -10,6 +10,18 @@ const Technologies = () => {
       <li>
         React
       </li>
+      <li>
+        Express
+      </li>
+      <li>
+        Python
+      </li>
+      <li>
+        Go
+      </li>
+      <li>
+        C#
+      </li>
     </ul>
     </div>
   )
