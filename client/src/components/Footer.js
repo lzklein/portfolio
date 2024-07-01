@@ -3,8 +3,8 @@ import Favicons from './Favicons';
 
 const Footer = () => {
   return (
-    <div>
-      {/* <p>copyright? more links?</p> */}
+    <div className='footer'>
+      {/* <p>copyright? more links? credits?</p> */}
       <Favicons/>
     </div>
   )
