@@ -1,10 +1,17 @@
-import React from 'react'
+import React, {useState} from 'react'
 import Navbar from './Navbar'
 
 const Header = () => {
+  const [hidden, setHidden] = useState(false)
+
   return (
     <div>      
-      <Navbar/>
+      {
+        hidden?      
+        null
+        :
+        <Navbar/>
+      }
     </div>
   )
 }
