@@ -1,9 +1,10 @@
 import React from 'react'
-
+import DiscordBot from '../images/Wangusbot.png';
 // maybe add arcade easter egg here
 // have side nav thing to jump around the page with project name, https://brittanychiang.com/ like this thing
 // 3d effect, put projects in cards and hover moves card forward?
 const projects = () => {
+
   return (
     <div>
       <h1>Projects</h1>
@@ -20,8 +21,10 @@ const projects = () => {
       </div>
       <div  className='project-card'>
         <h2>WangusBot</h2>
-        <p>maybe an image here?</p>
-        <p>description goes here</p>
+        <img src={DiscordBot}/>
+        <p>Discord Music Bot</p>
+        <p>Downloads and plays audio via Youtube link</p>
+        <p>DiscordJS</p>
       </div>
     </div>
   )
