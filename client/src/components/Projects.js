@@ -14,12 +14,9 @@ const projects = () => {
         <a href="https://smokeplus.onrender.com/" target="_blank" rel="noreferrer">
           <img src={Smokeplus} style={{width:'800px'}}/>
         </a>
+        <h4>ReactJS  |  ExpressJS</h4>
         <p>Set up pickup orders</p>
         <p>Manage inventory as an employee</p>
-        {/* replace a with screenshot image, links to site */}
-        <ul>
-          <li>ReactJS ExpressJS</li>
-        </ul>
         {/* 3 bullet points of site function, technology used */}
         {/* maybe technology used as separate thing */}
         {/* hard code or auto components? */}
@@ -27,9 +24,9 @@ const projects = () => {
       <div  className='project-card'>
         <h2>WangusBot</h2>
         <img src={DiscordBot}/>
+        <h4>DiscordJS</h4>
         <p>Discord Music Bot</p>
         <p>Downloads and plays audio via Youtube link</p>
-        <p>DiscordJS</p>
       </div>
     </div>
   )
