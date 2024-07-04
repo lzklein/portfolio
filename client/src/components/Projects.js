@@ -1,5 +1,6 @@
 import React from 'react'
 import DiscordBot from '../images/Wangusbot.png';
+import Smokeplus from '../images/Smokeplus.png';
 // maybe add arcade easter egg here
 // have side nav thing to jump around the page with project name, https://brittanychiang.com/ like this thing
 // 3d effect, put projects in cards and hover moves card forward?
@@ -10,7 +11,11 @@ const projects = () => {
       <h1>Projects</h1>
       <div className='project-card'>
         <h2>SmokePlus Online Storefront</h2>
-        <a href="https://smokeplus.onrender.com/" target="_blank" rel="noreferrer">https://smokeplus.onrender.com/</a>
+        <a href="https://smokeplus.onrender.com/" target="_blank" rel="noreferrer">
+          <img src={Smokeplus} style={{width:'800px'}}/>
+        </a>
+        <p>Set up pickup orders</p>
+        <p>Manage inventory as an employee</p>
         {/* replace a with screenshot image, links to site */}
         <ul>
           <li>ReactJS ExpressJS</li>
