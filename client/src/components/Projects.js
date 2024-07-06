@@ -14,7 +14,7 @@ const projects = () => {
         <a href="https://smokeplus.onrender.com/" target="_blank" rel="noreferrer">
           <img src={Smokeplus} style={{width:'800px'}}/>
         </a>
-        <h4>ReactJS  |  ExpressJS</h4>
+        <h4>ReactJS - ExpressJS</h4>
         <p>Set up pickup orders</p>
         <p>Manage inventory as an employee</p>
         {/* 3 bullet points of site function, technology used */}
