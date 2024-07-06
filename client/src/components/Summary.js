@@ -7,6 +7,7 @@ const Summary = () => {
     <div>
       {/* use intro transition with h1 fade to p? */}
       <h1>About Me</h1>
+      {/* transitions while scrolling down, maybe changing bg images */}
       <p>Blurb</p>
       <Links/>
     </div>
