@@ -1,6 +1,11 @@
 import React from 'react'
 import Arcade from './Arcade.js';
 
+// TODO
+// !primary -- Content, basic appearances
+// ?secondary -- 3d fx, animations, arcade, 
+
+
 const Home = () => {
 
   return (
