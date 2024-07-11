@@ -5,7 +5,7 @@ const Resume = () => {
   return (
     <div>
         <h1>Resume</h1>
-        <embed src={MyResume} type="application/pdf" width="75%" height="1000px" />
+        <embed src={MyResume} type="application/pdf" width="75%" height="1200px" />
     </div>
   )
 }
