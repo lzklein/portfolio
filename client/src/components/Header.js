@@ -5,7 +5,7 @@ const Header = () => {
   const [hidden, setHidden] = useState(false)
 
   return (
-    <div>      
+    <div className='header'>      
       {
         hidden?      
         null
