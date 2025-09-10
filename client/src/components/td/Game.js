@@ -15,6 +15,27 @@ const GOAL_X = 528;
 const GOAL_Y = 620;
 const INITIAL_HEALTH = 100;
 
+const INITIAL_GRID = [
+  [1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1],
+  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
+  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
+  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
+  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
+  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
+  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
+  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
+  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
+  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
+  [1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1],
+];
+
+const NO_BUILD_TILES = [
+  [8, 0],   // entrance
+  [8, 1],   // tile just below entrance
+  [8, 9],   // tile just above exit
+  [8, 10],  // exit
+];
+
 export default function Game() {
   const canvasRef = useRef(null);
   const entitiesRef = useRef([]);
@@ -27,6 +48,7 @@ export default function Game() {
   const healthRef = useRef(INITIAL_HEALTH);
   const [healthPoints, setHealthPoints] = useState(INITIAL_HEALTH);
   const [placeWallMode, setPlaceWallMode] = useState(false);
+  const [demolishMode, setDemolishMode] = useState(false);
   const [walls, setWalls] = useState([]);
 
   function findPath(grid, start, goal) {
@@ -300,47 +322,83 @@ useEffect(() => {
   function spawnImp() {
     const id = nextId.current++;
     const canvas = canvasRef.current;
-    const GRID_COLS = Math.floor(canvas.width / TILE_SIZE);
-    const GRID_ROWS = Math.floor(canvas.height / TILE_SIZE);
 
-    const grid = Array.from({ length: GRID_ROWS }, (_, y) =>
-      Array.from({ length: GRID_COLS }, (_, x) =>
-        wallsRef.current.some(([wx, wy]) => wx === x && wy === y) ? 1 : 0
-      )
-    );
+    // Grid dimensions
+    const GRID_COLS = INITIAL_GRID[0].length;
+    const GRID_ROWS = INITIAL_GRID.length;
 
-    const startTile = [Math.floor(START_X / TILE_SIZE), Math.floor(START_Y / TILE_SIZE)];
-    const goalTile = [Math.floor(GOAL_X / TILE_SIZE), Math.floor(GOAL_Y / TILE_SIZE)];
+    // Clone INITIAL_GRID
+    const grid = INITIAL_GRID.map((row) => [...row]);
+
+    // Apply dynamic walls
+    wallsRef.current.forEach(([wx, wy]) => {
+      if (wy >= 0 && wy < GRID_ROWS && wx >= 0 && wx < GRID_COLS) {
+        grid[wy][wx] = 1;
+      }
+    });
+
+    const startTile = [
+      Math.floor(START_X / TILE_SIZE),
+      Math.floor(START_Y / TILE_SIZE),
+    ];
+    const goalTile = [
+      Math.floor(GOAL_X / TILE_SIZE),
+      Math.floor(GOAL_Y / TILE_SIZE),
+    ];
+
     const path = findPath(grid, startTile, goalTile);
 
-    const startPosX = startTile[0] * TILE_SIZE + TILE_SIZE / 2 - impFrameSize / 2;
-    const startPosY = startTile[1] * TILE_SIZE + TILE_SIZE / 2 - impFrameSize / 2;
+    const startPosX =
+      startTile[0] * TILE_SIZE + TILE_SIZE / 2 - impFrameSize / 2;
+    const startPosY =
+      startTile[1] * TILE_SIZE + TILE_SIZE / 2 - impFrameSize / 2;
 
     entitiesRef.current.push({
       id,
       x: startPosX,
       y: startPosY,
       speed: 1,
-      path: path ? path.slice(1) : [],
+       path: path ? path.slice(1) : [goalTile],
     });
   }
+
 
   function handleCanvasClick(e) {
-    if (!placeWallMode) return;
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
-    const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
+  const rect = canvasRef.current.getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
+  const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
 
-    setWalls((prev) => {
-      const exists = prev.some(([wx, wy]) => wx === x && wy === y);
-      const newWalls = exists
-        ? prev.filter(([wx, wy]) => !(wx === x && wy === y))
-        : [...prev, [x, y]];
-
-      wallsRef.current = newWalls;
-      return newWalls;
-    });
+  if (y < 0 || y >= INITIAL_GRID.length || x < 0 || x >= INITIAL_GRID[0].length) {
+    return;
   }
+
+  if (NO_BUILD_TILES.some(([nx, ny]) => nx === x && ny === y)) {
+    return;
+  }
+
+  if (placeWallMode) {
+    // place tower
+    if (INITIAL_GRID[y][x] === 0) {
+      setWalls((prev) => {
+        const newWalls = [...prev, [x, y]];
+        wallsRef.current = newWalls;
+        INITIAL_GRID[y][x] = 1; // mark occupied
+        return newWalls;
+      });
+    }
+  } else if (demolishMode) {
+    // demolish tower
+    if (INITIAL_GRID[y][x] === 1) {
+      setWalls((prev) => {
+        const newWalls = prev.filter(([wx, wy]) => !(wx === x && wy === y));
+        wallsRef.current = newWalls;
+        INITIAL_GRID[y][x] = 0; // mark unoccupied
+        return newWalls;
+      });
+    }
+  }
+}
+
 
   return (
     <div style={{ textAlign: "center" }}>
@@ -358,6 +416,15 @@ useEffect(() => {
         style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}
       >
         {placeWallMode ? "Wall Mode: ON" : "Wall Mode: OFF"}
+      </button>
+      <button onClick={() => {
+        setDemolishMode(!demolishMode);
+        setPlaceWallMode(false);
+         // can’t place & demolish at same time
+      }}
+        style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}
+      >
+        {demolishMode ? "Cancel Demolish" : "Demolish"}
       </button>
       <br />
       <canvas
