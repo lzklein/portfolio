@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import boardImg from "./assets/sprites/board.png";
-import impSheet from "./assets/sprites/imp-1-sheet.png";
+import impSheet from "./assets/sprites/imp-sheet.png";
+import eliteSheet from "./assets/sprites/elite-sheet.png";
 import hpImgSrc from "./assets/sprites/hp.png";
 import wallImgSrc from "./assets/sprites/wall.png";
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
@@ -32,17 +33,38 @@ const NO_BUILD_TILES = [
   [8, 10],  // exit
 ];
 
-const START_TILE = [8, 0];  // entrance in grid
-const GOAL_TILE = [8, 10];  // exit in grid
+const START_TILE = [8, 0];
+const GOAL_TILE = [8, 10];
+
+const ENEMY_TYPES = {
+  imp: {
+    frameSize: 16,
+    frameCount: 4,
+    animSpeed: 800,
+    speed: 1,
+    hp: 5,
+    damage: 1,
+    sprite: "imp",
+    offsetAdjust: { x: -22, y: 0 },
+  },
+  elite: {
+    frameSize: 32,
+    frameCount: 4,
+    animSpeed: 1600,
+    speed: 0.5,
+    hp: 20,
+    damage: 5,
+    sprite: "elite",
+    offsetAdjust: { x: -14, y: 0 },
+  },
+};
+
 
 export default function Game() {
   const canvasRef = useRef(null);
   const entitiesRef = useRef([]);
   const nextId = useRef(0);
   const wallsRef = useRef([]);
-
-  const impFrameSize = 16;
-  const impFrameCount = 4;
 
   const healthRef = useRef(INITIAL_HEALTH);
   const [placeWallMode, setPlaceWallMode] = useState(false);
@@ -101,6 +123,9 @@ export default function Game() {
     const impImg = new Image();
     impImg.src = impSheet;
 
+    const eliteImg = new Image();
+    eliteImg.src = eliteSheet;
+
     const hpImg = new Image();
     hpImg.src = hpImgSrc;
 
@@ -117,24 +142,16 @@ export default function Game() {
     connectDL.src = connectDLImgSrc;
 
     let lastTime = performance.now();
-    let frameIndex = 0;
-    let animTimer = 0;
 
     function gameLoop(timestamp) {
       const delta = timestamp - lastTime;
       lastTime = timestamp;
 
-      animTimer += delta;
-      if (animTimer > 200) {
-        frameIndex = (frameIndex + 1) % impFrameCount;
-        animTimer = 0;
-      }
-
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(board, 0, 0, canvas.width, canvas.height);
 
       // --- Draw HP ---
-      const hpX = canvas.width - 150; 
+      const hpX = canvas.width - 150;
       const hpY = 10;
       ctx.drawImage(hpImg, hpX, hpY, 64, 48);
       ctx.fillStyle = "white";
@@ -143,7 +160,7 @@ export default function Game() {
 
       const scale = 2;
 
-      // --- Draw walls and connectors ---
+      // --- Draw walls + connectors ---
       const drawItems = [];
       wallsRef.current.forEach(([wx, wy]) => {
         const cx = wx * TILE_SIZE;
@@ -171,7 +188,6 @@ export default function Game() {
         if (down)
           drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy + TILE_SIZE - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 4 });
 
-        // diagonal connectors
         if (wallsRef.current.some(([x, y]) => x === wx + 1 && y === wy + 1) && !right && !down)
           drawItems.push({ img: connectDL, x: cx + TILE_SIZE - wDL / 2 - 4, y: cy + TILE_SIZE - hDL / 2 + 1, w: wDL, h: hDL, z: rowZ + 4, mirrorX: true });
 
@@ -192,26 +208,23 @@ export default function Game() {
         } else ctx.drawImage(img, x, y, w, h);
       });
 
-      // --- Update entities ---
+      // --- Update & draw entities ---
       for (let i = entitiesRef.current.length - 1; i >= 0; i--) {
         const e = entitiesRef.current[i];
 
         if (e.path && e.path.length > 0) {
           const [tx, ty] = e.path[0];
-          const targetX = tx * TILE_SIZE + TILE_SIZE / 2 - impFrameSize / 2;
-          const targetY = ty * TILE_SIZE + TILE_SIZE / 2 - impFrameSize / 2;
+          const targetX = tx * TILE_SIZE + TILE_SIZE / 2 - e.frameSize / 2;
+          const targetY = ty * TILE_SIZE + TILE_SIZE / 2 - e.frameSize / 2;
 
           const dx = targetX - e.x;
           const dy = targetY - e.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          console.log(e.path.length)
-
 
           if (dist < 1) {
             e.path.shift();
             if (e.path.length === 1) {
-              healthRef.current = Math.max(healthRef.current - 1, 0);
-              console.log("yes")
+              healthRef.current = Math.max(healthRef.current - e.damage, 0);
               entitiesRef.current.splice(i, 1);
               continue;
             }
@@ -221,24 +234,43 @@ export default function Game() {
           }
         }
 
-        // Imp shake animation
-        const baseShake = 3;
-        const jitter = 1;
-        const offsetX = Math.sin(timestamp / 80 + e.id * 0.7) * baseShake + (Math.random() * jitter - jitter / 2);
-        const offsetY = Math.cos(timestamp / 90 + e.id * 1.3) * baseShake + (Math.random() * jitter - jitter / 2);
+        // --- Animate ---
+        e.lastFrameTime = e.lastFrameTime || 0;
+        e.frameIndex = e.frameIndex || 0;
+        e.lastFrameTime += delta;
+
+        // pick image
+        const spriteImg = e.sprite === "elite" ? eliteImg : impImg;
+
+        // animate
+        e.lastFrameTime += delta;
+        if (e.lastFrameTime > e.animSpeed) {
+          e.frameIndex = (e.frameIndex + 1) % e.frameCount;
+          e.lastFrameTime = 0;
+        }
+
+        // shake + offsets
+        const offsetX = Math.sin(timestamp / 80 + e.id * 0.7) * 3 + (Math.random() - 0.5);
+        const offsetY = Math.cos(timestamp / 90 + e.id * 1.3) * 3 + (Math.random() - 0.5);
+
+        const drawSize = e.frameSize * 2;
+        const drawX = e.x - (drawSize - TILE_SIZE) / 2 + offsetX + e.offsetAdjust.x;
+        const drawY = e.y - (drawSize - TILE_SIZE) / 2 + offsetY + e.offsetAdjust.y;
 
         ctx.drawImage(
-          impImg,
-          frameIndex * impFrameSize,
+          spriteImg,
+          e.frameIndex * e.frameSize,
           0,
-          impFrameSize,
-          impFrameSize,
-          e.x + offsetX,
-          e.y + offsetY,
-          impFrameSize * 2,
-          impFrameSize * 2
+          e.frameSize,
+          e.frameSize,
+          drawX,
+          drawY,
+          drawSize,
+          drawSize
         );
+
       }
+
 
       requestAnimationFrame(gameLoop);
     }
@@ -246,27 +278,32 @@ export default function Game() {
     requestAnimationFrame(gameLoop);
   }, []);
 
-  function spawnImp() {
-    const id = nextId.current++;
-    const GRID_COLS = INITIAL_GRID[0].length;
-    const GRID_ROWS = INITIAL_GRID.length;
+  function spawnEntity(type) {
+    const cfg = ENEMY_TYPES[type];
+    if (!cfg) return;
 
+    const id = nextId.current++;
     const grid = INITIAL_GRID.map((row) => [...row]);
-    wallsRef.current.forEach(([wx, wy]) => {
-      if (wy >= 0 && wy < GRID_ROWS && wx >= 0 && wx < GRID_COLS) grid[wy][wx] = 1;
-    });
+    wallsRef.current.forEach(([wx, wy]) => (grid[wy][wx] = 1));
 
     let path = findPath(grid, START_TILE, GOAL_TILE);
     if (!path) path = [];
-
-    // Append extra tile below goal so imp walks fully in
     const last = path[path.length - 1];
     path.push([last[0], last[1] + 1]);
 
-    const startPosX = START_TILE[0] * TILE_SIZE + TILE_SIZE / 2 - impFrameSize / 2;
-    const startPosY = START_TILE[1] * TILE_SIZE + TILE_SIZE / 2 - impFrameSize / 2;
+    const startPosX = START_TILE[0] * TILE_SIZE + TILE_SIZE / 2 - cfg.frameSize / 2;
+    const startPosY = START_TILE[1] * TILE_SIZE + TILE_SIZE / 2 - cfg.frameSize / 2;
 
-    entitiesRef.current.push({ id, x: startPosX, y: startPosY, speed: 1, path });
+    entitiesRef.current.push({
+      id,
+      type,
+      x: startPosX,
+      y: startPosY,
+      path,
+      frameIndex: 0,
+      lastFrameTime: 0,
+      ...cfg, // spread config (hp, speed, animSpeed, etc.)
+    });
   }
 
   function handleCanvasClick(e) {
@@ -300,8 +337,11 @@ export default function Game() {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <button onClick={() => { if (placeWallMode) setPlaceWallMode(false); else spawnImp(); }} style={{ marginBottom: 10, padding: "6px 12px" }}>
-        {placeWallMode ? "Exit Wall Mode" : "Spawn Imp"}
+      <button onClick={() => spawnEntity("imp")} style={{ marginBottom: 10, padding: "6px 12px" }}>
+        Spawn Imp
+      </button>
+      <button onClick={() => spawnEntity("elite")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
+        Spawn Elite
       </button>
       <button onClick={() => setPlaceWallMode((m) => !m)} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
         {placeWallMode ? "Wall Mode: ON" : "Wall Mode: OFF"}
@@ -310,7 +350,13 @@ export default function Game() {
         {demolishMode ? "Cancel Demolish" : "Demolish"}
       </button>
       <br />
-      <canvas ref={canvasRef} width={1088} height={704} onClick={handleCanvasClick} style={{ border: "2px solid black", imageRendering: "pixelated" }} />
+      <canvas
+        ref={canvasRef}
+        width={1088}
+        height={704}
+        onClick={handleCanvasClick}
+        style={{ border: "2px solid black", imageRendering: "pixelated" }}
+      />
     </div>
   );
 }
