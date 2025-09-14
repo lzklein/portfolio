@@ -28,8 +28,8 @@ const INITIAL_GRID = [
 
 const NO_BUILD_TILES = [
   [8, 0],   // entrance
-  [8, 1],   // tile just below entrance
-  [8, 9],   // tile just above exit
+  [8, 1],   // tile below entrance
+  [8, 9],   // tile above exit
   [8, 10],  // exit
 ];
 
@@ -302,7 +302,7 @@ export default function Game() {
       path,
       frameIndex: 0,
       lastFrameTime: 0,
-      ...cfg, // spread config (hp, speed, animSpeed, etc.)
+      ...cfg,
     });
   }
 
