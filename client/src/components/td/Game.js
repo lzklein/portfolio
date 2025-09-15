@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import boardImg from "./assets/sprites/board.png";
 import impSheet from "./assets/sprites/imp-sheet.png";
 import eliteSheet from "./assets/sprites/elite-sheet.png";
+import fastSheet from "./assets/sprites/fast-sheet.png";
 import hpImgSrc from "./assets/sprites/hp.png";
 import wallImgSrc from "./assets/sprites/wall.png";
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
@@ -28,8 +29,8 @@ const INITIAL_GRID = [
 
 const NO_BUILD_TILES = [
   [8, 0],   // entrance
-  [8, 1],   // tile below entrance
-  [8, 9],   // tile above exit
+  [8, 1],   // below entrance
+  [8, 9],   // above exit
   [8, 10],  // exit
 ];
 
@@ -38,7 +39,8 @@ const GOAL_TILE = [8, 10];
 
 const ENEMY_TYPES = {
   imp: {
-    frameSize: 16,
+    frameWidth: 16,
+    frameHeight: 16,
     frameCount: 4,
     animSpeed: 800,
     speed: 1,
@@ -48,7 +50,8 @@ const ENEMY_TYPES = {
     offsetAdjust: { x: -22, y: 0 },
   },
   elite: {
-    frameSize: 32,
+    frameWidth: 32,
+    frameHeight: 32,
     frameCount: 4,
     animSpeed: 1600,
     speed: 0.5,
@@ -57,8 +60,18 @@ const ENEMY_TYPES = {
     sprite: "elite",
     offsetAdjust: { x: -14, y: 0 },
   },
+  fast: {
+    frameWidth: 32,
+    frameHeight: 24,
+    frameCount: 4,
+    animSpeed: 400,
+    speed: 2,
+    hp: 5,
+    damage: 3,
+    sprite: "fast",
+    offsetAdjust: { x: -16, y: 0 },
+  },
 };
-
 
 export default function Game() {
   const canvasRef = useRef(null);
@@ -125,6 +138,9 @@ export default function Game() {
 
     const eliteImg = new Image();
     eliteImg.src = eliteSheet;
+
+    const fastImg = new Image();
+    fastImg.src = fastSheet;
 
     const hpImg = new Image();
     hpImg.src = hpImgSrc;
@@ -214,8 +230,8 @@ export default function Game() {
 
         if (e.path && e.path.length > 0) {
           const [tx, ty] = e.path[0];
-          const targetX = tx * TILE_SIZE + TILE_SIZE / 2 - e.frameSize / 2;
-          const targetY = ty * TILE_SIZE + TILE_SIZE / 2 - e.frameSize / 2;
+          const targetX = tx * TILE_SIZE + TILE_SIZE / 2 - e.frameWidth / 2;
+          const targetY = ty * TILE_SIZE + TILE_SIZE / 2 - e.frameHeight / 2;
 
           const dx = targetX - e.x;
           const dy = targetY - e.y;
@@ -239,11 +255,22 @@ export default function Game() {
         e.frameIndex = e.frameIndex || 0;
         e.lastFrameTime += delta;
 
-        // pick image
-        const spriteImg = e.sprite === "elite" ? eliteImg : impImg;
+        let spriteImg;
+        switch (e.sprite) {
+          case "imp":
+            spriteImg = impImg;
+            break;
+          case "elite":
+            spriteImg = eliteImg;
+            break;
+          case "fast":
+            spriteImg = fastImg;
+            break;
+          default:
+            spriteImg = impImg; // fallback
+            break;
+        }
 
-        // animate
-        e.lastFrameTime += delta;
         if (e.lastFrameTime > e.animSpeed) {
           e.frameIndex = (e.frameIndex + 1) % e.frameCount;
           e.lastFrameTime = 0;
@@ -253,24 +280,23 @@ export default function Game() {
         const offsetX = Math.sin(timestamp / 80 + e.id * 0.7) * 3 + (Math.random() - 0.5);
         const offsetY = Math.cos(timestamp / 90 + e.id * 1.3) * 3 + (Math.random() - 0.5);
 
-        const drawSize = e.frameSize * 2;
-        const drawX = e.x - (drawSize - TILE_SIZE) / 2 + offsetX + e.offsetAdjust.x;
-        const drawY = e.y - (drawSize - TILE_SIZE) / 2 + offsetY + e.offsetAdjust.y;
+        const drawW = e.frameWidth * 2;
+        const drawH = e.frameHeight * 2;
+        const drawX = e.x - (drawW - TILE_SIZE) / 2 + offsetX + e.offsetAdjust.x;
+        const drawY = e.y - (drawH - TILE_SIZE) / 2 + offsetY + e.offsetAdjust.y;
 
         ctx.drawImage(
           spriteImg,
-          e.frameIndex * e.frameSize,
+          e.frameIndex * e.frameWidth,
           0,
-          e.frameSize,
-          e.frameSize,
+          e.frameWidth,
+          e.frameHeight,
           drawX,
           drawY,
-          drawSize,
-          drawSize
+          drawW,
+          drawH
         );
-
       }
-
 
       requestAnimationFrame(gameLoop);
     }
@@ -291,8 +317,8 @@ export default function Game() {
     const last = path[path.length - 1];
     path.push([last[0], last[1] + 1]);
 
-    const startPosX = START_TILE[0] * TILE_SIZE + TILE_SIZE / 2 - cfg.frameSize / 2;
-    const startPosY = START_TILE[1] * TILE_SIZE + TILE_SIZE / 2 - cfg.frameSize / 2;
+    const startPosX = START_TILE[0] * TILE_SIZE + TILE_SIZE / 2 - cfg.frameWidth / 2;
+    const startPosY = START_TILE[1] * TILE_SIZE + TILE_SIZE / 2 - cfg.frameHeight / 2;
 
     entitiesRef.current.push({
       id,
@@ -342,6 +368,9 @@ export default function Game() {
       </button>
       <button onClick={() => spawnEntity("elite")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
         Spawn Elite
+      </button>
+      <button onClick={() => spawnEntity("fast")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
+        Spawn Fast
       </button>
       <button onClick={() => setPlaceWallMode((m) => !m)} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
         {placeWallMode ? "Wall Mode: ON" : "Wall Mode: OFF"}
