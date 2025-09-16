@@ -61,8 +61,8 @@ const ENEMY_TYPES = {
     offsetAdjust: { x: -14, y: 0 },
   },
   fast: {
-    frameWidth: 32,
-    frameHeight: 24,
+    frameWidth: 24,
+    frameHeight: 16,
     frameCount: 4,
     animSpeed: 400,
     speed: 2,
