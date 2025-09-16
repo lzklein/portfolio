@@ -3,6 +3,7 @@ import boardImg from "./assets/sprites/board.png";
 import impSheet from "./assets/sprites/imp-sheet.png";
 import eliteSheet from "./assets/sprites/elite-sheet.png";
 import fastSheet from "./assets/sprites/fast-sheet.png";
+import splitterSheet from "./assets/sprites/splitter-sheet.png";
 import hpImgSrc from "./assets/sprites/hp.png";
 import wallImgSrc from "./assets/sprites/wall.png";
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
@@ -53,7 +54,7 @@ const ENEMY_TYPES = {
     frameWidth: 32,
     frameHeight: 32,
     frameCount: 4,
-    animSpeed: 1600,
+    animSpeed: 1400,
     speed: 0.5,
     hp: 20,
     damage: 5,
@@ -69,6 +70,17 @@ const ENEMY_TYPES = {
     hp: 5,
     damage: 3,
     sprite: "fast",
+    offsetAdjust: { x: -16, y: 0 },
+  },
+    splitter: {
+    frameWidth: 24,
+    frameHeight: 32,
+    frameCount: 4,
+    animSpeed: 600,
+    speed: 0.8,
+    hp: 5,
+    damage: 6,
+    sprite: "splitter",
     offsetAdjust: { x: -16, y: 0 },
   },
 };
@@ -141,6 +153,9 @@ export default function Game() {
 
     const fastImg = new Image();
     fastImg.src = fastSheet;
+
+    const splitterImg = new Image();
+    splitterImg.src = splitterSheet;
 
     const hpImg = new Image();
     hpImg.src = hpImgSrc;
@@ -266,6 +281,9 @@ export default function Game() {
           case "fast":
             spriteImg = fastImg;
             break;
+          case "splitter":
+            spriteImg = splitterImg;
+            break;
           default:
             spriteImg = impImg; // fallback
             break;
@@ -371,6 +389,10 @@ export default function Game() {
       </button>
       <button onClick={() => spawnEntity("fast")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
         Spawn Fast
+      </button>
+      <button onClick={() => spawnEntity("splitter")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}
+      >
+        Spawn Splitter
       </button>
       <button onClick={() => setPlaceWallMode((m) => !m)} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
         {placeWallMode ? "Wall Mode: ON" : "Wall Mode: OFF"}
