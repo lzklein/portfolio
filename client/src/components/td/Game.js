@@ -10,7 +10,7 @@ import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
 
-const SPEED = 0.5;
+const SPEED = 0.3;
 const TILE_SIZE = 64;
 const INITIAL_HEALTH = 100;
 
@@ -72,7 +72,7 @@ const ENEMY_TYPES = {
     sprite: "fast",
     offsetAdjust: { x: -16, y: 0 },
   },
-    splitter: {
+  splitter: {
     frameWidth: 24,
     frameHeight: 32,
     frameCount: 4,
@@ -95,7 +95,9 @@ export default function Game() {
   const [placeWallMode, setPlaceWallMode] = useState(false);
   const [demolishMode, setDemolishMode] = useState(false);
   const [walls, setWalls] = useState([]);
+  const [shootMode, setShootMode] = useState(false);
 
+  // ------- Pathfinding (BFS) -------
   function findPath(grid, start, goal) {
     const rows = grid.length;
     const cols = grid[0].length;
@@ -137,6 +139,7 @@ export default function Game() {
     return null;
   }
 
+  // ------- Main game loop & drawing -------
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -210,14 +213,10 @@ export default function Game() {
         const wDL = connectDL.width * scale;
         const hDL = connectDL.height * scale;
 
-        if (left)
-          drawItems.push({ img: connectLR, x: cx - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 6, w: wLR, h: hLR, z: rowZ + 2 });
-        if (right)
-          drawItems.push({ img: connectLR, x: cx + TILE_SIZE - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 6, w: wLR, h: hLR, z: rowZ + 2 });
-        if (up)
-          drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 4 });
-        if (down)
-          drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy + TILE_SIZE - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 4 });
+        if (left) drawItems.push({ img: connectLR, x: cx - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 6, w: wLR, h: hLR, z: rowZ + 2 });
+        if (right) drawItems.push({ img: connectLR, x: cx + TILE_SIZE - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 6, w: wLR, h: hLR, z: rowZ + 2 });
+        if (up) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 4 });
+        if (down) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy + TILE_SIZE - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 4 });
 
         if (wallsRef.current.some(([x, y]) => x === wx + 1 && y === wy + 1) && !right && !down)
           drawItems.push({ img: connectDL, x: cx + TILE_SIZE - wDL / 2 - 4, y: cy + TILE_SIZE - hDL / 2 + 1, w: wDL, h: hDL, z: rowZ + 4, mirrorX: true });
@@ -243,6 +242,15 @@ export default function Game() {
       for (let i = entitiesRef.current.length - 1; i >= 0; i--) {
         const e = entitiesRef.current[i];
 
+        // enemies with children
+        if (e.hp <= 0) {
+          if (e.type === "splitter") spawnChildren(e, "imp", 3);
+          else if (e.type === "fast") spawnChildren(e, "imp", 1);
+          entitiesRef.current.splice(i, 1);
+          continue;
+        }
+
+        // movement along path
         if (e.path && e.path.length > 0) {
           const [tx, ty] = e.path[0];
           const targetX = tx * TILE_SIZE + TILE_SIZE / 2 - e.frameWidth / 2;
@@ -255,6 +263,7 @@ export default function Game() {
           if (dist < 1) {
             e.path.shift();
             if (e.path.length === 1) {
+              // reached goal -> damage player -> despawn
               healthRef.current = Math.max(healthRef.current - e.damage, 0);
               entitiesRef.current.splice(i, 1);
               continue;
@@ -265,6 +274,10 @@ export default function Game() {
           }
         }
 
+        // --- Track grid coordinates for shoot mode ---
+        e.gridX = Math.floor((e.x + e.frameWidth / 2) / TILE_SIZE);
+        e.gridY = Math.floor((e.y + e.frameHeight * scale - 1) / TILE_SIZE);
+
         // --- Animate ---
         e.lastFrameTime = e.lastFrameTime || 0;
         e.frameIndex = e.frameIndex || 0;
@@ -272,21 +285,11 @@ export default function Game() {
 
         let spriteImg;
         switch (e.sprite) {
-          case "imp":
-            spriteImg = impImg;
-            break;
-          case "elite":
-            spriteImg = eliteImg;
-            break;
-          case "fast":
-            spriteImg = fastImg;
-            break;
-          case "splitter":
-            spriteImg = splitterImg;
-            break;
-          default:
-            spriteImg = impImg; // fallback
-            break;
+          case "imp": spriteImg = impImg; break;
+          case "elite": spriteImg = eliteImg; break;
+          case "fast": spriteImg = fastImg; break;
+          case "splitter": spriteImg = splitterImg; break;
+          default: spriteImg = impImg; break;
         }
 
         if (e.lastFrameTime > e.animSpeed) {
@@ -300,8 +303,8 @@ export default function Game() {
 
         const drawW = e.frameWidth * 2;
         const drawH = e.frameHeight * 2;
-        const drawX = e.x - (drawW - TILE_SIZE) / 2 + offsetX + e.offsetAdjust.x;
-        const drawY = e.y - (drawH - TILE_SIZE) / 2 + offsetY + e.offsetAdjust.y;
+        const drawX = e.x - (drawW - TILE_SIZE) / 2 + offsetX + (e.offsetAdjust?.x || 0);
+        const drawY = e.y - (drawH - TILE_SIZE) / 2 + offsetY + (e.offsetAdjust?.y || 0);
 
         ctx.drawImage(
           spriteImg,
@@ -322,17 +325,20 @@ export default function Game() {
     requestAnimationFrame(gameLoop);
   }, []);
 
+  // ------- spawn entity -------
   function spawnEntity(type) {
     const cfg = ENEMY_TYPES[type];
     if (!cfg) return;
 
     const id = nextId.current++;
     const grid = INITIAL_GRID.map((row) => [...row]);
-    wallsRef.current.forEach(([wx, wy]) => (grid[wy][wx] = 1));
+    wallsRef.current.forEach(([wx, wy]) => {
+      if (wy >= 0 && wy < grid.length && wx >= 0 && wx < grid[0].length) grid[wy][wx] = 1;
+    });
 
     let path = findPath(grid, START_TILE, GOAL_TILE);
     if (!path) path = [];
-    const last = path[path.length - 1];
+    const last = path[path.length - 1] || START_TILE;
     path.push([last[0], last[1] + 1]);
 
     const startPosX = START_TILE[0] * TILE_SIZE + TILE_SIZE / 2 - cfg.frameWidth / 2;
@@ -350,13 +356,78 @@ export default function Game() {
     });
   }
 
+  // ------- spawn children (used by splitter/fast on death) -------
+  function spawnChildren(parent, type, count) {
+    for (let i = 0; i < count; i++) {
+      const cfg = ENEMY_TYPES[type];
+      if (!cfg) continue;
+
+      const id = nextId.current++;
+      const grid = INITIAL_GRID.map((row) => [...row]);
+      wallsRef.current.forEach(([wx, wy]) => {
+        if (wy >= 0 && wy < grid.length && wx >= 0 && wx < grid[0].length) grid[wy][wx] = 1;
+      });
+
+      // check parent tile location
+      const parentTile = [Math.floor((parent.x + parent.frameWidth / 2) / TILE_SIZE), Math.floor((parent.y + parent.frameHeight / 2) / TILE_SIZE)];
+      let path = findPath(grid, parentTile, GOAL_TILE);
+      if (!path) path = [];
+      const last = path[path.length - 1] || parentTile;
+      path.push([last[0], last[1] + 1]);
+
+      entitiesRef.current.push({
+        id,
+        type,
+        x: parent.x,
+        y: parent.y,
+        path,
+        frameIndex: 0,
+        lastFrameTime: 0,
+        ...cfg,
+      });
+    }
+  }
+
+  // ------- unified click handler (place/demolish/shoot) -------
   function handleCanvasClick(e) {
     const rect = canvasRef.current.getBoundingClientRect();
     const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
     const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
 
+    console.log(`Clicked tile: (${x}, ${y})`);
+
     if (y < 0 || y >= INITIAL_GRID.length || x < 0 || x >= INITIAL_GRID[0].length) return;
-    if (NO_BUILD_TILES.some(([nx, ny]) => nx === x && ny === y)) return;
+
+    if (!shootMode) {
+      if (NO_BUILD_TILES.some(([nx, ny]) => nx === x && ny === y)) return;
+    }
+
+    if (shootMode) {
+      const drawScale = 2;
+
+      for (let i = entitiesRef.current.length - 1; i >= 0; i--) {
+        const ent = entitiesRef.current[i];
+
+        // check sprite edge overlap
+        const spriteLeft = ent.x + (ent.offsetAdjust?.x || 0);
+        const spriteRight = ent.x + ent.frameWidth * drawScale + (ent.offsetAdjust?.x || 0);
+        const spriteTop = ent.y + (ent.offsetAdjust?.y || 0);
+        const spriteBottom = ent.y + ent.frameHeight * drawScale + (ent.offsetAdjust?.y || 0);
+
+        const leftTile = Math.floor(spriteLeft / TILE_SIZE);
+        const rightTile = Math.floor((spriteRight - 1) / TILE_SIZE);
+        const topTile = Math.floor(spriteTop / TILE_SIZE);
+        const bottomTile = Math.floor((spriteBottom - 1) / TILE_SIZE);
+
+        console.log(`Enemy ${ent.type} (id: ${ent.id}) occupies tiles X:${leftTile}-${rightTile}, Y:${topTile}-${bottomTile}`);
+
+        if (x >= leftTile && x <= rightTile && y >= topTile && y <= bottomTile) {
+          ent.hp -= 1;
+          // console.log(`Enemy ${ent.type} (id: ${ent.id}) took 1 damage, hp now: ${ent.hp}`);
+        }
+      }
+      return;
+    }
 
     if (placeWallMode) {
       if (INITIAL_GRID[y][x] === 0) {
@@ -390,15 +461,24 @@ export default function Game() {
       <button onClick={() => spawnEntity("fast")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
         Spawn Fast
       </button>
-      <button onClick={() => spawnEntity("splitter")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}
-      >
+      <button onClick={() => spawnEntity("splitter")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
         Spawn Splitter
       </button>
       <button onClick={() => setPlaceWallMode((m) => !m)} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
-        {placeWallMode ? "Wall Mode: ON" : "Wall Mode: OFF"}
+        {placeWallMode ? "Exit Wall Mode" : "Wall Mode"}
       </button>
       <button onClick={() => { setDemolishMode(!demolishMode); setPlaceWallMode(false); }} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
         {demolishMode ? "Cancel Demolish" : "Demolish"}
+      </button>
+      <button
+        onClick={() => {
+          setShootMode((s) => !s);
+          setPlaceWallMode(false);
+          setDemolishMode(false);
+        }}
+        style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}
+      >
+        {shootMode ? "Shoot Mode: ON" : "Shoot Mode: OFF"}
       </button>
       <br />
       <canvas
