@@ -4,6 +4,7 @@ import impSheet from "./assets/sprites/imp-sheet.png";
 import eliteSheet from "./assets/sprites/elite-sheet.png";
 import fastSheet from "./assets/sprites/fast-sheet.png";
 import splitterSheet from "./assets/sprites/splitter-sheet.png";
+import flyerSheet from "./assets/sprites/flyer-sheet.png";
 import hpImgSrc from "./assets/sprites/hp.png";
 import wallImgSrc from "./assets/sprites/wall.png";
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
@@ -83,6 +84,17 @@ const ENEMY_TYPES = {
     sprite: "splitter",
     offsetAdjust: { x: -16, y: 0 },
   },
+    flyer: {
+    frameWidth: 32,
+    frameHeight: 24,
+    frameCount: 4,
+    animSpeed: 200,
+    speed: 1,
+    hp: 10,
+    damage: 5,
+    sprite: "flyer",
+    offsetAdjust: { x: -16, y: 0 },
+  },
 };
 
 export default function Game() {
@@ -159,6 +171,9 @@ export default function Game() {
 
     const splitterImg = new Image();
     splitterImg.src = splitterSheet;
+
+    const flyerImg = new Image();
+    flyerImg.src = flyerSheet;
 
     const hpImg = new Image();
     hpImg.src = hpImgSrc;
@@ -302,6 +317,7 @@ export default function Game() {
           case "elite": spriteImg = eliteImg; break;
           case "fast": spriteImg = fastImg; break;
           case "splitter": spriteImg = splitterImg; break;
+          case "flyer": spriteImg = flyerImg; break;
           default: spriteImg = impImg; break;
         }
 
@@ -352,6 +368,11 @@ export default function Game() {
     });
 
     let path = findPath(grid, START_TILE, GOAL_TILE);
+    if (type === "flyer") {
+      // straight line from start to goal
+      path = [START_TILE, GOAL_TILE];
+    }
+
     if (!path) path = [];
     const last = path[path.length - 1] || START_TILE;
     path.push([last[0], last[1] + 1]);
@@ -473,6 +494,9 @@ export default function Game() {
       </button>
       <button onClick={() => spawnEntity("splitter")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
         Spawn Splitter
+      </button>
+      <button onClick={() => spawnEntity("flyer")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
+        Spawn Flyer
       </button>
       <button onClick={() => setPlaceWallMode((m) => !m)} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
         {placeWallMode ? "Exit Wall Mode" : "Wall Mode"}
