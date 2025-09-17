@@ -1,4 +1,5 @@
 import React from 'react'
+import JavaBadge from '../images/Java.jpg'
 
 const Technologies = () => {
     // click to show gif/screenshot or something example of technology i did?
@@ -20,6 +21,9 @@ const Technologies = () => {
       </li>
       <li>
         C#
+      </li>
+      <li>
+        Java <img src={JavaBadge}/>
       </li>
     </ul>
     </div>
