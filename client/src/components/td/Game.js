@@ -10,7 +10,7 @@ import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
 
-const SPEED = 0.3;
+const SPEED = 0.5;
 const TILE_SIZE = 64;
 const INITIAL_HEALTH = 100;
 
@@ -253,24 +253,37 @@ export default function Game() {
         // movement along path
         if (e.path && e.path.length > 0) {
           const [tx, ty] = e.path[0];
+
           const targetX = tx * TILE_SIZE + TILE_SIZE / 2 - e.frameWidth / 2;
           const targetY = ty * TILE_SIZE + TILE_SIZE / 2 - e.frameHeight / 2;
 
           const dx = targetX - e.x;
           const dy = targetY - e.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist < 1) {
+          // move along the axis that has the largest remaining distance
+          if (Math.abs(dx) > Math.abs(dy)) {
+            const stepX = Math.sign(dx) * e.speed * SPEED * (delta / 16);
+            if (Math.abs(stepX) >= Math.abs(dx)) {
+              e.x = targetX; // snap to tile
+            } else e.x += stepX;
+          } else {
+            const stepY = Math.sign(dy) * e.speed * SPEED * (delta / 16);
+            if (Math.abs(stepY) >= Math.abs(dy)) {
+              e.y = targetY; // snap to tile
+            } else e.y += stepY;
+          }
+
+          // check if reached tile center
+          if (Math.abs(e.x - targetX) < 1 && Math.abs(e.y - targetY) < 1) {
+            e.x = targetX;
+            e.y = targetY;
             e.path.shift();
             if (e.path.length === 1) {
-              // reached goal -> damage player -> despawn
+              // reached goal next step -> damage player and despawn
               healthRef.current = Math.max(healthRef.current - e.damage, 0);
               entitiesRef.current.splice(i, 1);
               continue;
             }
-          } else {
-            e.x += (dx / dist) * e.speed * SPEED * (delta / 16);
-            e.y += (dy / dist) * e.speed * SPEED * (delta / 16);
           }
         }
 
@@ -303,8 +316,10 @@ export default function Game() {
 
         const drawW = e.frameWidth * 2;
         const drawH = e.frameHeight * 2;
+        const verticalOffset = TILE_SIZE/2 - drawH/2;
+
         const drawX = e.x - (drawW - TILE_SIZE) / 2 + offsetX + (e.offsetAdjust?.x || 0);
-        const drawY = e.y - (drawH - TILE_SIZE) / 2 + offsetY + (e.offsetAdjust?.y || 0);
+        const drawY = e.y + verticalOffset + offsetY + (e.offsetAdjust?.y || 0) -16;
 
         ctx.drawImage(
           spriteImg,
@@ -394,8 +409,6 @@ export default function Game() {
     const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
     const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
 
-    console.log(`Clicked tile: (${x}, ${y})`);
-
     if (y < 0 || y >= INITIAL_GRID.length || x < 0 || x >= INITIAL_GRID[0].length) return;
 
     if (!shootMode) {
@@ -419,11 +432,8 @@ export default function Game() {
         const topTile = Math.floor(spriteTop / TILE_SIZE);
         const bottomTile = Math.floor((spriteBottom - 1) / TILE_SIZE);
 
-        console.log(`Enemy ${ent.type} (id: ${ent.id}) occupies tiles X:${leftTile}-${rightTile}, Y:${topTile}-${bottomTile}`);
-
         if (x >= leftTile && x <= rightTile && y >= topTile && y <= bottomTile) {
           ent.hp -= 1;
-          // console.log(`Enemy ${ent.type} (id: ${ent.id}) took 1 damage, hp now: ${ent.hp}`);
         }
       }
       return;
