@@ -378,6 +378,13 @@ export default function Game() {
         const drawX = e.x - (drawW - TILE_SIZE) / 2 + offsetX + (e.offsetAdjust?.x || 0);
         const drawY = e.y + verticalOffset + offsetY + (e.offsetAdjust?.y || 0) - 16;
 
+        // --- Draw shadow ---
+        const shadowOffsetY = drawH / 2; // distance from the enemy sprite
+        ctx.fillStyle = "rgba(0,0,0,0.3)";
+        ctx.beginPath();
+        ctx.ellipse(drawX + drawW / 2, drawY + drawH - shadowOffsetY / 4 +4, drawW / 2.5, drawH / 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.drawImage(
           spriteImg,
           e.frameIndex * e.frameWidth,
