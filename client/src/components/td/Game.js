@@ -377,25 +377,44 @@ export default function Game() {
         const verticalOffset = TILE_SIZE / 2 - drawH / 2;
         const drawX = e.x - (drawW - TILE_SIZE) / 2 + offsetX + (e.offsetAdjust?.x || 0);
         const drawY = e.y + verticalOffset + offsetY + (e.offsetAdjust?.y || 0) - 16;
+        const shadowCenterX = drawX + drawW / 2;
+        
+        // --- Push shadow as a drawItem ---
+        drawItems.push({
+          shadow: true,
+          x: e.sprite === "flyer" ?  drawX+drawW/2.3: drawX+drawW/3.2,
+          y: drawY + drawH - offsetY / 4 ,
+          w: e.sprite === "flyer" ? drawW / 5 : drawW / 2.5,
+          h: drawH / 6,
+          z: 0,
+        });
 
-        // --- Draw shadow ---
-        const shadowOffsetY = drawH / 2; // distance from the enemy sprite
-        ctx.fillStyle = "rgba(0,0,0,0.3)";
-        ctx.beginPath();
-        ctx.ellipse(drawX + drawW / 2, drawY + drawH - shadowOffsetY / 4 +4, e.sprite=="flyer"?(drawW / 5):(drawW / 2.5), drawH / 6, 0, 0, Math.PI * 2);
-        ctx.fill();
+        // --- Push sprite as a drawItem ---
+        drawItems.push({
+          img: spriteImg,
+          sx: e.frameIndex * e.frameWidth,
+          sy: 0,
+          sw: e.frameWidth,
+          sh: e.frameHeight,
+          x: drawX,
+          y: drawY,
+          w: drawW,
+          h: drawH,
+          z: e.z || 10,
+        });
+      });
 
-        ctx.drawImage(
-          spriteImg,
-          e.frameIndex * e.frameWidth,
-          0,
-          e.frameWidth,
-          e.frameHeight,
-          drawX,
-          drawY,
-          drawW,
-          drawH
-        );
+      // --- Draw all drawItems sorted by z ---
+      drawItems.sort((a, b) => a.z - b.z);
+      drawItems.forEach((item) => {
+        if (item.shadow) {
+          ctx.fillStyle = "rgba(0,0,0,0.3)";
+          ctx.beginPath();
+          ctx.ellipse(item.x + item.w / 2, item.y, item.w, item.h, 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.drawImage(item.img, item.sx, item.sy, item.sw, item.sh, item.x, item.y, item.w, item.h);
+        }
       });
 
       requestAnimationFrame(gameLoop);
