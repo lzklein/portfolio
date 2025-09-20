@@ -103,6 +103,7 @@ const ENEMY_TYPES = {
     animSpeed: 800,
     speed: .8,
     hp: 20,
+    maxHp: 20,
     damage: 50,
     sprite: "boss",
     offsetAdjust: { x: -16, y: 0 },
@@ -271,6 +272,7 @@ export default function Game() {
       // --- Update & draw entities ---
       for (let i = entitiesRef.current.length - 1; i >= 0; i--) {
         const e = entitiesRef.current[i];
+        let skipMovement = false;
 
         // enemies with children
         if (e.hp <= 0) {
@@ -280,8 +282,40 @@ export default function Game() {
           continue;
         }
 
+        // --- Boss special behavior ---
+        if (e.type === "boss") {
+          // check thresholds
+          const hpPercent = e.hp / e.maxHp;
+          const nextThreshold = 1 - (e.phaseCount + 1) * 0.25;
+
+          if (!e.invulnerable && hpPercent <= nextThreshold) {
+            e.invulnerable = true;
+            e.phaseTimer = 3000;    // 3s invulnerability
+            e.spawnTimer = 500;     // first spawn at 0.5s
+            e.phaseCount++;
+          }
+
+          // while invulnerable: spawn imps, don't move
+          if (e.invulnerable) {
+            e.phaseTimer -= delta;
+            e.spawnTimer -= delta;
+
+            if (e.spawnTimer <= 0) {
+              spawnChildren(e, "imp", 1);
+              e.spawnTimer = 500; // reset 0.5s timer
+            }
+
+            if (e.phaseTimer <= 0) {
+              e.invulnerable = false; // back to normal
+            }
+
+            // Don't move during phase
+            skipMovement = true;
+          }
+        }
+
         // movement along path
-        if (e.path && e.path.length > 0) {
+        if (e.path && e.path.length > 0 && !skipMovement) {
           const [tx, ty] = e.path[0];
 
           const targetX = tx * TILE_SIZE + TILE_SIZE / 2 - e.frameWidth / 2;
@@ -404,6 +438,10 @@ export default function Game() {
       path,
       frameIndex: 0,
       lastFrameTime: 0,
+      phaseCount: 0,
+      invulnerable: false,
+      phaseTimer: 0,
+      spawnTimer: 0,
       ...cfg,
     });
   }
