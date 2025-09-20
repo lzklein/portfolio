@@ -50,6 +50,7 @@ const ENEMY_TYPES = {
     hp: 5,
     damage: 1,
     sprite: "imp",
+    z: 10,
     offsetAdjust: { x: -22, y: 0 },
   },
   elite: {
@@ -61,6 +62,7 @@ const ENEMY_TYPES = {
     hp: 20,
     damage: 5,
     sprite: "elite",
+    z: 10,
     offsetAdjust: { x: -14, y: 0 },
   },
   fast: {
@@ -72,6 +74,7 @@ const ENEMY_TYPES = {
     hp: 5,
     damage: 3,
     sprite: "fast",
+    z: 10,
     offsetAdjust: { x: -16, y: 0 },
   },
   splitter: {
@@ -83,6 +86,7 @@ const ENEMY_TYPES = {
     hp: 5,
     damage: 6,
     sprite: "splitter",
+    z: 10,
     offsetAdjust: { x: -16, y: 0 },
   },
   flyer: {
@@ -94,6 +98,7 @@ const ENEMY_TYPES = {
     hp: 10,
     damage: 5,
     sprite: "flyer",
+    z: 1000,
     offsetAdjust: { x: -16, y: 0 },
   },
   boss: {
@@ -101,11 +106,12 @@ const ENEMY_TYPES = {
     frameHeight: 32,
     frameCount: 4,
     animSpeed: 800,
-    speed: .8,
+    speed: .6,
     hp: 20,
     maxHp: 20,
     damage: 50,
     sprite: "boss",
+    z: 10,
     offsetAdjust: { x: -16, y: 0 },
   },
 };
@@ -269,12 +275,11 @@ export default function Game() {
         } else ctx.drawImage(img, x, y, w, h);
       });
 
-      // --- Update & draw entities ---
+      // --- Update entities (movement, animation, spawn children) ---
       for (let i = entitiesRef.current.length - 1; i >= 0; i--) {
         const e = entitiesRef.current[i];
         let skipMovement = false;
 
-        // enemies with children
         if (e.hp <= 0) {
           if (e.type === "splitter") spawnChildren(e, "imp", 3);
           else if (e.type === "fast") spawnChildren(e, "imp", 1);
@@ -282,68 +287,50 @@ export default function Game() {
           continue;
         }
 
-        // --- Boss special behavior ---
         if (e.type === "boss") {
-          // check thresholds
           const hpPercent = e.hp / e.maxHp;
           const nextThreshold = 1 - (e.phaseCount + 1) * 0.25;
-
           if (!e.invulnerable && hpPercent <= nextThreshold) {
             e.invulnerable = true;
-            e.phaseTimer = 3000;    // 3s invulnerability
-            e.spawnTimer = 500;     // first spawn at 0.5s
+            e.phaseTimer = 3000;
+            e.spawnTimer = 500;
             e.phaseCount++;
           }
 
-          // while invulnerable: spawn imps, don't move
           if (e.invulnerable) {
             e.phaseTimer -= delta;
             e.spawnTimer -= delta;
 
             if (e.spawnTimer <= 0) {
               spawnChildren(e, "imp", 1);
-              e.spawnTimer = 500; // reset 0.5s timer
+              e.spawnTimer = 500;
             }
 
-            if (e.phaseTimer <= 0) {
-              e.invulnerable = false; // back to normal
-            }
-
-            // Don't move during phase
+            if (e.phaseTimer <= 0) e.invulnerable = false;
             skipMovement = true;
           }
         }
 
-        // movement along path
         if (e.path && e.path.length > 0 && !skipMovement) {
           const [tx, ty] = e.path[0];
-
           const targetX = tx * TILE_SIZE + TILE_SIZE / 2 - e.frameWidth / 2;
           const targetY = ty * TILE_SIZE + TILE_SIZE / 2 - e.frameHeight / 2;
-
           const dx = targetX - e.x;
           const dy = targetY - e.y;
 
-          // move along the axis that has the largest remaining distance
           if (Math.abs(dx) > Math.abs(dy)) {
             const stepX = Math.sign(dx) * e.speed * SPEED * (delta / 16);
-            if (Math.abs(stepX) >= Math.abs(dx)) {
-              e.x = targetX; // snap to tile
-            } else e.x += stepX;
+            e.x += Math.abs(stepX) >= Math.abs(dx) ? dx : stepX;
           } else {
             const stepY = Math.sign(dy) * e.speed * SPEED * (delta / 16);
-            if (Math.abs(stepY) >= Math.abs(dy)) {
-              e.y = targetY; // snap to tile
-            } else e.y += stepY;
+            e.y += Math.abs(stepY) >= Math.abs(dy) ? dy : stepY;
           }
 
-          // check if reached tile center
           if (Math.abs(e.x - targetX) < 1 && Math.abs(e.y - targetY) < 1) {
             e.x = targetX;
             e.y = targetY;
             e.path.shift();
             if (e.path.length === 1) {
-              // reached goal next step -> damage player and despawn
               healthRef.current = Math.max(healthRef.current - e.damage, 0);
               entitiesRef.current.splice(i, 1);
               continue;
@@ -351,15 +338,26 @@ export default function Game() {
           }
         }
 
-        // --- Track grid coordinates for shoot mode ---
+        // Track grid coordinates
         e.gridX = Math.floor((e.x + e.frameWidth / 2) / TILE_SIZE);
         e.gridY = Math.floor((e.y + e.frameHeight * scale - 1) / TILE_SIZE);
 
-        // --- Animate ---
+        // Animate
         e.lastFrameTime = e.lastFrameTime || 0;
         e.frameIndex = e.frameIndex || 0;
         e.lastFrameTime += delta;
+        if (e.lastFrameTime > e.animSpeed) {
+          e.frameIndex = (e.frameIndex + 1) % e.frameCount;
+          e.lastFrameTime = 0;
+        }
+      }
 
+      // --- Draw entities sorted by z (after all updates) ---
+      const sortedEntities = entitiesRef.current
+        .slice()
+        .sort((a, b) => (a.z || 0) - (b.z || 0));
+
+      sortedEntities.forEach((e) => {
         let spriteImg;
         switch (e.sprite) {
           case "imp": spriteImg = impImg; break;
@@ -371,21 +369,14 @@ export default function Game() {
           default: spriteImg = impImg; break;
         }
 
-        if (e.lastFrameTime > e.animSpeed) {
-          e.frameIndex = (e.frameIndex + 1) % e.frameCount;
-          e.lastFrameTime = 0;
-        }
-
-        // shake + offsets
         const offsetX = Math.sin(timestamp / 80 + e.id * 0.7) * 3 + (Math.random() - 0.5);
         const offsetY = Math.cos(timestamp / 90 + e.id * 1.3) * 3 + (Math.random() - 0.5);
 
         const drawW = e.frameWidth * 2;
         const drawH = e.frameHeight * 2;
-        const verticalOffset = TILE_SIZE/2 - drawH/2;
-
+        const verticalOffset = TILE_SIZE / 2 - drawH / 2;
         const drawX = e.x - (drawW - TILE_SIZE) / 2 + offsetX + (e.offsetAdjust?.x || 0);
-        const drawY = e.y + verticalOffset + offsetY + (e.offsetAdjust?.y || 0) -16;
+        const drawY = e.y + verticalOffset + offsetY + (e.offsetAdjust?.y || 0) - 16;
 
         ctx.drawImage(
           spriteImg,
@@ -398,7 +389,7 @@ export default function Game() {
           drawW,
           drawH
         );
-      }
+      });
 
       requestAnimationFrame(gameLoop);
     }
@@ -469,10 +460,11 @@ export default function Game() {
         id,
         type,
         x: parent.x,
-        y: parent.y,
+        y: parent.y + parent.frameHeight, 
         path,
         frameIndex: 0,
         lastFrameTime: 0,
+        z: (parent.z || 10) + 20,
         ...cfg,
       });
     }
