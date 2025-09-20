@@ -382,7 +382,7 @@ export default function Game() {
         const shadowOffsetY = drawH / 2; // distance from the enemy sprite
         ctx.fillStyle = "rgba(0,0,0,0.3)";
         ctx.beginPath();
-        ctx.ellipse(drawX + drawW / 2, drawY + drawH - shadowOffsetY / 4 +4, drawW / 2.5, drawH / 6, 0, 0, Math.PI * 2);
+        ctx.ellipse(drawX + drawW / 2, drawY + drawH - shadowOffsetY / 4 +4, e.sprite=="flyer"?(drawW / 5):(drawW / 2.5), drawH / 6, 0, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.drawImage(
