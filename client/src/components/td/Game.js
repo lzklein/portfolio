@@ -382,10 +382,10 @@ export default function Game() {
         // --- Push shadow as a drawItem ---
         drawItems.push({
           shadow: true,
-          x: e.sprite === "flyer" ?  drawX+drawW/2.3: drawX+drawW/3.2,
+          x: e.sprite === "flyer" ? drawX+drawW/2.4 : drawX+drawW/3.33,
           y: drawY + drawH - offsetY / 4 ,
           w: e.sprite === "flyer" ? drawW / 5 : drawW / 2.5,
-          h: drawH / 6,
+          h: drawH / 8,
           z: 0,
         });
 
