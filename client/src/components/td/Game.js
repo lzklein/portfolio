@@ -227,13 +227,55 @@ export default function Game() {
 
       const scale = 2;
 
-      const drawItems = [];
+      // --- Draw towers + connectors ---
+const drawItems = [];
 
-      // Draw towers
-      towersRef.current.forEach((t) => {
-        const img = t.type === "arrow" ? arrowImg : wallImg;
-        ctx.drawImage(img, t.x * TILE_SIZE, t.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-      });
+// treat all towers as connectable
+towersRef.current.forEach((t) => {
+  const cx = t.x * TILE_SIZE;
+  const cy = t.y * TILE_SIZE;
+  const rowZ = 10 + t.y * 5;
+
+  const left = towersRef.current.some(({x, y}) => x === t.x - 1 && y === t.y);
+  const right = towersRef.current.some(({x, y}) => x === t.x + 1 && y === t.y);
+  const up = towersRef.current.some(({x, y}) => x === t.x && y === t.y - 1);
+  const down = towersRef.current.some(({x, y}) => x === t.x && y === t.y + 1);
+
+  const wLR = connectLR.width * scale;
+  const hLR = connectLR.height * scale;
+  const wUD = connectUD.width * scale;
+  const hUD = connectUD.height * scale;
+  const wDL = connectDL.width * scale;
+  const hDL = connectDL.height * scale;
+
+  if (left) drawItems.push({ img: connectLR, x: cx - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 6, w: wLR, h: hLR, z: rowZ + 2 });
+  if (right) drawItems.push({ img: connectLR, x: cx + TILE_SIZE - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 7, w: wLR, h: hLR, z: rowZ + 2 });
+  if (up) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 2 });
+  if (down) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy + TILE_SIZE - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 2 });
+
+  if (towersRef.current.some(({x, y}) => x === t.x + 1 && y === t.y + 1) && !right && !down)
+    drawItems.push({ img: connectDL, x: cx + TILE_SIZE - wDL / 2 + 2, y: cy + TILE_SIZE - hDL / 2 + 3, w: wDL, h: hDL, z: rowZ + 4, mirrorX: true });
+
+  if (towersRef.current.some(({x, y}) => x === t.x - 1 && y === t.y + 1) && !left && !down)
+    drawItems.push({ img: connectDL, x: cx - TILE_SIZE / 2 + 6, y: cy + TILE_SIZE - hDL / 2 + 3, w: wDL, h: hDL, z: rowZ + 4 });
+
+  // draw tower itself
+  const towerImg = t.type === "arrow" ? arrowImg : wallImg;
+  drawItems.push({ img: towerImg, x: cx, y: cy, w: TILE_SIZE, h: TILE_SIZE, z: rowZ + 3 });
+});
+
+// finally, draw all items sorted by z
+drawItems.sort((a, b) => a.z - b.z);
+drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
+  if (mirrorX) {
+    ctx.save();
+    ctx.translate(x + w / 2, y);
+    ctx.scale(-1, 1);
+    ctx.drawImage(img, -w / 2, 0, w, h);
+    ctx.restore();
+  } else ctx.drawImage(img, x, y, w, h);
+});
+
 
       // --- Update entities (movement, animation, spawn children) ---
       for (let i = entitiesRef.current.length - 1; i >= 0; i--) {
@@ -496,8 +538,13 @@ export default function Game() {
       }
 
     if (placeWallMode) {
+      // forbidden tile zones
       if (NO_BUILD_TILES.some(([nx, ny]) => nx === x && ny === y)) return;
 
+      // occupied tiles check
+      if (towersRef.current.some(t => t.x === x && t.y === y)) return;
+      
+      // valid tower check
       const towerCfg = TOWER_TYPES[selectedTower];
       if (!towerCfg) return;
 
