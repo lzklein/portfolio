@@ -531,9 +531,22 @@ export default function Game() {
       }
       return;
     }
-
+    
     if (placeWallMode) {
       if (INITIAL_GRID[y][x] === 0) {
+        const testGrid = INITIAL_GRID.map((row) => [...row]);
+        wallsRef.current.forEach(([wx, wy]) => {
+          testGrid[wy][wx] = 1;
+        });
+        testGrid[y][x] = 1;
+
+        // valid path check
+        const testPath = findPath(testGrid, START_TILE, GOAL_TILE);
+        if (!testPath) {
+          console.log("Invalid wall");
+          return;
+        }
+
         setWalls((prev) => {
           const newWalls = [...prev, [x, y]];
           wallsRef.current = newWalls;
