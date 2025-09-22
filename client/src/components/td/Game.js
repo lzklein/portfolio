@@ -9,6 +9,7 @@ import bossSheet from "./assets/sprites/boss-sheet.png";
 import hpImgSrc from "./assets/sprites/hp.png";
 import wallImgSrc from "./assets/sprites/wall.png";
 import arrowImgSrc from "./assets/sprites/arrow.png";
+import cannonImgSrc from "./assets/sprites/cannon.png";
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
@@ -126,7 +127,18 @@ const TOWER_TYPES = {
     sprite: "arrow",
     range: 100,
     damage: 1,
+    pierce: 2,
+    aoe: 0,
     fireRate: 800,
+    buildable: true,
+  },
+  cannon: {
+    sprite: "cannon",
+    range: 100,
+    damage: 1,
+    piere: 0,
+    aoe: 1,
+    fireRate: 400,
     buildable: true,
   },
 };
@@ -204,6 +216,7 @@ export default function Game() {
     const hpImg = new Image(); hpImg.src = hpImgSrc;
     const wallImg = new Image(); wallImg.src = wallImgSrc;
     const arrowImg = new Image(); arrowImg.src = arrowImgSrc;
+    const cannonImg = new Image(); cannonImg.src = cannonImgSrc;
     const connectLR = new Image(); connectLR.src = connectLRImgSrc;
     const connectUD = new Image(); connectUD.src = connectUDImgSrc;
     const connectDL = new Image(); connectDL.src = connectDLImgSrc;
@@ -258,7 +271,15 @@ export default function Game() {
         if (towersRef.current.some(({x, y}) => x === t.x - 1 && y === t.y + 1) && !left && !down)
           drawItems.push({ img: connectDL, x: cx - TILE_SIZE / 2 + 6, y: cy + TILE_SIZE - hDL / 2 + 3, w: wDL, h: hDL, z: rowZ + 4 });
 
-        const towerImg = t.type === "arrow" ? arrowImg : wallImg;
+        let towerImg;
+
+        switch(t.type){
+          case "wall": towerImg = wallImg; break;
+          case "arrow": towerImg = arrowImg; break;
+          case "cannon": towerImg = cannonImg; break;
+          default: towerImg = wallImg; break;
+        }
+
         drawItems.push({ img: towerImg, x: cx, y: cy, w: TILE_SIZE, h: TILE_SIZE, z: rowZ + 3 });
       });
 
@@ -373,7 +394,6 @@ export default function Game() {
         const verticalOffset = TILE_SIZE / 2 - drawH / 2;
         const drawX = e.x - (drawW - TILE_SIZE) / 2 + offsetX + (e.offsetAdjust?.x || 0);
         const drawY = e.y + verticalOffset + offsetY + (e.offsetAdjust?.y || 0) - 16;
-        const shadowCenterX = drawX + drawW / 2;
         
         drawItems.push({
           shadow: true,
@@ -622,6 +642,12 @@ export default function Game() {
             style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "arrow" ? "bold" : "normal" }}
           >
             Arrow
+          </button>
+          <button
+            onClick={() => setSelectedTower("cannon")}
+            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "cannon" ? "bold" : "normal" }}
+          >
+            Cannon
           </button>
         </div>
       )}
