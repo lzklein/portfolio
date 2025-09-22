@@ -8,6 +8,7 @@ import flyerSheet from "./assets/sprites/flyer-sheet.png";
 import bossSheet from "./assets/sprites/boss-sheet.png";
 import hpImgSrc from "./assets/sprites/hp.png";
 import wallImgSrc from "./assets/sprites/wall.png";
+import arrowImgSrc from './assets/sprites/arrow.png';
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
