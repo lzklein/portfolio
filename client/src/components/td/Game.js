@@ -8,7 +8,7 @@ import flyerSheet from "./assets/sprites/flyer-sheet.png";
 import bossSheet from "./assets/sprites/boss-sheet.png";
 import hpImgSrc from "./assets/sprites/hp.png";
 import wallImgSrc from "./assets/sprites/wall.png";
-import arrowImgSrc from "./assets/sprites/arrow.png"; // new arrow tower sprite
+import arrowImgSrc from "./assets/sprites/arrow.png";
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
@@ -188,7 +188,7 @@ export default function Game() {
     return null;
   }
 
-  // -------- Game Loop & Drawing (simplified for brevity) --------
+  // -------- Game Loop & Drawing --------
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -228,56 +228,53 @@ export default function Game() {
       const scale = 2;
 
       // --- Draw towers + connectors ---
-const drawItems = [];
+      const drawItems = [];
 
-// treat all towers as connectable
-towersRef.current.forEach((t) => {
-  const cx = t.x * TILE_SIZE;
-  const cy = t.y * TILE_SIZE;
-  const rowZ = 10 + t.y * 5;
+      towersRef.current.forEach((t) => {
+        const cx = t.x * TILE_SIZE;
+        const cy = t.y * TILE_SIZE;
+        const rowZ = 10 + t.y * 5;
 
-  const left = towersRef.current.some(({x, y}) => x === t.x - 1 && y === t.y);
-  const right = towersRef.current.some(({x, y}) => x === t.x + 1 && y === t.y);
-  const up = towersRef.current.some(({x, y}) => x === t.x && y === t.y - 1);
-  const down = towersRef.current.some(({x, y}) => x === t.x && y === t.y + 1);
+        const left = towersRef.current.some(({x, y}) => x === t.x - 1 && y === t.y);
+        const right = towersRef.current.some(({x, y}) => x === t.x + 1 && y === t.y);
+        const up = towersRef.current.some(({x, y}) => x === t.x && y === t.y - 1);
+        const down = towersRef.current.some(({x, y}) => x === t.x && y === t.y + 1);
 
-  const wLR = connectLR.width * scale;
-  const hLR = connectLR.height * scale;
-  const wUD = connectUD.width * scale;
-  const hUD = connectUD.height * scale;
-  const wDL = connectDL.width * scale;
-  const hDL = connectDL.height * scale;
+        const wLR = connectLR.width * scale;
+        const hLR = connectLR.height * scale;
+        const wUD = connectUD.width * scale;
+        const hUD = connectUD.height * scale;
+        const wDL = connectDL.width * scale;
+        const hDL = connectDL.height * scale;
 
-  if (left) drawItems.push({ img: connectLR, x: cx - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 6, w: wLR, h: hLR, z: rowZ + 2 });
-  if (right) drawItems.push({ img: connectLR, x: cx + TILE_SIZE - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 7, w: wLR, h: hLR, z: rowZ + 2 });
-  if (up) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 2 });
-  if (down) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy + TILE_SIZE - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 2 });
+        if (left) drawItems.push({ img: connectLR, x: cx - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 6, w: wLR, h: hLR, z: rowZ + 2 });
+        if (right) drawItems.push({ img: connectLR, x: cx + TILE_SIZE - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 7, w: wLR, h: hLR, z: rowZ + 2 });
+        if (up) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 2 });
+        if (down) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy + TILE_SIZE - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 2 });
 
-  if (towersRef.current.some(({x, y}) => x === t.x + 1 && y === t.y + 1) && !right && !down)
-    drawItems.push({ img: connectDL, x: cx + TILE_SIZE - wDL / 2 + 2, y: cy + TILE_SIZE - hDL / 2 + 3, w: wDL, h: hDL, z: rowZ + 4, mirrorX: true });
+        if (towersRef.current.some(({x, y}) => x === t.x + 1 && y === t.y + 1) && !right && !down)
+          drawItems.push({ img: connectDL, x: cx + TILE_SIZE - wDL / 2 + 2, y: cy + TILE_SIZE - hDL / 2 + 3, w: wDL, h: hDL, z: rowZ + 4, mirrorX: true });
 
-  if (towersRef.current.some(({x, y}) => x === t.x - 1 && y === t.y + 1) && !left && !down)
-    drawItems.push({ img: connectDL, x: cx - TILE_SIZE / 2 + 6, y: cy + TILE_SIZE - hDL / 2 + 3, w: wDL, h: hDL, z: rowZ + 4 });
+        if (towersRef.current.some(({x, y}) => x === t.x - 1 && y === t.y + 1) && !left && !down)
+          drawItems.push({ img: connectDL, x: cx - TILE_SIZE / 2 + 6, y: cy + TILE_SIZE - hDL / 2 + 3, w: wDL, h: hDL, z: rowZ + 4 });
 
-  // draw tower itself
-  const towerImg = t.type === "arrow" ? arrowImg : wallImg;
-  drawItems.push({ img: towerImg, x: cx, y: cy, w: TILE_SIZE, h: TILE_SIZE, z: rowZ + 3 });
-});
+        const towerImg = t.type === "arrow" ? arrowImg : wallImg;
+        drawItems.push({ img: towerImg, x: cx, y: cy, w: TILE_SIZE, h: TILE_SIZE, z: rowZ + 3 });
+      });
 
-// finally, draw all items sorted by z
-drawItems.sort((a, b) => a.z - b.z);
-drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
-  if (mirrorX) {
-    ctx.save();
-    ctx.translate(x + w / 2, y);
-    ctx.scale(-1, 1);
-    ctx.drawImage(img, -w / 2, 0, w, h);
-    ctx.restore();
-  } else ctx.drawImage(img, x, y, w, h);
-});
+      drawItems.sort((a, b) => a.z - b.z);
+      drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
+        if (mirrorX) {
+          ctx.save();
+          ctx.translate(x + w / 2, y);
+          ctx.scale(-1, 1);
+          ctx.drawImage(img, -w / 2, 0, w, h);
+          ctx.restore();
+        } else ctx.drawImage(img, x, y, w, h);
+      });
 
 
-      // --- Update entities (movement, animation, spawn children) ---
+      // --- Update entities ---
       for (let i = entitiesRef.current.length - 1; i >= 0; i--) {
         const e = entitiesRef.current[i];
         let skipMovement = false;
@@ -340,11 +337,9 @@ drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
           }
         }
 
-        // Track grid coordinates
         e.gridX = Math.floor((e.x + e.frameWidth / 2) / TILE_SIZE);
         e.gridY = Math.floor((e.y + e.frameHeight * scale - 1) / TILE_SIZE);
 
-        // Animate
         e.lastFrameTime = e.lastFrameTime || 0;
         e.frameIndex = e.frameIndex || 0;
         e.lastFrameTime += delta;
@@ -354,7 +349,6 @@ drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
         }
       }
 
-      // --- Draw entities sorted by z (after all updates) ---
       const sortedEntities = entitiesRef.current
         .slice()
         .sort((a, b) => (a.z || 0) - (b.z || 0));
@@ -381,7 +375,6 @@ drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
         const drawY = e.y + verticalOffset + offsetY + (e.offsetAdjust?.y || 0) - 16;
         const shadowCenterX = drawX + drawW / 2;
         
-        // --- Push shadow as a drawItem ---
         drawItems.push({
           shadow: true,
           x: e.sprite === "flyer" ? drawX+drawW/2.4 : drawX+drawW/3.33,
@@ -391,7 +384,6 @@ drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
           z: 0,
         });
 
-        // --- Push sprite as a drawItem ---
         drawItems.push({
           img: spriteImg,
           sx: e.frameIndex * e.frameWidth,
@@ -406,7 +398,6 @@ drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
         });
       });
 
-      // --- Draw all drawItems sorted by z ---
       drawItems.sort((a, b) => a.z - b.z);
       drawItems.forEach((item) => {
         if (item.shadow) {
@@ -440,7 +431,7 @@ drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
 
     let path = findPath(grid, START_TILE, GOAL_TILE);
     if (type === "flyer") {
-      // straight line from start to goal
+      // straight line to goal
       path = [START_TILE, GOAL_TILE];
     }
 
@@ -468,7 +459,7 @@ drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
   }
 
 
-    // ------- spawn children (used by splitter/fast on death) -------
+    // ------- spawn children -------
   function spawnChildren(parent, type, count) {
     for (let i = 0; i < count; i++) {
       const cfg = ENEMY_TYPES[type];
@@ -476,11 +467,10 @@ drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
 
       const id = nextId.current++;
       const grid = INITIAL_GRID.map((row) => [...row]);
-      towersRef.current.forEach(([wx, wy]) => {
+      towersRef.current.forEach(({x: wx, y: wy}) => {
         if (wy >= 0 && wy < grid.length && wx >= 0 && wx < grid[0].length) grid[wy][wx] = 1;
       });
 
-      // check parent tile location
       const parentTile = [Math.floor((parent.x + parent.frameWidth / 2) / TILE_SIZE), Math.floor((parent.y + parent.frameHeight / 2) / TILE_SIZE)];
       let path = findPath(grid, parentTile, GOAL_TILE);
       if (!path) path = [];
@@ -501,7 +491,7 @@ drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
     }
   }
 
-  // -------- Handle Canvas Click for Towers/Walls --------
+  // -------- Click Events --------
   function handleCanvasClick(e) {
     const rect = canvasRef.current.getBoundingClientRect();
       const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
@@ -519,7 +509,7 @@ drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
         for (let i = entitiesRef.current.length - 1; i >= 0; i--) {
           const ent = entitiesRef.current[i];
 
-          // check sprite edge overlap
+          // sprite edge overlap
           const spriteLeft = ent.x + (ent.offsetAdjust?.x || 0);
           const spriteRight = ent.x + ent.frameWidth * drawScale + (ent.offsetAdjust?.x || 0);
           const spriteTop = ent.y + (ent.offsetAdjust?.y || 0);
@@ -531,7 +521,9 @@ drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
           const bottomTile = Math.floor((spriteBottom - 1) / TILE_SIZE);
 
           if (x >= leftTile && x <= rightTile && y >= topTile && y <= bottomTile) {
-            ent.hp -= 1;
+            if (!ent.invulnerable) { 
+                ent.hp -= 1;
+            }          
           }
         }
         return;
@@ -548,19 +540,18 @@ drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
       const towerCfg = TOWER_TYPES[selectedTower];
       if (!towerCfg) return;
 
+      // valid path check
       if (INITIAL_GRID[y][x] === 0) {
-          // make a temp grid copy with the new wall
           const testGrid = INITIAL_GRID.map((row) => [...row]);
           towersRef.current.forEach(({x: wx, y: wy}) => {
             testGrid[wy][wx] = 1;
           });
           testGrid[y][x] = 1;
 
-          // check if path still exists
           const testPath = findPath(testGrid, START_TILE, GOAL_TILE);
           if (!testPath) {
             console.log("Invalid wall: would block all paths!");
-            return; // cancel placement
+            return;
           }
       }
 
