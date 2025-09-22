@@ -8,7 +8,7 @@ import flyerSheet from "./assets/sprites/flyer-sheet.png";
 import bossSheet from "./assets/sprites/boss-sheet.png";
 import hpImgSrc from "./assets/sprites/hp.png";
 import wallImgSrc from "./assets/sprites/wall.png";
-import arrowImgSrc from './assets/sprites/arrow.png';
+import arrowImgSrc from "./assets/sprites/arrow.png"; // new arrow tower sprite
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
@@ -117,19 +117,36 @@ const ENEMY_TYPES = {
   },
 };
 
+const TOWER_TYPES = {
+  wall: {
+    sprite: "wall",
+    buildable: true,
+  },
+  arrow: {
+    sprite: "arrow",
+    range: 100,
+    damage: 1,
+    fireRate: 800,
+    buildable: true,
+  },
+};
+
+
 export default function Game() {
   const canvasRef = useRef(null);
   const entitiesRef = useRef([]);
-  const nextId = useRef(0);
-  const wallsRef = useRef([]);
+  const towersRef = useRef([]);
 
+  const nextId = useRef(0);
   const healthRef = useRef(INITIAL_HEALTH);
+
   const [placeWallMode, setPlaceWallMode] = useState(false);
   const [demolishMode, setDemolishMode] = useState(false);
-  const [walls, setWalls] = useState([]);
   const [shootMode, setShootMode] = useState(false);
+  const [selectedTower, setSelectedTower] = useState("wall");
+  const [towers, setTowers] = useState([]);
 
-  // ------- Pathfinding (BFS) -------
+  // -------- Pathfinding (BFS) --------
   function findPath(grid, start, goal) {
     const rows = grid.length;
     const cols = grid[0].length;
@@ -171,47 +188,25 @@ export default function Game() {
     return null;
   }
 
-  // ------- Main game loop & drawing -------
+  // -------- Game Loop & Drawing (simplified for brevity) --------
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     ctx.imageSmoothingEnabled = false;
 
-    const board = new Image();
-    board.src = boardImg;
-
-    const impImg = new Image();
-    impImg.src = impSheet;
-
-    const eliteImg = new Image();
-    eliteImg.src = eliteSheet;
-
-    const fastImg = new Image();
-    fastImg.src = fastSheet;
-
-    const splitterImg = new Image();
-    splitterImg.src = splitterSheet;
-
-    const flyerImg = new Image();
-    flyerImg.src = flyerSheet;
-
-    const bossImg = new Image();
-    bossImg.src = bossSheet;
-
-    const hpImg = new Image();
-    hpImg.src = hpImgSrc;
-
-    const wallImg = new Image();
-    wallImg.src = wallImgSrc;
-
-    const connectLR = new Image();
-    connectLR.src = connectLRImgSrc;
-
-    const connectUD = new Image();
-    connectUD.src = connectUDImgSrc;
-
-    const connectDL = new Image();
-    connectDL.src = connectDLImgSrc;
+    const board = new Image(); board.src = boardImg;
+    const impImg = new Image(); impImg.src = impSheet;
+    const eliteImg = new Image(); eliteImg.src = eliteSheet;
+    const fastImg = new Image(); fastImg.src = fastSheet;
+    const splitterImg = new Image(); splitterImg.src = splitterSheet;
+    const flyerImg = new Image(); flyerImg.src = flyerSheet;
+    const bossImg = new Image(); bossImg.src = bossSheet;
+    const hpImg = new Image(); hpImg.src = hpImgSrc;
+    const wallImg = new Image(); wallImg.src = wallImgSrc;
+    const arrowImg = new Image(); arrowImg.src = arrowImgSrc;
+    const connectLR = new Image(); connectLR.src = connectLRImgSrc;
+    const connectUD = new Image(); connectUD.src = connectUDImgSrc;
+    const connectDL = new Image(); connectDL.src = connectDLImgSrc;
 
     let lastTime = performance.now();
 
@@ -232,48 +227,12 @@ export default function Game() {
 
       const scale = 2;
 
-      // --- Draw walls + connectors ---
       const drawItems = [];
-      wallsRef.current.forEach(([wx, wy]) => {
-        const cx = wx * TILE_SIZE;
-        const cy = wy * TILE_SIZE;
-        const rowZ = 10 + wy * 5;
 
-        const left = wallsRef.current.some(([x, y]) => x === wx - 1 && y === wy);
-        const right = wallsRef.current.some(([x, y]) => x === wx + 1 && y === wy);
-        const up = wallsRef.current.some(([x, y]) => x === wx && y === wy - 1);
-        const down = wallsRef.current.some(([x, y]) => x === wx && y === wy + 1);
-
-        const wLR = connectLR.width * scale;
-        const hLR = connectLR.height * scale;
-        const wUD = connectUD.width * scale;
-        const hUD = connectUD.height * scale;
-        const wDL = connectDL.width * scale;
-        const hDL = connectDL.height * scale;
-
-        if (left) drawItems.push({ img: connectLR, x: cx - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 6, w: wLR, h: hLR, z: rowZ + 2 });
-        if (right) drawItems.push({ img: connectLR, x: cx + TILE_SIZE - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 6, w: wLR, h: hLR, z: rowZ + 2 });
-        if (up) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 4 });
-        if (down) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy + TILE_SIZE - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 4 });
-
-        if (wallsRef.current.some(([x, y]) => x === wx + 1 && y === wy + 1) && !right && !down)
-          drawItems.push({ img: connectDL, x: cx + TILE_SIZE - wDL / 2 - 4, y: cy + TILE_SIZE - hDL / 2 + 1, w: wDL, h: hDL, z: rowZ + 4, mirrorX: true });
-
-        if (wallsRef.current.some(([x, y]) => x === wx - 1 && y === wy + 1) && !left && !down)
-          drawItems.push({ img: connectDL, x: cx - TILE_SIZE / 2 + 16, y: cy + TILE_SIZE - hDL / 2 + 1, w: wDL, h: hDL, z: rowZ + 4 });
-
-        drawItems.push({ img: wallImg, x: cx, y: cy, w: TILE_SIZE, h: TILE_SIZE, z: rowZ + 3 });
-      });
-
-      drawItems.sort((a, b) => a.z - b.z);
-      drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
-        if (mirrorX) {
-          ctx.save();
-          ctx.translate(x + w / 2, y);
-          ctx.scale(-1, 1);
-          ctx.drawImage(img, -w / 2, 0, w, h);
-          ctx.restore();
-        } else ctx.drawImage(img, x, y, w, h);
+      // Draw towers
+      towersRef.current.forEach((t) => {
+        const img = t.type === "arrow" ? arrowImg : wallImg;
+        ctx.drawImage(img, t.x * TILE_SIZE, t.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
       });
 
       // --- Update entities (movement, animation, spawn children) ---
@@ -418,20 +377,22 @@ export default function Game() {
         }
       });
 
+
       requestAnimationFrame(gameLoop);
     }
 
     requestAnimationFrame(gameLoop);
   }, []);
 
-  // ------- spawn entity -------
+
+  // ------- spawn enemy -------
   function spawnEntity(type) {
     const cfg = ENEMY_TYPES[type];
     if (!cfg) return;
 
     const id = nextId.current++;
     const grid = INITIAL_GRID.map((row) => [...row]);
-    wallsRef.current.forEach(([wx, wy]) => {
+    towersRef.current.forEach(({x: wx, y: wy}) => {
       if (wy >= 0 && wy < grid.length && wx >= 0 && wx < grid[0].length) grid[wy][wx] = 1;
     });
 
@@ -464,7 +425,8 @@ export default function Game() {
     });
   }
 
-  // ------- spawn children (used by splitter/fast on death) -------
+
+    // ------- spawn children (used by splitter/fast on death) -------
   function spawnChildren(parent, type, count) {
     for (let i = 0; i < count; i++) {
       const cfg = ENEMY_TYPES[type];
@@ -472,7 +434,7 @@ export default function Game() {
 
       const id = nextId.current++;
       const grid = INITIAL_GRID.map((row) => [...row]);
-      wallsRef.current.forEach(([wx, wy]) => {
+      towersRef.current.forEach(([wx, wy]) => {
         if (wy >= 0 && wy < grid.length && wx >= 0 && wx < grid[0].length) grid[wy][wx] = 1;
       });
 
@@ -497,73 +459,77 @@ export default function Game() {
     }
   }
 
-  // ------- unified click handler (place/demolish/shoot) -------
+  // -------- Handle Canvas Click for Towers/Walls --------
   function handleCanvasClick(e) {
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
-    const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
+      const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
+      const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
 
-    if (y < 0 || y >= INITIAL_GRID.length || x < 0 || x >= INITIAL_GRID[0].length) return;
+      if (y < 0 || y >= INITIAL_GRID.length || x < 0 || x >= INITIAL_GRID[0].length) return;
 
-    if (!shootMode) {
-      if (NO_BUILD_TILES.some(([nx, ny]) => nx === x && ny === y)) return;
-    }
-
-    if (shootMode) {
-      const drawScale = 2;
-
-      for (let i = entitiesRef.current.length - 1; i >= 0; i--) {
-        const ent = entitiesRef.current[i];
-
-        // check sprite edge overlap
-        const spriteLeft = ent.x + (ent.offsetAdjust?.x || 0);
-        const spriteRight = ent.x + ent.frameWidth * drawScale + (ent.offsetAdjust?.x || 0);
-        const spriteTop = ent.y + (ent.offsetAdjust?.y || 0);
-        const spriteBottom = ent.y + ent.frameHeight * drawScale + (ent.offsetAdjust?.y || 0);
-
-        const leftTile = Math.floor(spriteLeft / TILE_SIZE);
-        const rightTile = Math.floor((spriteRight - 1) / TILE_SIZE);
-        const topTile = Math.floor(spriteTop / TILE_SIZE);
-        const bottomTile = Math.floor((spriteBottom - 1) / TILE_SIZE);
-
-        if (x >= leftTile && x <= rightTile && y >= topTile && y <= bottomTile) {
-          ent.hp -= 1;
-        }
+      if (!shootMode) {
+        if (NO_BUILD_TILES.some(([nx, ny]) => nx === x && ny === y)) return;
       }
-      return;
-    }
-    
+
+      if (shootMode) {
+        const drawScale = 2;
+
+        for (let i = entitiesRef.current.length - 1; i >= 0; i--) {
+          const ent = entitiesRef.current[i];
+
+          // check sprite edge overlap
+          const spriteLeft = ent.x + (ent.offsetAdjust?.x || 0);
+          const spriteRight = ent.x + ent.frameWidth * drawScale + (ent.offsetAdjust?.x || 0);
+          const spriteTop = ent.y + (ent.offsetAdjust?.y || 0);
+          const spriteBottom = ent.y + ent.frameHeight * drawScale + (ent.offsetAdjust?.y || 0);
+
+          const leftTile = Math.floor(spriteLeft / TILE_SIZE);
+          const rightTile = Math.floor((spriteRight - 1) / TILE_SIZE);
+          const topTile = Math.floor(spriteTop / TILE_SIZE);
+          const bottomTile = Math.floor((spriteBottom - 1) / TILE_SIZE);
+
+          if (x >= leftTile && x <= rightTile && y >= topTile && y <= bottomTile) {
+            ent.hp -= 1;
+          }
+        }
+        return;
+      }
+
     if (placeWallMode) {
+      if (NO_BUILD_TILES.some(([nx, ny]) => nx === x && ny === y)) return;
+
+      const towerCfg = TOWER_TYPES[selectedTower];
+      if (!towerCfg) return;
+
       if (INITIAL_GRID[y][x] === 0) {
-        const testGrid = INITIAL_GRID.map((row) => [...row]);
-        wallsRef.current.forEach(([wx, wy]) => {
-          testGrid[wy][wx] = 1;
-        });
-        testGrid[y][x] = 1;
+          // make a temp grid copy with the new wall
+          const testGrid = INITIAL_GRID.map((row) => [...row]);
+          towersRef.current.forEach(({x: wx, y: wy}) => {
+            testGrid[wy][wx] = 1;
+          });
+          testGrid[y][x] = 1;
 
-        // valid path check
-        const testPath = findPath(testGrid, START_TILE, GOAL_TILE);
-        if (!testPath) {
-          console.log("Invalid wall");
-          return;
-        }
+          // check if path still exists
+          const testPath = findPath(testGrid, START_TILE, GOAL_TILE);
+          if (!testPath) {
+            console.log("Invalid wall: would block all paths!");
+            return; // cancel placement
+          }
+      }
 
-        setWalls((prev) => {
-          const newWalls = [...prev, [x, y]];
-          wallsRef.current = newWalls;
-          INITIAL_GRID[y][x] = 1;
-          return newWalls;
-        });
-      }
-    } else if (demolishMode) {
-      if (INITIAL_GRID[y][x] === 1) {
-        setWalls((prev) => {
-          const newWalls = prev.filter(([wx, wy]) => !(wx === x && wy === y));
-          wallsRef.current = newWalls;
-          INITIAL_GRID[y][x] = 0;
-          return newWalls;
-        });
-      }
+      setTowers((prev) => {
+        const newTowers = [...prev, { type: selectedTower, x, y }];
+        towersRef.current = newTowers;
+        return newTowers;
+      });
+    }
+
+    if (demolishMode) {
+      setTowers((prev) => {
+        const newTowers = prev.filter((t) => !(t.x === x && t.y === y));
+        towersRef.current = newTowers;
+        return newTowers;
+      });
     }
   }
 
@@ -603,6 +569,25 @@ export default function Game() {
       >
         {shootMode ? "Shoot Mode: ON" : "Shoot Mode: OFF"}
       </button>
+
+      {/* Tower Selection */}
+      {placeWallMode && (
+        <div style={{ marginTop: 10 }}>
+          <button
+            onClick={() => setSelectedTower("wall")}
+            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "wall" ? "bold" : "normal" }}
+          >
+            Wall
+          </button>
+          <button
+            onClick={() => setSelectedTower("arrow")}
+            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "arrow" ? "bold" : "normal" }}
+          >
+            Arrow
+          </button>
+        </div>
+      )}
+
       <br />
       <canvas
         ref={canvasRef}
