@@ -10,6 +10,7 @@ import hpImgSrc from "./assets/sprites/hp.png";
 import wallImgSrc from "./assets/sprites/wall.png";
 import arrowImgSrc from "./assets/sprites/arrow.png";
 import cannonImgSrc from "./assets/sprites/cannon.png";
+import slowImgSrc from "./assets/sprites/slow.png";
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
@@ -141,6 +142,15 @@ const TOWER_TYPES = {
     fireRate: 400,
     buildable: true,
   },
+    slow: {
+    sprite: "slow",
+    range: 100,
+    damage: 0,
+    piere: 0,
+    aoe: 1,
+    fireRate: 600,
+    buildable: true,
+  },
 };
 
 
@@ -217,6 +227,7 @@ export default function Game() {
     const wallImg = new Image(); wallImg.src = wallImgSrc;
     const arrowImg = new Image(); arrowImg.src = arrowImgSrc;
     const cannonImg = new Image(); cannonImg.src = cannonImgSrc;
+    const slowImg = new Image(); slowImg.src = slowImgSrc;
     const connectLR = new Image(); connectLR.src = connectLRImgSrc;
     const connectUD = new Image(); connectUD.src = connectUDImgSrc;
     const connectDL = new Image(); connectDL.src = connectDLImgSrc;
@@ -277,6 +288,7 @@ export default function Game() {
           case "wall": towerImg = wallImg; break;
           case "arrow": towerImg = arrowImg; break;
           case "cannon": towerImg = cannonImg; break;
+          case "slow": towerImg = slowImg; break;
           default: towerImg = wallImg; break;
         }
 
@@ -648,6 +660,12 @@ export default function Game() {
             style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "cannon" ? "bold" : "normal" }}
           >
             Cannon
+          </button>
+          <button
+            onClick={() => setSelectedTower("slow")}
+            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "slow" ? "bold" : "normal" }}
+          >
+            Slow
           </button>
         </div>
       )}
