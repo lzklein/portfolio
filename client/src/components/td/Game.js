@@ -11,6 +11,7 @@ import wallImgSrc from "./assets/sprites/wall.png";
 import arrowImgSrc from "./assets/sprites/arrow.png";
 import cannonImgSrc from "./assets/sprites/cannon.png";
 import slowImgSrc from "./assets/sprites/slow.png";
+import acidImgSrc from "./assets/sprites/acid.png";
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
@@ -137,7 +138,7 @@ const TOWER_TYPES = {
     sprite: "cannon",
     range: 100,
     damage: 1,
-    piere: 0,
+    pierce: 0,
     aoe: 1,
     fireRate: 400,
     buildable: true,
@@ -146,9 +147,18 @@ const TOWER_TYPES = {
     sprite: "slow",
     range: 100,
     damage: 0,
-    piere: 0,
+    pierce: 0,
     aoe: 1,
     fireRate: 600,
+    buildable: true,
+  },
+    acid: {
+    sprite: "acid",
+    range: 1,
+    damage: 800,
+    pierce: 0,
+    aoe: 1,
+    fireRate: 1200,
     buildable: true,
   },
 };
@@ -228,6 +238,7 @@ export default function Game() {
     const arrowImg = new Image(); arrowImg.src = arrowImgSrc;
     const cannonImg = new Image(); cannonImg.src = cannonImgSrc;
     const slowImg = new Image(); slowImg.src = slowImgSrc;
+    const acidImg = new Image(); acidImg.src = acidImgSrc;
     const connectLR = new Image(); connectLR.src = connectLRImgSrc;
     const connectUD = new Image(); connectUD.src = connectUDImgSrc;
     const connectDL = new Image(); connectDL.src = connectDLImgSrc;
@@ -289,6 +300,7 @@ export default function Game() {
           case "arrow": towerImg = arrowImg; break;
           case "cannon": towerImg = cannonImg; break;
           case "slow": towerImg = slowImg; break;
+          case "acid": towerImg = acidImg; break;
           default: towerImg = wallImg; break;
         }
 
@@ -671,6 +683,12 @@ export default function Game() {
             style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "slow" ? "bold" : "normal" }}
           >
             Slow
+          </button>
+          <button
+            onClick={() => setSelectedTower("acid")}
+            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "acid" ? "bold" : "normal" }}
+          >
+            Acid
           </button>
         </div>
       )}
