@@ -161,6 +161,33 @@ const TOWER_TYPES = {
     fireRate: 1200,
     buildable: true,
   },
+  sniper: {
+    sprite: "sniper",
+    range: 100000,
+    damage: 1000,
+    pierce: 0,
+    aoe: 0,
+    fireRate: 600,
+    buildable: true,
+  },
+  chain: {
+    sprite: "chain",
+    range: 100,
+    damage: 800,
+    pierce: 0,
+    aoe: 0,
+    fireRate: 1200,
+    buildable: true,
+  },
+  buff: {
+    sprite: "buff",
+    range: 2000,
+    damage: 0,
+    pierce: 0,
+    aoe: 0,
+    fireRate: 1000000,
+    buildable: true,
+  },
 };
 
 
