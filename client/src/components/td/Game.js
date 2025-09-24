@@ -15,7 +15,7 @@ import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
 
-const SPEED = 0.5;
+const SPEED = 0.4;
 const TILE_SIZE = 64;
 const INITIAL_HEALTH = 100;
 
@@ -72,13 +72,13 @@ const ENEMY_TYPES = {
     frameWidth: 24,
     frameHeight: 16,
     frameCount: 4,
-    animSpeed: 400,
-    speed: 2,
+    animSpeed: 350,
+    speed: 2.25,
     hp: 5,
     damage: 3,
     sprite: "fast",
-    z: 10,
-    offsetAdjust: { x: -16, y: 0 },
+    z: 9,
+    offsetAdjust: { x: -16, y: -10 },
   },
   splitter: {
     frameWidth: 24,
@@ -307,7 +307,7 @@ export default function Game() {
       });
 
 
-      // --- Update entities ---
+      // --- Draw entities ---
       for (let i = entitiesRef.current.length - 1; i >= 0; i--) {
         const e = entitiesRef.current[i];
         let skipMovement = false;
@@ -361,6 +361,11 @@ export default function Game() {
           if (Math.abs(e.x - targetX) < 1 && Math.abs(e.y - targetY) < 1) {
             e.x = targetX;
             e.y = targetY;
+
+            e.z = (e.z || 0) + 1;
+
+            console.log(e.z)
+
             e.path.shift();
             if (e.path.length === 1) {
               healthRef.current = Math.max(healthRef.current - e.damage, 0);
