@@ -12,6 +12,7 @@ import arrowImgSrc from "./assets/sprites/arrow.png";
 import cannonImgSrc from "./assets/sprites/cannon.png";
 import slowImgSrc from "./assets/sprites/slow.png";
 import acidImgSrc from "./assets/sprites/acid.png";
+import chainImgSrc from "./assets/sprites/chain.png";
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
@@ -161,15 +162,6 @@ const TOWER_TYPES = {
     fireRate: 1200,
     buildable: true,
   },
-  sniper: {
-    sprite: "sniper",
-    range: 100000,
-    damage: 1000,
-    pierce: 0,
-    aoe: 0,
-    fireRate: 600,
-    buildable: true,
-  },
   chain: {
     sprite: "chain",
     range: 100,
@@ -177,6 +169,15 @@ const TOWER_TYPES = {
     pierce: 0,
     aoe: 0,
     fireRate: 1200,
+    buildable: true,
+  },
+  sniper: {
+    sprite: "sniper",
+    range: 100000,
+    damage: 1000,
+    pierce: 0,
+    aoe: 0,
+    fireRate: 600,
     buildable: true,
   },
   buff: {
@@ -266,6 +267,7 @@ export default function Game() {
     const cannonImg = new Image(); cannonImg.src = cannonImgSrc;
     const slowImg = new Image(); slowImg.src = slowImgSrc;
     const acidImg = new Image(); acidImg.src = acidImgSrc;
+    const chainImg = new Image(); chainImg.src = chainImgSrc;
     const connectLR = new Image(); connectLR.src = connectLRImgSrc;
     const connectUD = new Image(); connectUD.src = connectUDImgSrc;
     const connectDL = new Image(); connectDL.src = connectDLImgSrc;
@@ -328,6 +330,7 @@ export default function Game() {
           case "cannon": towerImg = cannonImg; break;
           case "slow": towerImg = slowImg; break;
           case "acid": towerImg = acidImg; break;
+          case "chain": towerImg = chainImg; break;
           default: towerImg = wallImg; break;
         }
 
@@ -716,6 +719,12 @@ export default function Game() {
             style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "acid" ? "bold" : "normal" }}
           >
             Acid
+          </button>
+          <button
+            onClick={() => setSelectedTower("chain")}
+            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "chain" ? "bold" : "normal" }}
+          >
+            Chain
           </button>
         </div>
       )}
