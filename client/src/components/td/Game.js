@@ -313,7 +313,7 @@ export default function Game() {
 
         if (left) drawItems.push({ img: connectLR, x: cx - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 6, w: wLR, h: hLR, z: rowZ + 2 });
         if (right) drawItems.push({ img: connectLR, x: cx + TILE_SIZE - wLR / 2, y: cy + (TILE_SIZE - hLR) / 2 + 7, w: wLR, h: hLR, z: rowZ + 2 });
-        if (up) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 2 });
+        if (up) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy - hUD / 2 + 2, w: wUD, h: hUD, z: rowZ + 2 });
         if (down) drawItems.push({ img: connectUD, x: cx + (TILE_SIZE - wUD) / 2, y: cy + TILE_SIZE - hUD / 2 - 6, w: wUD, h: hUD, z: rowZ + 2 });
 
         if (towersRef.current.some(({x, y}) => x === t.x + 1 && y === t.y + 1) && !right && !down)
