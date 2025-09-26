@@ -14,6 +14,7 @@ import slowImgSrc from "./assets/sprites/slow.png";
 import acidImgSrc from "./assets/sprites/acid.png";
 import chainImgSrc from "./assets/sprites/chain.png";
 import sniperImgSrc from "./assets/sprites/sniper.png";
+import buffImgSrc from "./assets/sprites/buff.png";
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
@@ -270,6 +271,7 @@ export default function Game() {
     const acidImg = new Image(); acidImg.src = acidImgSrc;
     const chainImg = new Image(); chainImg.src = chainImgSrc;
     const sniperImg = new Image(); sniperImg.src = sniperImgSrc;
+    const buffImg = new Image(); buffImg.src = buffImgSrc;
     const connectLR = new Image(); connectLR.src = connectLRImgSrc;
     const connectUD = new Image(); connectUD.src = connectUDImgSrc;
     const connectDL = new Image(); connectDL.src = connectDLImgSrc;
@@ -334,6 +336,7 @@ export default function Game() {
           case "acid": towerImg = acidImg; break;
           case "chain": towerImg = chainImg; break;
           case "sniper": towerImg = sniperImg; break;
+          case "buff": towerImg = buffImg; break;
           default: towerImg = wallImg; break;
         }
 
@@ -735,6 +738,13 @@ export default function Game() {
           >
             Sniper
           </button>
+          <button
+            onClick={() => setSelectedTower("buff")}
+            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "buff" ? "bold" : "normal" }}
+          >
+            Buff
+          </button>
+          
         </div>
       )}
 
