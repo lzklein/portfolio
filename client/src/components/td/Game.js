@@ -203,6 +203,7 @@ export default function Game() {
   const canvasRef = useRef(null);
   const entitiesRef = useRef([]);
   const towersRef = useRef([]);
+  const projectilesRef = useRef([]);
 
   const nextId = useRef(0);
   const healthRef = useRef(INITIAL_HEALTH);
@@ -306,7 +307,6 @@ export default function Game() {
         }
       });
 
-
       // --- Draw HP ---
       const hpX = canvas.width - 150;
       const hpY = 10;
@@ -318,112 +318,122 @@ export default function Game() {
       const scale = 2;
 
       // === towers firing ===
-      setTowers((prev) => {
-        const now = Date.now();
-        const newProjectiles = [];
+      const now = Date.now();
+      towersRef.current.forEach((tower) => {
+        if (!tower.fireRate) return; // non-firing towers
+        if (!tower.lastShotTime) tower.lastShotTime = 0;
 
-        prev.forEach((tower) => {
-          if (tower.fireRate === 0) return; // non firing towers
+        if (now - tower.lastShotTime >= tower.fireRate) {
+          // find enemies in range (distance in pixels)
+          const inRange = entitiesRef.current.filter((e) => {
+            const dx = (e.x + e.frameWidth / 2) - ((tower.x + 0.5) * TILE_SIZE);
+            const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
+            return Math.sqrt(dx * dx + dy * dy) <= tower.range;
+          });
 
-          if (now - tower.lastShotTime >= tower.fireRate) {
-            const inRange = entitiesRef.current.filter((e) => {
-              const dx = (e.x - tower.x) * TILE_SIZE;
-              const dy = (e.y - tower.y) * TILE_SIZE;
-              return Math.sqrt(dx * dx + dy * dy) <= tower.range * TILE_SIZE;
-            });
+          if (inRange.length === 0) return;
 
-            if (inRange.length > 0) {
-              const target = inRange.reduce((farthest, e) => {
-                return (farthest === null || e.x > farthest.x) ? e : farthest;
-              }, null);
-              tower.lastShotTime = now;
+          // target the farthest enemy (or customize targeting)
+          const target = inRange.reduce((farthest, e) => {
+            return (farthest === null || e.x > farthest.x) ? e : farthest;
+          }, null);
 
-              newProjectiles.push({
-                id: Date.now() + Math.random(),
-                x: (tower.x + 0.5) * TILE_SIZE,
-                y: (tower.y + 0.5) * TILE_SIZE,
-                targetId: target.id,
-                speed: 8,
-                damage: tower.damage,
-                pierce: tower.pierce,
-                aoe: tower.aoe,
-                range: tower.range * TILE_SIZE,
-                distanceTraveled: 0
-              });
-            }
-          }
-        });
+          tower.lastShotTime = now;
 
-        if (newProjectiles.length > 0) {
-          setProjectiles((old) => [...old, ...newProjectiles]);
+          projectilesRef.current.push({
+            id: Date.now() + Math.random(),
+            x: (tower.x + 0.5) * TILE_SIZE,
+            y: (tower.y + 0.5) * TILE_SIZE,
+            targetId: target.id,
+            speed: 6,
+            damage: tower.damage,
+            pierce: tower.pierce,
+            aoe: tower.aoe,
+            range: tower.range,
+            distanceTraveled: 0
+          });
         }
-        return [...prev];
       });
 
       // === update projectiles ===
-      setProjectiles((prev) => {
-        const updated = [];
+      const updatedProjectiles = [];
 
-        prev.forEach((p) => {
-          const target = entitiesRef.current.find((e) => e.id === p.targetId);
-          if (!target) return; // target dead
+      projectilesRef.current.forEach((p) => {
+        const target = entitiesRef.current.find((e) => e.id === p.targetId);
+        if (!target) return; // target dead
 
-          const dx = target.x * TILE_SIZE - p.x;
-          const dy = target.y * TILE_SIZE - p.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+        const dx = (target.x + target.frameWidth / 2) - p.x;
+        const dy = (target.y + target.frameHeight / 2) - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist < p.speed) {
-            // impact!
-            applyDamage(target, p);
+        if (dist < p.speed) {
+          // impact
+          applyDamage(target, p);
 
-            // aoe square
-            if (p.aoe > 0) {
-              entitiesRef.current.forEach((e) => {
-                const ex = Math.floor(e.x);
-                const ey = Math.floor(e.y);
-                const tx = Math.floor(target.x);
-                const ty = Math.floor(target.y);
-                if (
-                  Math.abs(ex - tx) <= p.aoe - 1 &&
-                  Math.abs(ey - ty) <= p.aoe - 1
-                ) {
-                  applyDamage(e, p);
-                }
-              });
-            }
-
-            const nextPierce = p.pierce - 1;
-            if (nextPierce >= 0) {
-              updated.push({
-                ...p,
-                pierce: nextPierce
-              });
-            }
-            return;
-          }
-
-          const moveX = (dx / dist) * p.speed;
-          const moveY = (dy / dist) * p.speed;
-          const newX = p.x + moveX;
-          const newY = p.y + moveY;
-          const newDistTraveled = p.distanceTraveled + p.speed;
-
-          if (newDistTraveled <= p.range) {
-            updated.push({
-              ...p,
-              x: newX,
-              y: newY,
-              distanceTraveled: newDistTraveled
+          // aoe
+          if (p.aoe > 0) {
+            entitiesRef.current.forEach((e) => {
+              const ex = Math.floor(e.x);
+              const ey = Math.floor(e.y);
+              const tx = Math.floor(target.x);
+              const ty = Math.floor(target.y);
+              if (Math.abs(ex - tx) <= p.aoe - 1 && Math.abs(ey - ty) <= p.aoe - 1) {
+                applyDamage(e, p);
+              }
             });
           }
-        });
 
-        return updated;
+          const nextPierce = p.pierce - 1;
+          if (nextPierce >= 0) {
+            updatedProjectiles.push({ ...p, pierce: nextPierce });
+          }
+          return;
+        }
+
+        const moveX = (dx / dist) * p.speed;
+        const moveY = (dy / dist) * p.speed;
+        const newDistTraveled = p.distanceTraveled + p.speed;
+
+        if (newDistTraveled <= p.range) {
+          updatedProjectiles.push({
+            ...p,
+            x: p.x + moveX,
+            y: p.y + moveY,
+            distanceTraveled: newDistTraveled
+          });
+        }
+      });
+
+      projectilesRef.current = updatedProjectiles;
+      setProjectiles([...projectilesRef.current]);
+
+      const drawItems = [];
+      // --- Draw Projectiles ---
+      projectilesRef.current.forEach((p) => {
+        const drawW = 8;
+        const drawH = 4;
+
+        // optional: rotate bullet toward target
+        const target = entitiesRef.current.find((e) => e.id === p.targetId);
+        let angle = 0;
+        if (target) {
+          const dx = (target.x + target.frameWidth/2) - p.x;
+          const dy = (target.y + target.frameHeight/2) - p.y;
+          angle = Math.atan2(dy, dx);
+        }
+
+        drawItems.push({
+          img: bulletImg,
+          x: p.x - drawW/2,
+          y: p.y - drawH/2,
+          w: drawW,
+          h: drawH,
+          z: 20,
+          angle,
+        });
       });
 
       // --- Draw towers + connectors ---
-      const drawItems = [];
-
       towersRef.current.forEach((t) => {
         const cx = t.x * TILE_SIZE;
         const cy = t.y * TILE_SIZE;
@@ -469,15 +479,23 @@ export default function Game() {
         drawItems.push({ img: towerImg, x: cx, y: cy, w: TILE_SIZE, h: TILE_SIZE, z: rowZ + 3 });
       });
 
-      drawItems.sort((a, b) => a.z - b.z);
-      drawItems.forEach(({ img, x, y, w, h, mirrorX }) => {
+      drawItems.sort((a,b) => a.z - b.z);
+      drawItems.forEach(({img, x, y, w, h, mirrorX, angle}) => {
         if (mirrorX) {
           ctx.save();
-          ctx.translate(x + w / 2, y);
-          ctx.scale(-1, 1);
-          ctx.drawImage(img, -w / 2, 0, w, h);
+          ctx.translate(x + w/2, y);
+          ctx.scale(-1,1);
+          ctx.drawImage(img, -w/2, 0, w, h);
           ctx.restore();
-        } else ctx.drawImage(img, x, y, w, h);
+        } else if (angle) {
+          ctx.save();
+          ctx.translate(x + w/2, y + h/2);
+          ctx.rotate(angle + Math.PI);
+          ctx.drawImage(img, -w/2, -h/2, w, h);
+          ctx.restore();
+        } else {
+          ctx.drawImage(img, x, y, w, h);
+        }
       });
 
 
