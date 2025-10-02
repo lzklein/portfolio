@@ -212,6 +212,7 @@ export default function Game() {
   const [shootMode, setShootMode] = useState(false);
   const [selectedTower, setSelectedTower] = useState("wall");
   const [towers, setTowers] = useState([]);
+  const [projectiles, setProjectiles] = useState([]);
 
   // -------- Pathfinding (BFS) --------
   function findPath(grid, start, goal) {
@@ -290,6 +291,22 @@ export default function Game() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(board, 0, 0, canvas.width, canvas.height);
 
+      // === Draw tower ranges ===
+      towersRef.current.forEach((t) => {
+        if (t.range && t.range > 0) {
+          const cx = t.x * TILE_SIZE + TILE_SIZE / 2;
+          const cy = t.y * TILE_SIZE + TILE_SIZE / 2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, t.range, 0, Math.PI * 2); // t.range is in pixels
+          ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+          ctx.stroke();
+        }
+      });
+
+
       // --- Draw HP ---
       const hpX = canvas.width - 150;
       const hpY = 10;
@@ -299,6 +316,110 @@ export default function Game() {
       ctx.fillText(healthRef.current, hpX + 74, hpY + 40);
 
       const scale = 2;
+
+      // === towers firing ===
+      setTowers((prev) => {
+        const now = Date.now();
+        const newProjectiles = [];
+
+        prev.forEach((tower) => {
+          if (tower.fireRate === 0) return; // non firing towers
+
+          if (now - tower.lastShotTime >= tower.fireRate) {
+            const inRange = entitiesRef.current.filter((e) => {
+              const dx = (e.x - tower.x) * TILE_SIZE;
+              const dy = (e.y - tower.y) * TILE_SIZE;
+              return Math.sqrt(dx * dx + dy * dy) <= tower.range * TILE_SIZE;
+            });
+
+            if (inRange.length > 0) {
+              const target = inRange.reduce((farthest, e) => {
+                return (farthest === null || e.x > farthest.x) ? e : farthest;
+              }, null);
+              tower.lastShotTime = now;
+
+              newProjectiles.push({
+                id: Date.now() + Math.random(),
+                x: (tower.x + 0.5) * TILE_SIZE,
+                y: (tower.y + 0.5) * TILE_SIZE,
+                targetId: target.id,
+                speed: 8,
+                damage: tower.damage,
+                pierce: tower.pierce,
+                aoe: tower.aoe,
+                range: tower.range * TILE_SIZE,
+                distanceTraveled: 0
+              });
+            }
+          }
+        });
+
+        if (newProjectiles.length > 0) {
+          setProjectiles((old) => [...old, ...newProjectiles]);
+        }
+        return [...prev];
+      });
+
+      // === update projectiles ===
+      setProjectiles((prev) => {
+        const updated = [];
+
+        prev.forEach((p) => {
+          const target = entitiesRef.current.find((e) => e.id === p.targetId);
+          if (!target) return; // target dead
+
+          const dx = target.x * TILE_SIZE - p.x;
+          const dy = target.y * TILE_SIZE - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < p.speed) {
+            // impact!
+            applyDamage(target, p);
+
+            // aoe square
+            if (p.aoe > 0) {
+              entitiesRef.current.forEach((e) => {
+                const ex = Math.floor(e.x);
+                const ey = Math.floor(e.y);
+                const tx = Math.floor(target.x);
+                const ty = Math.floor(target.y);
+                if (
+                  Math.abs(ex - tx) <= p.aoe - 1 &&
+                  Math.abs(ey - ty) <= p.aoe - 1
+                ) {
+                  applyDamage(e, p);
+                }
+              });
+            }
+
+            const nextPierce = p.pierce - 1;
+            if (nextPierce >= 0) {
+              updated.push({
+                ...p,
+                pierce: nextPierce
+              });
+            }
+            return;
+          }
+
+          const moveX = (dx / dist) * p.speed;
+          const moveY = (dy / dist) * p.speed;
+          const newX = p.x + moveX;
+          const newY = p.y + moveY;
+          const newDistTraveled = p.distanceTraveled + p.speed;
+
+          if (newDistTraveled <= p.range) {
+            updated.push({
+              ...p,
+              x: newX,
+              y: newY,
+              distanceTraveled: newDistTraveled
+            });
+          }
+        });
+
+        return updated;
+      });
 
       // --- Draw towers + connectors ---
       const drawItems = [];
@@ -581,6 +702,14 @@ export default function Game() {
     }
   }
 
+  const applyDamage = (enemy, proj) => {
+    enemy.hp -= proj.damage;
+    if (enemy.hp <= 0) {
+      entitiesRef.current = entitiesRef.current.filter((e) => e.id !== enemy.id);
+    }
+  };
+
+
   // -------- Click Events --------
   function handleCanvasClick(e) {
     const rect = canvasRef.current.getBoundingClientRect();
@@ -645,8 +774,17 @@ export default function Game() {
           }
       }
 
+      // place tower
+      const newTower = {
+        ...towerCfg, 
+        type: selectedTower,
+        x,
+        y,
+        lastShotTime: 0,
+      };
+
       setTowers((prev) => {
-        const newTowers = [...prev, { type: selectedTower, x, y }];
+        const newTowers = [...prev, newTower]; 
         towersRef.current = newTowers;
         return newTowers;
       });
