@@ -15,6 +15,7 @@ import acidImgSrc from "./assets/sprites/acid.png";
 import chainImgSrc from "./assets/sprites/chain.png";
 import sniperImgSrc from "./assets/sprites/sniper.png";
 import buffImgSrc from "./assets/sprites/buff.png";
+import bulletImgSrc from "./assets/sprites/bullet.png";
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
@@ -282,6 +283,7 @@ export default function Game() {
     const connectLR = new Image(); connectLR.src = connectLRImgSrc;
     const connectUD = new Image(); connectUD.src = connectUDImgSrc;
     const connectDL = new Image(); connectDL.src = connectDLImgSrc;
+    const bulletImg = new Image(); bulletImg.src = bulletImgSrc;
 
     let lastTime = performance.now();
 
