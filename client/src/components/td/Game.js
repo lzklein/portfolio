@@ -135,7 +135,7 @@ const TOWER_TYPES = {
   },
   arrow: {
     sprite: "arrow",
-    range: 100,
+    range: 220,
     damage: 1,
     pierce: 2,
     aoe: 0,
@@ -144,7 +144,7 @@ const TOWER_TYPES = {
   },
   cannon: {
     sprite: "cannon",
-    range: 100,
+    range: 160,
     damage: 1,
     pierce: 0,
     aoe: 1,
@@ -153,7 +153,7 @@ const TOWER_TYPES = {
   },
     slow: {
     sprite: "slow",
-    range: 100,
+    range: 160,
     damage: 0,
     pierce: 0,
     aoe: 1,
@@ -162,7 +162,7 @@ const TOWER_TYPES = {
   },
     acid: {
     sprite: "acid",
-    range: 1,
+    range: 100,
     damage: 800,
     pierce: 0,
     aoe: 1,
@@ -171,7 +171,7 @@ const TOWER_TYPES = {
   },
   chain: {
     sprite: "chain",
-    range: 100,
+    range: 160,
     damage: 800,
     pierce: 0,
     aoe: 0,
@@ -189,7 +189,7 @@ const TOWER_TYPES = {
   },
   buff: {
     sprite: "buff",
-    range: 2000,
+    range: 220,
     damage: 0,
     pierce: 0,
     aoe: 0,
