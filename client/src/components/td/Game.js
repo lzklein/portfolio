@@ -127,6 +127,11 @@ const TOWER_TYPES = {
   wall: {
     sprite: "wall",
     buildable: true,
+    range: 0,
+    damage: 0,
+    pierce: 0,
+    aoe: 0,
+    fireRate: 0,
   },
   arrow: {
     sprite: "arrow",
