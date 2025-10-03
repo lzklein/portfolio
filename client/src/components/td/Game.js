@@ -168,7 +168,7 @@ const TOWER_TYPES = {
     acid: {
     sprite: "acid",
     range: 100,
-    damage: 800,
+    damage: 1,
     pierce: 0,
     aoe: 1,
     fireRate: 1200,
@@ -178,7 +178,7 @@ const TOWER_TYPES = {
   chain: {
     sprite: "chain",
     range: 160,
-    damage: 800,
+    damage: 1,
     pierce: 0,
     aoe: 0,
     fireRate: 1200,
@@ -188,7 +188,7 @@ const TOWER_TYPES = {
   sniper: {
     sprite: "sniper",
     range: 100000,
-    damage: 1000,
+    damage: 1,
     pierce: 0,
     aoe: 0,
     fireRate: 600,
@@ -355,7 +355,7 @@ export default function Game() {
             x: (tower.x + 0.5) * TILE_SIZE,
             y: (tower.y + 0.5) * TILE_SIZE,
             targetId: target.id,
-            speed: 6,
+            speed: tower.bulletSpeed,
             damage: tower.damage,
             pierce: tower.pierce,
             aoe: tower.aoe,
