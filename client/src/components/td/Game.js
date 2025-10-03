@@ -133,6 +133,7 @@ const TOWER_TYPES = {
     pierce: 0,
     aoe: 0,
     fireRate: 0,
+    bulletSpeed: 1,
   },
   arrow: {
     sprite: "arrow",
@@ -142,6 +143,7 @@ const TOWER_TYPES = {
     aoe: 0,
     fireRate: 800,
     buildable: true,
+    bulletSpeed: 6,
   },
   cannon: {
     sprite: "cannon",
@@ -151,6 +153,7 @@ const TOWER_TYPES = {
     aoe: 1,
     fireRate: 400,
     buildable: true,
+    bulletSpeed: 5,
   },
     slow: {
     sprite: "slow",
@@ -160,6 +163,7 @@ const TOWER_TYPES = {
     aoe: 1,
     fireRate: 600,
     buildable: true,
+    bulletSpeed: 5,
   },
     acid: {
     sprite: "acid",
@@ -169,6 +173,7 @@ const TOWER_TYPES = {
     aoe: 1,
     fireRate: 1200,
     buildable: true,
+    bulletSpeed: 10,
   },
   chain: {
     sprite: "chain",
@@ -178,6 +183,7 @@ const TOWER_TYPES = {
     aoe: 0,
     fireRate: 1200,
     buildable: true,
+    bulletSpeed: 100,
   },
   sniper: {
     sprite: "sniper",
@@ -187,6 +193,7 @@ const TOWER_TYPES = {
     aoe: 0,
     fireRate: 600,
     buildable: true,
+    bulletSpeed: 100,
   },
   buff: {
     sprite: "buff",
@@ -196,6 +203,7 @@ const TOWER_TYPES = {
     aoe: 0,
     fireRate: 1000000,
     buildable: true,
+    bulletSpeed: 100,
   },
 };
 
