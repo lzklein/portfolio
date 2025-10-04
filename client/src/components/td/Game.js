@@ -198,7 +198,8 @@ const TOWER_TYPES = {
     aoe: 0,
     fireRate: 600,
     buildable: true,
-    bulletSpeed: 100,
+    bulletSpeed: 100000,
+    bulletSprite: "bullet"
   },
   buff: {
     sprite: "buff",
@@ -369,6 +370,7 @@ export default function Game() {
             aoe: tower.aoe,
             range: tower.range,
             distanceTraveled: 0,
+            tower: tower.sprite,
             bulletSprite: tower.bulletSprite || null,
             hitSet: new Set(),
             dx: angleX,
@@ -423,18 +425,16 @@ export default function Game() {
         }
 
         // --- Pierce projectiles ---
-        else {
+        if (p.pierce > 0) {
           if (!p.hitSet) p.hitSet = new Set();
 
-          // fly straight, using stored direction
-          const angle = Math.atan2(p.dy, p.dx); // dx/dy set when fired
+          const angle = Math.atan2(p.dy, p.dx);
           const moveX = Math.cos(angle) * p.speed;
           const moveY = Math.sin(angle) * p.speed;
           const newX = p.x + moveX;
           const newY = p.y + moveY;
           const newDistTraveled = p.distanceTraveled + p.speed;
 
-          // check collisions
           entitiesRef.current.forEach((e) => {
             if (p.hitSet.has(e.id)) return;
 
@@ -461,8 +461,47 @@ export default function Game() {
               hitSet: p.hitSet
             });
           }
+
+          return; // pierce handled
         }
-      });
+
+        // --- Default projectiles ---
+        
+        const angle = Math.atan2(p.dy, p.dx);
+        const moveX = Math.cos(angle) * p.speed;
+        const moveY = Math.sin(angle) * p.speed;
+        const newX = p.x + moveX;
+        const newY = p.y + moveY;
+        const newDistTraveled = p.distanceTraveled + p.speed;
+
+        // check collision with target (line segment from old pos to new pos)
+        const target = entitiesRef.current.find((e) => e.id === p.targetId);
+        if (target) {
+          const ex = target.x + target.frameWidth / 2;
+          const ey = target.y + target.frameHeight / 2;
+
+          // closest point on bullet's path to target
+          const t = Math.max(0, Math.min(1, ((ex - p.x) * moveX + (ey - p.y) * moveY) / (moveX*moveX + moveY*moveY)));
+          const closestX = p.x + moveX * t;
+          const closestY = p.y + moveY * t;
+          const dist = Math.hypot(ex - closestX, ey - closestY);
+
+          if (dist < target.frameWidth / 2) {
+            applyDamage(target, p);
+            return;
+          }
+        }
+
+        if (newDistTraveled <= p.range) {
+          updatedProjectiles.push({
+            ...p,
+            x: newX,
+            y: newY,
+            distanceTraveled: newDistTraveled
+          });
+        }
+      }
+      );
 
       projectilesRef.current = updatedProjectiles;
       setProjectiles([...projectilesRef.current]);
@@ -470,7 +509,7 @@ export default function Game() {
       const drawItems = [];
       // --- Draw Projectiles ---
       projectilesRef.current.forEach((p) => {
-        if (!p.bulletSprite) return;
+        if (!p.bulletSprite && p.tower !== "sniper") return;
 
         const drawW = 8;
         const drawH = 4;
