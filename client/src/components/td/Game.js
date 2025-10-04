@@ -16,6 +16,8 @@ import chainImgSrc from "./assets/sprites/chain.png";
 import sniperImgSrc from "./assets/sprites/sniper.png";
 import buffImgSrc from "./assets/sprites/buff.png";
 import bulletImgSrc from "./assets/sprites/bullet.png";
+import cannonballImgSrc from "./assets/sprites/cannonball.png";
+import splashImgSrc from "./assets/sprites/splash.png";
 import connectLRImgSrc from "./assets/sprites/connect-lr.png";
 import connectUDImgSrc from "./assets/sprites/connect-ud.png";
 import connectDLImgSrc from "./assets/sprites/connect-dl.png";
@@ -152,7 +154,7 @@ const TOWER_TYPES = {
     damage: 1,
     pierce: 0,
     aoe: 1,
-    fireRate: 400,
+    fireRate: 800,
     buildable: true,
     bulletSpeed: 5,
     bulletSprite: "cannonball"
@@ -172,12 +174,12 @@ const TOWER_TYPES = {
     sprite: "acid",
     range: 100,
     damage: 1,
-    pierce: 0,
-    aoe: 1,
+    pierce: 1000,
+    aoe: 0,
     fireRate: 1200,
     buildable: true,
     bulletSpeed: 10,
-    bulletSprite: "acid"
+    bulletSprite: "splash"
   },
   chain: {
     sprite: "chain",
@@ -298,6 +300,8 @@ export default function Game() {
     const connectUD = new Image(); connectUD.src = connectUDImgSrc;
     const connectDL = new Image(); connectDL.src = connectDLImgSrc;
     const bulletImg = new Image(); bulletImg.src = bulletImgSrc;
+    const cannonballImg = new Image(); cannonballImg.src = cannonballImgSrc;
+    const splashImg = new Image(); splashImg.src = splashImgSrc;
 
     let lastTime = performance.now();
 
@@ -340,14 +344,7 @@ export default function Game() {
         if (!tower.lastShotTime) tower.lastShotTime = 0;
 
         if (now - tower.lastShotTime >= tower.fireRate) {
-          // find enemies in range (distance in pixels)
-          const inRange = entitiesRef.current.filter((e) => {
-            const dx = (e.x + e.frameWidth / 2) - ((tower.x + 0.5) * TILE_SIZE);
-            const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
-            return Math.sqrt(dx * dx + dy * dy) <= tower.range;
-          });
-
-          if (inRange.length === 0) return;
+          tower.lastShotTime = now;
 
           // target the farthest enemy (or customize targeting)
           const target = inRange.reduce((farthest, e) => {
@@ -377,7 +374,7 @@ export default function Game() {
             dy: angleY,
           });
         }
-      });
+    });
 
       // === update projectiles ===
       const updatedProjectiles = [];
@@ -385,8 +382,9 @@ export default function Game() {
       projectilesRef.current.forEach((p) => {
         // --- AOE projectiles ---
         if (p.aoe > 0) {
-          const target = entitiesRef.current.find((e) => e.id === p.targetId);
-          if (!target) return; // target dead
+          const bulletTileX = Math.floor(p.x / TILE_SIZE);
+          const bulletTileY = Math.floor(p.y / TILE_SIZE);
+          const half = p.aoe;
 
           const dx = (target.x + target.frameWidth / 2) - p.x;
           const dy = (target.y + target.frameHeight / 2) - p.y;
@@ -504,7 +502,6 @@ export default function Game() {
       );
 
       projectilesRef.current = updatedProjectiles;
-      setProjectiles([...projectilesRef.current]);
 
       const drawItems = [];
       // --- Draw Projectiles ---
@@ -522,8 +519,17 @@ export default function Game() {
           angle = Math.atan2(dy, dx);
         }
 
+        let img;
+        switch(p.bulletSprite){
+          case "bullet": img = bulletImg; break;
+          case "splash": img = splashImg; break;
+          case "cannonball": img = cannonImg; break; 
+          case "lightning": img = chainImg; break;
+          default: img = bulletImg; break;
+        }
+
         drawItems.push({
-          img: bulletImg,
+          img,
           x: p.x - drawW/2,
           y: p.y - drawH/2,
           w: drawW,
