@@ -346,33 +346,74 @@ export default function Game() {
         if (now - tower.lastShotTime >= tower.fireRate) {
           tower.lastShotTime = now;
 
-          // target the farthest enemy (or customize targeting)
-          const target = inRange.reduce((farthest, e) => {
-            return (farthest === null || e.x > farthest.x) ? e : farthest;
-          }, null);
+          if (tower.sprite === "acid") {
+            const inRange = entitiesRef.current.some((e) => {
+              const dx = (e.x + e.frameWidth/2) - ((tower.x + 0.5) * TILE_SIZE);
+              const dy = (e.y + e.frameHeight/2) - ((tower.y + 0.5) * TILE_SIZE);
+              return Math.sqrt(dx*dx + dy*dy) <= tower.range;
+            });
 
-          tower.lastShotTime = now;
+            if (!inRange) return;
 
-          const angleX = (target.x + target.frameWidth / 2) - (tower.x + 0.5) * TILE_SIZE;
-          const angleY = (target.y + target.frameHeight / 2) - (tower.y + 0.5) * TILE_SIZE;
+            const centerX = (tower.x + 0.5) * TILE_SIZE;
+            const centerY = (tower.y + 0.5) * TILE_SIZE;
+            for (let i = 0; i < 8; i++) {
+              const angle = (Math.PI * 2 / 8) * i;
+              const dx = Math.cos(angle) * tower.bulletSpeed;
+              const dy = Math.sin(angle) * tower.bulletSpeed;
 
-          projectilesRef.current.push({
-            id: Date.now() + Math.random(),
-            x: (tower.x + 0.5) * TILE_SIZE,
-            y: (tower.y + 0.5) * TILE_SIZE,
-            targetId: target.id,
-            speed: tower.bulletSpeed,
-            damage: tower.damage,
-            pierce: tower.pierce,
-            aoe: tower.aoe,
-            range: tower.range,
-            distanceTraveled: 0,
-            tower: tower.sprite,
-            bulletSprite: tower.bulletSprite || null,
-            hitSet: new Set(),
-            dx: angleX,
-            dy: angleY,
-          });
+              projectilesRef.current.push({
+                id: Date.now() + Math.random(),
+                x: centerX,
+                y: centerY,
+                targetId: null,
+                speed: tower.bulletSpeed,
+                damage: tower.damage,
+                pierce: tower.pierce,
+                aoe: tower.aoe,
+                range: tower.range,
+                distanceTraveled: 0,
+                tower: tower.sprite,
+                bulletSprite: tower.bulletSprite || null,
+                hitSet: new Set(),
+                dx,
+                dy,
+              });
+            }
+          } else {
+            const inRange = entitiesRef.current.filter((e) => {
+              const dx = (e.x + e.frameWidth / 2) - ((tower.x + 0.5) * TILE_SIZE);
+              const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
+              return Math.sqrt(dx * dx + dy * dy) <= tower.range;
+            });
+
+            if (inRange.length === 0) return;
+
+            const target = inRange.reduce((farthest, e) => {
+              return (farthest === null || e.x > farthest.x) ? e : farthest;
+            }, null);
+
+            const angleX = (target.x + target.frameWidth / 2) - (tower.x + 0.5) * TILE_SIZE;
+            const angleY = (target.y + target.frameHeight / 2) - (tower.y + 0.5) * TILE_SIZE;
+
+            projectilesRef.current.push({
+              id: Date.now() + Math.random(),
+              x: (tower.x + 0.5) * TILE_SIZE,
+              y: (tower.y + 0.5) * TILE_SIZE,
+              targetId: target.id,
+              speed: tower.bulletSpeed,
+              damage: tower.damage,
+              pierce: tower.pierce,
+              aoe: tower.aoe,
+              range: tower.range,
+              distanceTraveled: 0,
+              tower: tower.sprite,
+              bulletSprite: tower.bulletSprite || null,
+              hitSet: new Set(),
+              dx: angleX,
+              dy: angleY,
+            });
+          }
         }
     });
 
@@ -412,14 +453,14 @@ export default function Game() {
           const moveY = (dy / dist) * p.speed;
           const newDistTraveled = p.distanceTraveled + p.speed;
 
-          if (newDistTraveled <= p.range) {
-            updatedProjectiles.push({
-              ...p,
-              x: p.x + moveX,
-              y: p.y + moveY,
-              distanceTraveled: newDistTraveled
-            });
-          }
+            if (
+              Math.abs(eTileX - bulletTileX) <= half &&
+              Math.abs(eTileY - bulletTileY) <= half
+            ) {
+              applyDamage(e, p);
+              p.hitSet.add(e.id);
+            }
+          });
         }
 
         // --- Pierce projectiles ---
