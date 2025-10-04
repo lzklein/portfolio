@@ -427,31 +427,10 @@ export default function Game() {
           const bulletTileY = Math.floor(p.y / TILE_SIZE);
           const half = p.aoe;
 
-          const dx = (target.x + target.frameWidth / 2) - p.x;
-          const dy = (target.y + target.frameHeight / 2) - p.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < p.speed) {
-            // impact
-            applyDamage(target, p);
-
-            // aoe damage
-            entitiesRef.current.forEach((e) => {
-              const ex = Math.floor(e.x);
-              const ey = Math.floor(e.y);
-              const tx = Math.floor(target.x);
-              const ty = Math.floor(target.y);
-              if (Math.abs(ex - tx) <= p.aoe - 1 && Math.abs(ey - ty) <= p.aoe - 1) {
-                applyDamage(e, p);
-              }
-            });
-
-            return; // aoe projectiles despawn immediately
-          }
-
-          const moveX = (dx / dist) * p.speed;
-          const moveY = (dy / dist) * p.speed;
-          const newDistTraveled = p.distanceTraveled + p.speed;
+          entitiesRef.current.forEach((e) => {
+            if (p.hitSet.has(e.id)) return;
+            const eTileX = Math.floor(e.x / TILE_SIZE);
+            const eTileY = Math.floor(e.y / TILE_SIZE);
 
             if (
               Math.abs(eTileX - bulletTileX) <= half &&
