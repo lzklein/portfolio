@@ -144,6 +144,7 @@ const TOWER_TYPES = {
     fireRate: 800,
     buildable: true,
     bulletSpeed: 6,
+    bulletSprite: "bullet"
   },
   cannon: {
     sprite: "cannon",
@@ -154,6 +155,7 @@ const TOWER_TYPES = {
     fireRate: 400,
     buildable: true,
     bulletSpeed: 5,
+    bulletSprite: "cannonball"
   },
     slow: {
     sprite: "slow",
@@ -164,6 +166,7 @@ const TOWER_TYPES = {
     fireRate: 600,
     buildable: true,
     bulletSpeed: 5,
+    bulletSprite: "cannonball"
   },
     acid: {
     sprite: "acid",
@@ -174,6 +177,7 @@ const TOWER_TYPES = {
     fireRate: 1200,
     buildable: true,
     bulletSpeed: 10,
+    bulletSprite: "acid"
   },
   chain: {
     sprite: "chain",
@@ -184,6 +188,7 @@ const TOWER_TYPES = {
     fireRate: 1200,
     buildable: true,
     bulletSpeed: 100,
+    bulletSprite: "lightning"
   },
   sniper: {
     sprite: "sniper",
@@ -350,6 +355,9 @@ export default function Game() {
 
           tower.lastShotTime = now;
 
+          const angleX = (target.x + target.frameWidth / 2) - (tower.x + 0.5) * TILE_SIZE;
+          const angleY = (target.y + target.frameHeight / 2) - (tower.y + 0.5) * TILE_SIZE;
+
           projectilesRef.current.push({
             id: Date.now() + Math.random(),
             x: (tower.x + 0.5) * TILE_SIZE,
@@ -360,7 +368,11 @@ export default function Game() {
             pierce: tower.pierce,
             aoe: tower.aoe,
             range: tower.range,
-            distanceTraveled: 0
+            distanceTraveled: 0,
+            bulletSprite: tower.bulletSprite || null,
+            hitSet: new Set(),
+            dx: angleX,
+            dy: angleY,
           });
         }
       });
@@ -369,19 +381,20 @@ export default function Game() {
       const updatedProjectiles = [];
 
       projectilesRef.current.forEach((p) => {
-        const target = entitiesRef.current.find((e) => e.id === p.targetId);
-        if (!target) return; // target dead
+        // --- AOE projectiles ---
+        if (p.aoe > 0) {
+          const target = entitiesRef.current.find((e) => e.id === p.targetId);
+          if (!target) return; // target dead
 
-        const dx = (target.x + target.frameWidth / 2) - p.x;
-        const dy = (target.y + target.frameHeight / 2) - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+          const dx = (target.x + target.frameWidth / 2) - p.x;
+          const dy = (target.y + target.frameHeight / 2) - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < p.speed) {
-          // impact
-          applyDamage(target, p);
+          if (dist < p.speed) {
+            // impact
+            applyDamage(target, p);
 
-          // aoe
-          if (p.aoe > 0) {
+            // aoe damage
             entitiesRef.current.forEach((e) => {
               const ex = Math.floor(e.x);
               const ey = Math.floor(e.y);
@@ -391,26 +404,63 @@ export default function Game() {
                 applyDamage(e, p);
               }
             });
+
+            return; // aoe projectiles despawn immediately
           }
 
-          const nextPierce = p.pierce - 1;
-          if (nextPierce >= 0) {
-            updatedProjectiles.push({ ...p, pierce: nextPierce });
+          const moveX = (dx / dist) * p.speed;
+          const moveY = (dy / dist) * p.speed;
+          const newDistTraveled = p.distanceTraveled + p.speed;
+
+          if (newDistTraveled <= p.range) {
+            updatedProjectiles.push({
+              ...p,
+              x: p.x + moveX,
+              y: p.y + moveY,
+              distanceTraveled: newDistTraveled
+            });
           }
-          return;
         }
 
-        const moveX = (dx / dist) * p.speed;
-        const moveY = (dy / dist) * p.speed;
-        const newDistTraveled = p.distanceTraveled + p.speed;
+        // --- Pierce projectiles ---
+        else {
+          if (!p.hitSet) p.hitSet = new Set();
 
-        if (newDistTraveled <= p.range) {
-          updatedProjectiles.push({
-            ...p,
-            x: p.x + moveX,
-            y: p.y + moveY,
-            distanceTraveled: newDistTraveled
+          // fly straight, using stored direction
+          const angle = Math.atan2(p.dy, p.dx); // dx/dy set when fired
+          const moveX = Math.cos(angle) * p.speed;
+          const moveY = Math.sin(angle) * p.speed;
+          const newX = p.x + moveX;
+          const newY = p.y + moveY;
+          const newDistTraveled = p.distanceTraveled + p.speed;
+
+          // check collisions
+          entitiesRef.current.forEach((e) => {
+            if (p.hitSet.has(e.id)) return;
+
+            const ex = e.x + e.frameWidth / 2;
+            const ey = e.y + e.frameHeight / 2;
+            const dx = ex - newX;
+            const dy = ey - newY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < e.frameWidth / 2) {
+              applyDamage(e, p);
+              p.hitSet.add(e.id);
+              p.pierce -= 1;
+            }
           });
+
+          if (p.pierce > 0 && newDistTraveled <= p.range) {
+            updatedProjectiles.push({
+              ...p,
+              x: newX,
+              y: newY,
+              distanceTraveled: newDistTraveled,
+              pierce: p.pierce,
+              hitSet: p.hitSet
+            });
+          }
         }
       });
 
@@ -420,10 +470,11 @@ export default function Game() {
       const drawItems = [];
       // --- Draw Projectiles ---
       projectilesRef.current.forEach((p) => {
+        if (!p.bulletSprite) return;
+
         const drawW = 8;
         const drawH = 4;
 
-        // optional: rotate bullet toward target
         const target = entitiesRef.current.find((e) => e.id === p.targetId);
         let angle = 0;
         if (target) {
@@ -442,6 +493,7 @@ export default function Game() {
           angle,
         });
       });
+
 
       // --- Draw towers + connectors ---
       towersRef.current.forEach((t) => {
@@ -565,8 +617,6 @@ export default function Game() {
             e.y = targetY;
 
             e.z = (e.z || 0) + 1;
-
-            console.log(e.z)
 
             e.path.shift();
             if (e.path.length === 1) {
@@ -731,6 +781,7 @@ export default function Game() {
   }
 
   const applyDamage = (enemy, proj) => {
+    console.log(enemy.hp)
     enemy.hp -= proj.damage;
     if (enemy.hp <= 0) {
       entitiesRef.current = entitiesRef.current.filter((e) => e.id !== enemy.id);
