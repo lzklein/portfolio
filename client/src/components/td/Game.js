@@ -154,7 +154,7 @@ const TOWER_TYPES = {
     damage: 1,
     pierce: 0,
     aoe: 1,
-    fireRate: 800,
+    fireRate: 1200,
     buildable: true,
     bulletSpeed: 5,
     bulletSprite: "cannonball"
@@ -165,7 +165,7 @@ const TOWER_TYPES = {
     damage: 0,
     pierce: 0,
     aoe: 1,
-    fireRate: 600,
+    fireRate: 1200,
     buildable: true,
     bulletSpeed: 5,
     bulletSprite: "cannonball"
@@ -176,7 +176,7 @@ const TOWER_TYPES = {
     damage: 1,
     pierce: 1000,
     aoe: 0,
-    fireRate: 1200,
+    fireRate: 600,
     buildable: true,
     bulletSpeed: 10,
     bulletSprite: "splash"
@@ -198,7 +198,7 @@ const TOWER_TYPES = {
     damage: 1,
     pierce: 0,
     aoe: 0,
-    fireRate: 600,
+    fireRate: 1200,
     buildable: true,
     bulletSpeed: 100000,
     bulletSprite: "bullet"
@@ -209,7 +209,7 @@ const TOWER_TYPES = {
     damage: 0,
     pierce: 0,
     aoe: 0,
-    fireRate: 1000000,
+    fireRate: 100,
     buildable: true,
     bulletSpeed: 100,
   },
@@ -318,7 +318,7 @@ export default function Game() {
           const cx = t.x * TILE_SIZE + TILE_SIZE / 2;
           const cy = t.y * TILE_SIZE + TILE_SIZE / 2;
           ctx.beginPath();
-          ctx.arc(cx, cy, t.range, 0, Math.PI * 2); // t.range is in pixels
+          ctx.arc(cx, cy, t.range, 0, Math.PI * 2);
           ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
           ctx.fill();
           ctx.lineWidth = 2;
@@ -380,7 +380,40 @@ export default function Game() {
                 dy,
               });
             }
-          } else {
+          } else if (tower.sprite === "slow"){
+            const inRange = entitiesRef.current.filter((e) => {
+              const dx = (e.x + e.frameWidth / 2) - ((tower.x + 0.5) * TILE_SIZE);
+              const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
+              return Math.sqrt(dx * dx + dy * dy) <= tower.range;
+            });
+
+            if (inRange.length === 0) return;
+
+            const target = inRange.reduce((farthest, e) => {
+              return (farthest === null || e.x > farthest.x) ? e : farthest;
+            }, null);
+
+            const angleX = (target.x + target.frameWidth / 2) - (tower.x + 0.5) * TILE_SIZE;
+            const angleY = (target.y + target.frameHeight / 2) - (tower.y + 0.5) * TILE_SIZE;
+
+            projectilesRef.current.push({
+              id: Date.now() + Math.random(),
+              x: (tower.x + 0.5) * TILE_SIZE,
+              y: (tower.y + 0.5) * TILE_SIZE,
+              targetId: target.id,
+              speed: tower.bulletSpeed,
+              damage: tower.damage,
+              pierce: tower.pierce,
+              aoe: tower.aoe,
+              range: tower.range,
+              distanceTraveled: 0,
+              bulletSprite: tower.bulletSprite,
+              isSlow: true,
+              dx: angleX,
+              dy: angleY,
+              hitSet: new Set(),
+            });
+          }else {
             const inRange = entitiesRef.current.filter((e) => {
               const dx = (e.x + e.frameWidth / 2) - ((tower.x + 0.5) * TILE_SIZE);
               const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
@@ -480,11 +513,10 @@ export default function Game() {
             });
           }
 
-          return; // pierce handled
+          return;
         }
 
         // --- Default projectiles ---
-        
         const angle = Math.atan2(p.dy, p.dx);
         const moveX = Math.cos(angle) * p.speed;
         const moveY = Math.sin(angle) * p.speed;
@@ -492,7 +524,6 @@ export default function Game() {
         const newY = p.y + moveY;
         const newDistTraveled = p.distanceTraveled + p.speed;
 
-        // check collision with target (line segment from old pos to new pos)
         const target = entitiesRef.current.find((e) => e.id === p.targetId);
         if (target) {
           const ex = target.x + target.frameWidth / 2;
@@ -668,6 +699,11 @@ export default function Game() {
           const targetY = ty * TILE_SIZE + TILE_SIZE / 2 - e.frameHeight / 2;
           const dx = targetX - e.x;
           const dy = targetY - e.y;
+
+          if (e.slowUntil && Date.now() > e.slowUntil) {
+            e.speed = e.originalSpeed || e.speed;
+            e.slowUntil = null;
+          }
 
           if (Math.abs(dx) > Math.abs(dy)) {
             const stepX = Math.sign(dx) * e.speed * SPEED * (delta / 16);
@@ -846,7 +882,15 @@ export default function Game() {
   }
 
   const applyDamage = (enemy, proj) => {
-    console.log(enemy.hp)
+    if (proj.isSlow) { //apply slow
+      const SLOW_AMOUNT = 0.5;
+      const SLOW_DURATION = 2000;
+      
+      if (!enemy.originalSpeed) enemy.originalSpeed = enemy.speed;
+      enemy.speed = enemy.originalSpeed * SLOW_AMOUNT;
+      enemy.slowUntil = Date.now() + SLOW_DURATION;
+    }
+
     enemy.hp -= proj.damage;
     if (enemy.hp <= 0) {
       entitiesRef.current = entitiesRef.current.filter((e) => e.id !== enemy.id);
