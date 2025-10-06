@@ -134,6 +134,7 @@ const TOWER_TYPES = {
     damage: 0,
     pierce: 0,
     aoe: 0,
+    bounce: 0,
     fireRate: 0,
     bulletSpeed: 1,
   },
@@ -143,6 +144,7 @@ const TOWER_TYPES = {
     damage: 1,
     pierce: 2,
     aoe: 0,
+    bounce: 0,
     fireRate: 800,
     buildable: true,
     bulletSpeed: 6,
@@ -154,6 +156,7 @@ const TOWER_TYPES = {
     damage: 1,
     pierce: 0,
     aoe: 1,
+    bounce: 0,
     fireRate: 1200,
     buildable: true,
     bulletSpeed: 5,
@@ -164,7 +167,8 @@ const TOWER_TYPES = {
     range: 160,
     damage: 0,
     pierce: 0,
-    aoe: 1,
+    aoe: 1,    
+    bounce: 0,
     fireRate: 1200,
     buildable: true,
     bulletSpeed: 5,
@@ -175,7 +179,8 @@ const TOWER_TYPES = {
     range: 100,
     damage: 1,
     pierce: 1000,
-    aoe: 0,
+    aoe: 0,    
+    bounce: 0,
     fireRate: 600,
     buildable: true,
     bulletSpeed: 10,
@@ -187,6 +192,7 @@ const TOWER_TYPES = {
     damage: 1,
     pierce: 0,
     aoe: 0,
+    bounce: 2,
     fireRate: 1200,
     buildable: true,
     bulletSpeed: 100,
@@ -198,6 +204,7 @@ const TOWER_TYPES = {
     damage: 1,
     pierce: 0,
     aoe: 0,
+    bounce: 0,
     fireRate: 1200,
     buildable: true,
     bulletSpeed: 100000,
@@ -209,6 +216,7 @@ const TOWER_TYPES = {
     damage: 0,
     pierce: 0,
     aoe: 0,
+    bounce: 0,
     fireRate: 100,
     buildable: true,
     bulletSpeed: 100,
@@ -221,6 +229,7 @@ export default function Game() {
   const entitiesRef = useRef([]);
   const towersRef = useRef([]);
   const projectilesRef = useRef([]);
+  const lightningsRef = useRef([]);
 
   const nextId = useRef(0);
   const healthRef = useRef(INITIAL_HEALTH);
@@ -347,9 +356,9 @@ export default function Game() {
           tower.lastShotTime = now;
 
           if (tower.sprite === "acid") {
-            const inRange = entitiesRef.current.some((e) => {
-              const dx = (e.x + e.frameWidth/2) - ((tower.x + 0.5) * TILE_SIZE);
-              const dy = (e.y + e.frameHeight/2) - ((tower.y + 0.5) * TILE_SIZE);
+            const inRange = entitiesRef.current.filter((e) => {
+              const dx = (e.x + e.frameWidth / 2) - ((tower.x + 0.5) * TILE_SIZE);
+              const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
               return Math.sqrt(dx*dx + dy*dy) <= tower.range;
             });
 
@@ -380,21 +389,14 @@ export default function Game() {
                 dy,
               });
             }
-          } else if (tower.sprite === "slow"){
+          } else if (tower.sprite === "slow") {
             const inRange = entitiesRef.current.filter((e) => {
               const dx = (e.x + e.frameWidth / 2) - ((tower.x + 0.5) * TILE_SIZE);
               const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
               return Math.sqrt(dx * dx + dy * dy) <= tower.range;
             });
-
             if (inRange.length === 0) return;
-
-            const target = inRange.reduce((farthest, e) => {
-              return (farthest === null || e.x > farthest.x) ? e : farthest;
-            }, null);
-
-            const angleX = (target.x + target.frameWidth / 2) - (tower.x + 0.5) * TILE_SIZE;
-            const angleY = (target.y + target.frameHeight / 2) - (tower.y + 0.5) * TILE_SIZE;
+            const target = inRange[0];
 
             projectilesRef.current.push({
               id: Date.now() + Math.random(),
@@ -409,11 +411,33 @@ export default function Game() {
               distanceTraveled: 0,
               bulletSprite: tower.bulletSprite,
               isSlow: true,
-              dx: angleX,
-              dy: angleY,
+            });
+          } else if (tower.sprite === "chain") {
+            const inRange = entitiesRef.current.filter((e) => {
+              const dx = (e.x + e.frameWidth / 2) - ((tower.x + 0.5) * TILE_SIZE);
+              const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
+              return Math.sqrt(dx * dx + dy * dy) <= tower.range;
+            });
+            if (inRange.length === 0) return;
+            const target = inRange[0];
+
+            projectilesRef.current.push({
+              id: Date.now() + Math.random(),
+              x: (tower.x + 0.5) * TILE_SIZE,
+              y: (tower.y + 0.5) * TILE_SIZE,
+              targetId: target.id,
+              speed: Infinity, // hits instantly
+              damage: tower.damage,
+              pierce: 0,
+              aoe: 0,
+              range: tower.range,
+              distanceTraveled: 0,
+              bulletSprite: null,
+              isChain: true,
+              bounce: tower.bounce || 0,
               hitSet: new Set(),
             });
-          }else {
+          } else {
             const inRange = entitiesRef.current.filter((e) => {
               const dx = (e.x + e.frameWidth / 2) - ((tower.x + 0.5) * TILE_SIZE);
               const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
@@ -448,34 +472,93 @@ export default function Game() {
             });
           }
         }
-    });
+      });
 
       // === update projectiles ===
       const updatedProjectiles = [];
 
       projectilesRef.current.forEach((p) => {
-        // --- AOE projectiles ---
-        if (p.aoe > 0) {
-          const bulletTileX = Math.floor(p.x / TILE_SIZE);
-          const bulletTileY = Math.floor(p.y / TILE_SIZE);
-          const half = p.aoe;
+        // --- Chain lightning ---
+        if (p.isChain) {
+          let currentTarget = entitiesRef.current.find((e) => e.id === p.targetId);
+          let bouncesLeft = p.bounce;
+          let lastX = p.x;
+          let lastY = p.y;
+ 
+          while (currentTarget && bouncesLeft >= 0) {
+            applyDamage(currentTarget, p);
+            p.hitSet.add(currentTarget.id);
 
-          entitiesRef.current.forEach((e) => {
-            if (p.hitSet.has(e.id)) return;
-            const eTileX = Math.floor(e.x / TILE_SIZE);
-            const eTileY = Math.floor(e.y / TILE_SIZE);
+            lightningsRef.current.push({
+              x1: lastX,
+              y1: lastY,
+              x2: currentTarget.x + currentTarget.frameWidth / 2,
+              y2: currentTarget.y + currentTarget.frameHeight / 2,
+              createdAt: Date.now(),
+              duration: 200,
+            });
 
-            if (
-              Math.abs(eTileX - bulletTileX) <= half &&
-              Math.abs(eTileY - bulletTileY) <= half
-            ) {
-              applyDamage(e, p);
-              p.hitSet.add(e.id);
-            }
-          });
+            // pick next target
+            const next = entitiesRef.current.find((e) => {
+              if (p.hitSet.has(e.id)) return false;
+              const dx = (e.x + e.frameWidth / 2) - (currentTarget.x + currentTarget.frameWidth / 2);
+              const dy = (e.y + e.frameHeight / 2) - (currentTarget.y + currentTarget.frameHeight / 2);
+              return Math.sqrt(dx * dx + dy * dy) <= TILE_SIZE * 3; // bounce range
+            });
+
+            if (!next) break;
+
+            lastX = currentTarget.x + currentTarget.frameWidth / 2;
+            lastY = currentTarget.y + currentTarget.frameHeight / 2;
+            currentTarget = next;
+            bouncesLeft--;
+          }
+          return; // chain projectiles despawn instantly
         }
 
-        // --- Pierce projectiles ---
+        // --- AOE ---
+        if (p.aoe > 0) {
+          const target = entitiesRef.current.find((e) => e.id === p.targetId);
+          if (!target) return;
+
+          const dx = (target.x + target.frameWidth / 2) - p.x;
+          const dy = (target.y + target.frameHeight / 2) - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < p.speed) {
+            const bulletTileX = Math.floor(target.x / TILE_SIZE);
+            const bulletTileY = Math.floor(target.y / TILE_SIZE);
+            const half = p.aoe - 1;
+
+            entitiesRef.current.forEach((e) => {
+              const eTileX = Math.floor(e.x / TILE_SIZE);
+              const eTileY = Math.floor(e.y / TILE_SIZE);
+              if (
+                Math.abs(eTileX - bulletTileX) <= half &&
+                Math.abs(eTileY - bulletTileY) <= half
+              ) {
+                applyDamage(e, p);
+              }
+            });
+            return; // despawn
+          }
+
+          const moveX = (dx / dist) * p.speed;
+          const moveY = (dy / dist) * p.speed;
+          const newDistTraveled = p.distanceTraveled + p.speed;
+
+          if (newDistTraveled <= p.range) {
+            updatedProjectiles.push({
+              ...p,
+              x: p.x + moveX,
+              y: p.y + moveY,
+              distanceTraveled: newDistTraveled,
+            });
+          }
+          return;
+        }
+
+        // --- Pierce ---
         if (p.pierce > 0) {
           if (!p.hitSet) p.hitSet = new Set();
 
@@ -509,52 +592,60 @@ export default function Game() {
               y: newY,
               distanceTraveled: newDistTraveled,
               pierce: p.pierce,
-              hitSet: p.hitSet
+              hitSet: p.hitSet,
             });
           }
-
           return;
         }
 
-        // --- Default projectiles ---
-        const angle = Math.atan2(p.dy, p.dx);
-        const moveX = Math.cos(angle) * p.speed;
-        const moveY = Math.sin(angle) * p.speed;
-        const newX = p.x + moveX;
-        const newY = p.y + moveY;
-        const newDistTraveled = p.distanceTraveled + p.speed;
+        // --- Default projectile ---
+        {
+          const angle = Math.atan2(p.dy, p.dx);
+          const moveX = Math.cos(angle) * p.speed;
+          const moveY = Math.sin(angle) * p.speed;
+          const newX = p.x + moveX;
+          const newY = p.y + moveY;
+          const newDistTraveled = p.distanceTraveled + p.speed;
 
-        const target = entitiesRef.current.find((e) => e.id === p.targetId);
-        if (target) {
-          const ex = target.x + target.frameWidth / 2;
-          const ey = target.y + target.frameHeight / 2;
+          const target = entitiesRef.current.find((e) => e.id === p.targetId);
+          if (target) {
+            const ex = target.x + target.frameWidth / 2;
+            const ey = target.y + target.frameHeight / 2;
+            const dx = ex - newX;
+            const dy = ey - newY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
 
-          // closest point on bullet's path to target
-          const t = Math.max(0, Math.min(1, ((ex - p.x) * moveX + (ey - p.y) * moveY) / (moveX*moveX + moveY*moveY)));
-          const closestX = p.x + moveX * t;
-          const closestY = p.y + moveY * t;
-          const dist = Math.hypot(ex - closestX, ey - closestY);
+            if (dist < target.frameWidth / 2) {
+              applyDamage(target, p);
+              return;
+            }
+          }
 
-          if (dist < target.frameWidth / 2) {
-            applyDamage(target, p);
-            return;
+          if (newDistTraveled <= p.range) {
+            updatedProjectiles.push({
+              ...p,
+              x: newX,
+              y: newY,
+              distanceTraveled: newDistTraveled,
+            });
           }
         }
-
-        if (newDistTraveled <= p.range) {
-          updatedProjectiles.push({
-            ...p,
-            x: newX,
-            y: newY,
-            distanceTraveled: newDistTraveled
-          });
-        }
-      }
-      );
+      });
 
       projectilesRef.current = updatedProjectiles;
+      setProjectiles([...projectilesRef.current]);
+
 
       const drawItems = [];
+
+      lightningsRef.current = lightningsRef.current.filter(bolt => {
+        const progress = (Date.now() - bolt.createdAt) / bolt.duration;
+        if (progress > 1) return false;
+
+        drawLightning(ctx, bolt);
+        return true;
+      });
+
       // --- Draw Projectiles ---
       projectilesRef.current.forEach((p) => {
         if (!p.bulletSprite && p.tower !== "sniper") return;
@@ -574,11 +665,11 @@ export default function Game() {
         switch(p.bulletSprite){
           case "bullet": img = bulletImg; break;
           case "splash": img = splashImg; break;
-          case "cannonball": img = cannonImg; break; 
-          case "lightning": img = chainImg; break;
+          case "cannonball": img = cannonballImg; break; 
           default: img = bulletImg; break;
         }
 
+        if (!img) return;
         drawItems.push({
           img,
           x: p.x - drawW/2,
@@ -985,6 +1076,35 @@ export default function Game() {
         return newTowers;
       });
     }
+  }
+
+  function drawLightning(ctx, bolt) {
+    const {x1, y1, x2, y2, createdAt, duration} = bolt;
+    const progress = (Date.now() - createdAt) / duration;
+    if (progress > 1) return;
+
+    ctx.save();
+    ctx.globalAlpha = 1 - progress;
+    ctx.strokeStyle = "cyan";
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+
+    // jagged effect with 4 segments
+    let segments = 4;
+    for (let i = 1; i < segments; i++) {
+      let t = i / segments;
+      let ix = x1 + (x2 - x1) * t;
+      let iy = y1 + (y2 - y1) * t;
+      ix += (Math.random() - 0.5) * 10;
+      iy += (Math.random() - 0.5) * 10;
+      ctx.lineTo(ix, iy);
+    }
+
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.restore();
   }
 
   return (
