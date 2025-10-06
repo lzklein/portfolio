@@ -395,8 +395,13 @@ export default function Game() {
               const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
               return Math.sqrt(dx * dx + dy * dy) <= tower.range;
             });
+
             if (inRange.length === 0) return;
-            const target = inRange[0];
+
+            const target = inRange.reduce((farthest, e) => {
+              return !farthest || e.progress > farthest.progress ? e : farthest;
+            }, null);
+
 
             projectilesRef.current.push({
               id: Date.now() + Math.random(),
@@ -418,8 +423,13 @@ export default function Game() {
               const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
               return Math.sqrt(dx * dx + dy * dy) <= tower.range;
             });
+
             if (inRange.length === 0) return;
-            const target = inRange[0];
+
+            const target = inRange.reduce((farthest, e) => {
+              return !farthest || e.progress > farthest.progress ? e : farthest;
+            }, null);
+
 
             projectilesRef.current.push({
               id: Date.now() + Math.random(),
@@ -447,7 +457,7 @@ export default function Game() {
             if (inRange.length === 0) return;
 
             const target = inRange.reduce((farthest, e) => {
-              return (farthest === null || e.x > farthest.x) ? e : farthest;
+              return !farthest || e.progress > farthest.progress ? e : farthest;
             }, null);
 
             const angleX = (target.x + target.frameWidth / 2) - (tower.x + 0.5) * TILE_SIZE;
@@ -513,7 +523,7 @@ export default function Game() {
             currentTarget = next;
             bouncesLeft--;
           }
-          return; // chain projectiles despawn instantly
+          return;
         }
 
         // --- AOE ---
@@ -790,6 +800,18 @@ export default function Game() {
           const targetY = ty * TILE_SIZE + TILE_SIZE / 2 - e.frameHeight / 2;
           const dx = targetX - e.x;
           const dy = targetY - e.y;
+          const step = e.speed * SPEED * (delta / 16);
+
+          if (Math.abs(dx) > Math.abs(dy)) {
+            const stepX = Math.sign(dx) * step;
+            e.x += Math.abs(stepX) >= Math.abs(dx) ? dx : stepX;
+            e.progress += Math.abs(stepX); 
+          } else {
+            const stepY = Math.sign(dy) * step;
+            e.y += Math.abs(stepY) >= Math.abs(dy) ? dy : stepY;
+            e.progress += Math.abs(stepY); 
+          }
+
 
           if (e.slowUntil && Date.now() > e.slowUntil) {
             e.speed = e.originalSpeed || e.speed;
@@ -928,6 +950,7 @@ export default function Game() {
       type,
       x: startPosX,
       y: startPosY,
+      progress: 0,
       path,
       frameIndex: 0,
       lastFrameTime: 0,
