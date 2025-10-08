@@ -25,9 +25,6 @@ import connectDLImgSrc from "./assets/sprites/connect-dl.png";
 const SPEED = 0.4;
 const TILE_SIZE = 64;
 const INITIAL_HEALTH = 100;
-let WAVE_COUNT = 1;
-
-const wave = [];
 
 const WAVE_TEMPLATES = [
   ['imp', 'imp', 'imp', 'imp', 'imp'],
@@ -36,7 +33,6 @@ const WAVE_TEMPLATES = [
   ['splitter', 'splitter', 'splitter'],
   ['flyer', 'flyer', 'fast'],
   ['elite', 'fast'],
-  ['boss'],
 
 ];
 
@@ -255,6 +251,7 @@ export default function Game() {
   const [selectedTower, setSelectedTower] = useState("wall");
   const [towers, setTowers] = useState([]);
   const [projectiles, setProjectiles] = useState([]);
+  const [waveCount, setwaveCount] = useState(0);
 
   // -------- Pathfinding (BFS) --------
   function findPath(grid, start, goal) {
@@ -1116,6 +1113,56 @@ export default function Game() {
     }
   }
 
+  function generateWave(waveCount) {
+    const spawnAmount = Math.min(3 + Math.floor(waveCount / 2), 10);
+    console.log(spawnAmount)
+    const wave = [];
+
+    for (let i = 0; i < spawnAmount; i++) {
+      const pkg = WAVE_TEMPLATES[Math.floor(Math.random() * WAVE_TEMPLATES.length)];
+      wave.push(...pkg);
+    }
+
+    return wave;
+  }
+
+  function startWave() {
+    const waveTemplate = generateWave(waveCount);
+    let spawnIndex = 0;
+    setwaveCount(waveCount+1);
+
+    const spawnInterval = setInterval(() => {
+      if (spawnIndex >= waveTemplate.length) {
+        clearInterval(spawnInterval);
+        return;
+      }
+
+      const type = waveTemplate[spawnIndex];
+      const enemyData = ENEMY_TYPES[type];
+      const path = findPath(INITIAL_GRID, START_TILE, GOAL_TILE);
+
+      const startPos = path[0];
+      const startX = startPos[0] * TILE_SIZE;
+      const startY = startPos[1] * TILE_SIZE;
+
+      entitiesRef.current.push({
+        id: Date.now() + Math.random(),
+        type,
+        x: startX,
+        y: startY,
+        path,
+        pathIndex: 0,
+        frame: 0,
+        frameTimer: 0,
+        ...enemyData,
+        progress: 0,
+      });
+
+      spawnIndex++;
+    }, 800);
+  }
+
+
   function drawLightning(ctx, bolt) {
     const {x1, y1, x2, y2, createdAt, duration} = bolt;
     const progress = (Date.now() - createdAt) / duration;
@@ -1181,6 +1228,8 @@ export default function Game() {
       >
         {shootMode ? "Shoot Mode: ON" : "Shoot Mode: OFF"}
       </button>
+      <button onClick={startWave}>Start Next Wave (Wave {waveCount + 1})</button>
+
 
       {/* Tower Selection */}
       {placeWallMode && (
@@ -1233,7 +1282,6 @@ export default function Game() {
           >
             Buff
           </button>
-          
         </div>
       )}
 
