@@ -25,6 +25,21 @@ import connectDLImgSrc from "./assets/sprites/connect-dl.png";
 const SPEED = 0.4;
 const TILE_SIZE = 64;
 const INITIAL_HEALTH = 100;
+let WAVE_COUNT = 1;
+
+const wave = [];
+
+const WAVE_TEMPLATES = [
+  ['imp', 'imp', 'imp', 'imp', 'imp'],
+  ['imp', 'imp', 'elite'],
+  ['fast', 'fast', 'fast'],
+  ['splitter', 'splitter', 'splitter'],
+  ['flyer', 'flyer', 'fast'],
+  ['elite', 'fast'],
+  ['boss'],
+
+];
+
 
 const INITIAL_GRID = [
   [1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1],
