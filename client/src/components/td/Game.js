@@ -218,7 +218,7 @@ const TOWER_TYPES = {
     bounce: 0,
     fireRate: 1200,
     buildable: true,
-    bulletSpeed: 100000,
+    bulletSpeed: 1000,
     bulletSprite: "bullet"
   },
   buff: {
@@ -368,13 +368,16 @@ export default function Game() {
           tower.lastShotTime = now;
 
           if (tower.sprite === "acid") {
-            const inRange = entitiesRef.current.filter((e) => {
-              const dx = (e.x + e.frameWidth / 2) - ((tower.x + 0.5) * TILE_SIZE);
-              const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
-              return Math.sqrt(dx*dx + dy*dy) <= tower.range;
-            });
+              const inRange = entitiesRef.current.filter((e) => {
+                const dx = (e.x + e.frameWidth / 2) - ((tower.x + 0.5) * TILE_SIZE);
+                const dy = (e.y + e.frameHeight / 2) - ((tower.y + 0.5) * TILE_SIZE);
+                return Math.sqrt(dx*dx + dy*dy) <= tower.range;
+              });
 
-            if (!inRange) return;
+              if (inRange.length === 0) {
+                tower.cooldown = 0;
+                return; 
+              }
 
             const centerX = (tower.x + 0.5) * TILE_SIZE;
             const centerY = (tower.y + 0.5) * TILE_SIZE;
@@ -401,6 +404,20 @@ export default function Game() {
                 dy,
               });
             }
+          } else if (tower.sprite === "sniper") {
+            const inRange = entitiesRef.current;
+            if (inRange.length === 0) return;
+            
+            const target = inRange.reduce((farthest, e) => {
+              return !farthest || e.progress > farthest.progress ? e : farthest;
+            }, null);
+            
+            if (target) applyDamage(target, {
+              damage: tower.damage,
+              isSniper: true
+            });
+            
+            return; 
           } else if (tower.sprite === "slow") {
             const inRange = entitiesRef.current.filter((e) => {
               const dx = (e.x + e.frameWidth / 2) - ((tower.x + 0.5) * TILE_SIZE);
@@ -769,15 +786,21 @@ export default function Game() {
         }
       });
 
-
       // --- Draw entities ---
       for (let i = entitiesRef.current.length - 1; i >= 0; i--) {
         const e = entitiesRef.current[i];
         let skipMovement = false;
-
         if (e.hp <= 0) {
-          if (e.type === "splitter") spawnChildren(e, "imp", 3);
+          if (e.type === "splitter") {spawnChildren(e, "imp", 3);}
           else if (e.type === "fast") spawnChildren(e, "imp", 1);
+          entitiesRef.current.splice(i, 1);
+          continue;
+        }
+
+        if (e.path && e.path.length === 1) {
+          healthRef.current = Math.max(healthRef.current - e.damage, 0);
+          if (e.type === "splitter") spawnChildren(e, "imp", 3);
+          else if (e.type === "fast") spawnChildren(e, "imp", 2);
           entitiesRef.current.splice(i, 1);
           continue;
         }
@@ -1018,9 +1041,6 @@ export default function Game() {
     }
 
     enemy.hp -= proj.damage;
-    if (enemy.hp <= 0) {
-      entitiesRef.current = entitiesRef.current.filter((e) => e.id !== enemy.id);
-    }
   };
 
 
@@ -1129,7 +1149,8 @@ export default function Game() {
   function startWave() {
     const waveTemplate = generateWave(waveCount);
     let spawnIndex = 0;
-    setwaveCount(waveCount+1);
+
+    setwaveCount((prev) => prev + 1);
 
     const spawnInterval = setInterval(() => {
       if (spawnIndex >= waveTemplate.length) {
@@ -1138,30 +1159,11 @@ export default function Game() {
       }
 
       const type = waveTemplate[spawnIndex];
-      const enemyData = ENEMY_TYPES[type];
-      const path = findPath(INITIAL_GRID, START_TILE, GOAL_TILE);
-
-      const startPos = path[0];
-      const startX = startPos[0] * TILE_SIZE;
-      const startY = startPos[1] * TILE_SIZE;
-
-      entitiesRef.current.push({
-        id: Date.now() + Math.random(),
-        type,
-        x: startX,
-        y: startY,
-        path,
-        pathIndex: 0,
-        frame: 0,
-        frameTimer: 0,
-        ...enemyData,
-        progress: 0,
-      });
+      spawnEntity(type); // ✅ use the main spawner to handle everything
 
       spawnIndex++;
-    }, 800);
+    }, 400);
   }
-
 
   function drawLightning(ctx, bolt) {
     const {x1, y1, x2, y2, createdAt, duration} = bolt;
