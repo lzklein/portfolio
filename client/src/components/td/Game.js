@@ -1199,7 +1199,6 @@ export default function Game() {
     ctx.beginPath();
     ctx.moveTo(x1, y1);
 
-    // jagged effect with 4 segments
     let segments = 4;
     for (let i = 1; i < segments; i++) {
       let t = i / segments;
