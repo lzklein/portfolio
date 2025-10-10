@@ -1146,11 +1146,18 @@ export default function Game() {
 
   function generateWave(waveCount) {
     const spawnAmount = Math.min(1 + Math.floor(waveCount / 2), 10);
-    console.log(spawnAmount)
     const wave = [];
 
     for (let i = 0; i < spawnAmount; i++) {
-      const pkg = WAVE_TEMPLATES[Math.floor(Math.random() * WAVE_TEMPLATES.length)];
+      const allowedTemplates = WAVE_TEMPLATES.filter(pkg => {
+        // restrict 'fast' or 'flyer' until wave 5
+        if (waveCount < 5 && (pkg.includes('fast') || pkg.includes('flyer'))) {
+          return false;
+        }
+        return true;
+      });
+
+      const pkg = allowedTemplates[Math.floor(Math.random() * allowedTemplates.length)];
       wave.push(...pkg);
     }
 
@@ -1159,10 +1166,12 @@ export default function Game() {
 
   function startWave() {
     const waveTemplate = generateWave(waveCount);
-    console.log(waveTemplate);
     let spawnIndex = 0;
-
     setwaveCount((prev) => prev + 1);
+
+    if((waveCount+1) % 5 === 0){
+      spawnEntity("boss");
+    }
 
     const spawnInterval = setInterval(() => {
       if (spawnIndex >= waveTemplate.length) {
