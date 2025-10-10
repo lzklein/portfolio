@@ -50,6 +50,9 @@ const GAME_BOARD = [
   ["F","W","W","W","P","P","P","P","P","P","P","P","P","W","W","W","F"],
   ["V","V","V","V","V","V","V","V","E","V","V","V","V","V","V","V","V"],
 ]
+
+const WALKABLE_TILES = ["B", "P", "E"]
+
 const INITIAL_GRID = [
   [1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1],
   [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
@@ -262,11 +265,13 @@ export default function Game() {
   const [demolishMode, setDemolishMode] = useState(false);
   const [shootMode, setShootMode] = useState(false);
   const [selectedTower, setSelectedTower] = useState("wall");
+  const [waveCount, setwaveCount] = useState(0);
+  const [mapUpgrade, setMapUpgrade] = useState(0);
+
   const [towers, setTowers] = useState([]);
   const [projectiles, setProjectiles] = useState([]);
-  const [waveCount, setwaveCount] = useState(0);
 
-  // -------- Pathfinding (BFS) --------
+  // --- Pathfinding (BFS) ---
   function findPath(grid, start, goal) {
     const rows = grid.length;
     const cols = grid[0].length;
@@ -308,7 +313,7 @@ export default function Game() {
     return null;
   }
 
-  // -------- Game Loop & Drawing --------
+  // --- sprite drawing ---
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -346,7 +351,7 @@ export default function Game() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(board, 0, 0, canvas.width, canvas.height);
 
-      // === Draw tower ranges ===
+      // !(TEMP) ---  tower ranges ---
       towersRef.current.forEach((t) => {
         if (t.range && t.range > 0) {
           const cx = t.x * TILE_SIZE + TILE_SIZE / 2;
@@ -371,10 +376,10 @@ export default function Game() {
 
       const scale = 2;
 
-      // === towers firing ===
+      // --- tower firing logic ---
       const now = Date.now();
       towersRef.current.forEach((tower) => {
-        if (!tower.fireRate) return; // non-firing towers
+        if (!tower.fireRate) return;
         if (!tower.lastShotTime) tower.lastShotTime = 0;
 
         if (now - tower.lastShotTime >= tower.fireRate) {
@@ -478,7 +483,7 @@ export default function Game() {
               x: (tower.x + 0.5) * TILE_SIZE,
               y: (tower.y + 0.5) * TILE_SIZE,
               targetId: target.id,
-              speed: Infinity, // hits instantly
+              speed: Infinity, // hitscan
               damage: tower.damage,
               pierce: 0,
               aoe: 0,
@@ -526,11 +531,9 @@ export default function Game() {
         }
       });
 
-      // === update projectiles ===
       const updatedProjectiles = [];
 
       projectilesRef.current.forEach((p) => {
-        // --- Chain lightning ---
         if (p.isChain) {
           let currentTarget = entitiesRef.current.find((e) => e.id === p.targetId);
           let bouncesLeft = p.bounce;
@@ -550,7 +553,6 @@ export default function Game() {
               duration: 200,
             });
 
-            // pick next target
             const next = entitiesRef.current.find((e) => {
               if (p.hitSet.has(e.id)) return false;
               const dx = (e.x + e.frameWidth / 2) - (currentTarget.x + currentTarget.frameWidth / 2);
@@ -568,7 +570,6 @@ export default function Game() {
           return;
         }
 
-        // --- AOE ---
         if (p.aoe > 0) {
           const target = entitiesRef.current.find((e) => e.id === p.targetId);
           if (!target) return;
@@ -592,7 +593,7 @@ export default function Game() {
                 applyDamage(e, p);
               }
             });
-            return; // despawn
+            return;
           }
 
           const moveX = (dx / dist) * p.speed;
@@ -610,7 +611,6 @@ export default function Game() {
           return;
         }
 
-        // --- Pierce ---
         if (p.pierce > 0) {
           if (!p.hitSet) p.hitSet = new Set();
 
@@ -650,7 +650,6 @@ export default function Game() {
           return;
         }
 
-        // --- Default projectile ---
         {
           const angle = Math.atan2(p.dy, p.dx);
           const moveX = Math.cos(angle) * p.speed;
@@ -969,7 +968,7 @@ export default function Game() {
   }, []);
 
 
-  // ------- spawn enemy -------
+  // --- spawn enemy ---
   function spawnEntity(type) {
     const cfg = ENEMY_TYPES[type];
     if (!cfg) return;
@@ -982,7 +981,6 @@ export default function Game() {
 
     let path = findPath(grid, START_TILE, GOAL_TILE);
     if (type === "flyer") {
-      // straight line to goal
       path = [START_TILE, GOAL_TILE];
     }
 
@@ -1011,7 +1009,7 @@ export default function Game() {
   }
 
 
-    // ------- spawn children -------
+    // --- spawn children ---
   function spawnChildren(parent, type, count) {
     for (let i = 0; i < count; i++) {
       const cfg = ENEMY_TYPES[type];
@@ -1057,7 +1055,7 @@ export default function Game() {
   };
 
 
-  // -------- Click Events --------
+  // --- Click Event ---
   function handleCanvasClick(e) {
     const rect = canvasRef.current.getBoundingClientRect();
       const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
