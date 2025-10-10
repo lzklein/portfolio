@@ -27,12 +27,12 @@ const TILE_SIZE = 64;
 const INITIAL_HEALTH = 100;
 
 const WAVE_TEMPLATES = [
-  ['imp', 'imp', 'imp', 'imp', 'imp'],
-  ['imp', 'imp', 'elite'],
-  ['fast', 'fast', 'fast'],
-  ['splitter', 'splitter', 'splitter'],
-  ['flyer', 'flyer', 'fast'],
-  ['elite', 'fast'],
+  ['imp', 'imp', 'imp'],
+  ['imp', 'elite'],
+  ['fast', 'fast'],
+  ['splitter'],
+  ['flyer', 'flyer'],
+  ['elite', 'flyer'],
 
 ];
 
@@ -1145,7 +1145,7 @@ export default function Game() {
   }
 
   function generateWave(waveCount) {
-    const spawnAmount = Math.min(3 + Math.floor(waveCount / 2), 10);
+    const spawnAmount = Math.min(1 + Math.floor(waveCount / 2), 10);
     console.log(spawnAmount)
     const wave = [];
 
@@ -1159,6 +1159,7 @@ export default function Game() {
 
   function startWave() {
     const waveTemplate = generateWave(waveCount);
+    console.log(waveTemplate);
     let spawnIndex = 0;
 
     setwaveCount((prev) => prev + 1);
@@ -1170,7 +1171,7 @@ export default function Game() {
       }
 
       const type = waveTemplate[spawnIndex];
-      spawnEntity(type); // ✅ use the main spawner to handle everything
+      spawnEntity(type);
 
       spawnIndex++;
     }, 400);
