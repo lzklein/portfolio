@@ -280,6 +280,7 @@ export default function Game() {
   const [selectedTower, setSelectedTower] = useState("wall");
   const [waveCount, setwaveCount] = useState(0);
   const [mapUpgrade, setMapUpgrade] = useState(0);
+  const [board, setBoard] = useState(GAME_BOARD);
 
   const [towers, setTowers] = useState([]);
   const [projectiles, setProjectiles] = useState([]);
@@ -1157,6 +1158,7 @@ export default function Game() {
     }
   }
 
+  // --- handle waves ---
   function generateWave(waveCount) {
     const spawnAmount = Math.min(1 + Math.floor(waveCount / 2), 10);
     const wave = [];
@@ -1226,6 +1228,31 @@ export default function Game() {
     ctx.stroke();
     ctx.restore();
   }
+
+  // --- map upgrades ---
+  function handleUpgrade() {
+    setMapUpgrade(prev => prev + 1);
+    setBoard(upgradeMap(mapUpgrade));
+  }
+
+  function upgradeMap(level) {
+    const newBoard = GAME_BOARD.map((row) => [...row]);
+
+    for (let r = 0; r < newBoard.length; r++) {
+      for (let c = 0; c < newBoard[r].length; c++) {
+        if (level === 0 && c >= 4 && c <= 6) {
+          if (["U","W","D"].includes(newBoard[r][c])) newBoard[r][c] = "C";
+        } else if (level === 1 && c >= 7 && c <= 9) {
+          if (["U","W","D"].includes(newBoard[r][c])) newBoard[r][c] = "C";
+        } else if (level === 2 && c >= 10 && c <= 12) {
+          if (["U","W","D"].includes(newBoard[r][c])) newBoard[r][c] = "C";
+        }
+      }
+    }
+
+    return newBoard;
+  }
+
 
   return (
     <div style={{ textAlign: "center" }}>
