@@ -36,9 +36,9 @@ const WAVE_TEMPLATES = [
 
 ];
 
-// R=River B=Bridge F=Forest W=Woods C=ClearedWoods P=Path V=Village E=Entrance
 const GAME_BOARD = [
-  ["R","R","R","R","R","R","R","R","B","R","R","R","R","R","R","R","R"],
+  ["T","R","R","R","R","R","R","R","B","R","R","R","R","R","R","R","T"],
+  ["F","U","U","U","P","P","P","P","P","P","P","P","P","U","U","U","F"],
   ["F","W","W","W","P","P","P","P","P","P","P","P","P","W","W","W","F"],
   ["F","W","W","W","P","P","P","P","P","P","P","P","P","W","W","W","F"],
   ["F","W","W","W","P","P","P","P","P","P","P","P","P","W","W","W","F"],
@@ -46,12 +46,25 @@ const GAME_BOARD = [
   ["F","W","W","W","P","P","P","P","P","P","P","P","P","W","W","W","F"],
   ["F","W","W","W","P","P","P","P","P","P","P","P","P","W","W","W","F"],
   ["F","W","W","W","P","P","P","P","P","P","P","P","P","W","W","W","F"],
-  ["F","W","W","W","P","P","P","P","P","P","P","P","P","W","W","W","F"],
-  ["F","W","W","W","P","P","P","P","P","P","P","P","P","W","W","W","F"],
+  ["L","D","D","D","P","P","P","P","P","P","P","P","P","D","D","D","L"],
   ["V","V","V","V","V","V","V","V","E","V","V","V","V","V","V","V","V"],
 ]
 
-const WALKABLE_TILES = ["B", "P", "E"]
+const TILE_TYPES = {
+  "T": { name: "TopForest", walkable: false, sprite: "top_corner.png" },
+  "L": { name: "LowForest", walkable: false, sprite: "low_corner.png" },
+  "R": { name: "River", walkable: true, sprite: "road.png" },
+  "B": { name: "Bridge", walkable: true, sprite: "bush.png" },
+  "F": { name: "Forest", walkable: false, sprite: "forest.png" },
+  "W": { name: "Woodland", walkable: false, sprite: "woodland.png" },
+  "U": { name: "UpWoodland", walkable: false, sprite: "up-woodland.png" },
+  "D": { name: "DownWoodland", walkable: false, sprite: "down-woodland.png" },
+  "C": { name: "ClearedWoodland", walkable: true, sprite: "clear-woodland.png" },
+  "P": { name: "Path", walkable: true, sprite: "path.png" },
+  "V": { name: "Village", walkable: false, sprite: "village.png" },
+  "E": { name: "Exit", walkable: true, sprite: "exit.png" },
+};
+
 
 const INITIAL_GRID = [
   [1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1],
