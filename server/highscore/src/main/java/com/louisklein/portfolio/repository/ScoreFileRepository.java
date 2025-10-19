@@ -2,9 +2,7 @@ package com.louisklein.portfolio.repository;
 
 import com.louisklein.portfolio.model.Score;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,5 +36,17 @@ public class ScoreFileRepository implements ScoreRepository {
         }
 
         return scores;
+    }
+
+    @Override
+    public void saveAll(List<Score> scores) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(CSV_FILE_PATH))) {
+            bw.write("id,score,initials,timestamp\n");
+            for (Score s : scores) {
+                bw.write(s.getId() + "," + s.getScore() + "," + s.getInitials() + "," + s.getTimestamp() + "\n");
+            }
+        } catch (IOException e) {
+            System.err.println("Error writing CSV: " + e.getMessage());
+        }
     }
 }
