@@ -1,13 +1,16 @@
 package com.louisklein.portfolio.repository;
 
 import com.louisklein.portfolio.model.Score;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
+@Repository
 public class ScoreFileRepository implements ScoreRepository {
-    private static final String CSV_FILE_PATH = "src/main/resources/scores.csv";
+    private static final String CSV_FILE_PATH = "src/main/java/resources/data.csv";
 
     @Override
     public List<Score> findAll() {
@@ -34,7 +37,6 @@ public class ScoreFileRepository implements ScoreRepository {
         } catch (IOException e) {
             System.err.println("Error reading CSV: " + e.getMessage());
         }
-
         return scores;
     }
 
