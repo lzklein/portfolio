@@ -263,6 +263,19 @@ const TOWER_TYPES = {
   },
 };
 
+const fetchScore = async () => {
+  try {
+    const response = await fetch("http://localhost:8080/api/scores");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log("Fetched scores:", data);
+  } catch (error) {
+    console.error("Failed to fetch scores:", error);
+  }
+};
+
 
 export default function Game() {
   const canvasRef = useRef(null);
@@ -1291,6 +1304,9 @@ export default function Game() {
         {shootMode ? "Shoot Mode: ON" : "Shoot Mode: OFF"}
       </button>
       <button onClick={startWave}>Start Next Wave (Wave {waveCount + 1})</button>
+      <button onClick={fetchScore}>
+            Fetch
+      </button>
 
 
       {/* Tower Selection */}
