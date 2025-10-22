@@ -2,11 +2,13 @@ package com.louisklein.portfolio.service;
 
 import com.louisklein.portfolio.model.Score;
 import com.louisklein.portfolio.repository.ScoreRepository;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 
+@Service
 public class ScoreService {
     private final ScoreRepository repository;
 
@@ -15,7 +17,9 @@ public class ScoreService {
     }
 
     public List<Score> getTopScores() {
-        return (List<Score>) repository.findAll();
+        List<Score> scores = repository.findAll();
+        scores.sort(Comparator.comparingInt(Score::getScore).reversed());
+        return scores;
     }
 
     public void addScore(int score, String initials) {
