@@ -29,13 +29,16 @@ import bottomTreesSrc from "./assets/sprites/tiles/trees-1.png";
 import midTreesSrc from "./assets/sprites/tiles/trees-2.png";
 import topLeftTreesSrc from "./assets/sprites/tiles/trees-3.png";
 import topRightTreesSrc from "./assets/sprites/tiles/trees-4.png";
+import stumpsSrc from "./assets/sprites/tiles/stumps.png";
 import riverSrc from "./assets/sprites/tiles/water.png";
 import bridgeSrc from "./assets/sprites/tiles/bridge.png";
 import grassFenceSrc from "./assets/sprites/tiles/fence-1.png";
+import pathFenceSrc from "./assets/sprites/tiles/fence-2.png";
 import pathVar1Src from "./assets/sprites/tiles/dirt-1.png";
 import pathVar2Src from "./assets/sprites/tiles/dirt-2.png";
 import pathVar3Src from "./assets/sprites/tiles/dirt-3.png";
 import pathVar4Src from "./assets/sprites/tiles/dirt-4.png";
+import gateSrc from "./assets/sprites/tiles/gate.png";
 
 const SPEED = 0.4;
 const TILE_SIZE = 64;
@@ -53,34 +56,38 @@ const WAVE_TEMPLATES = [
 
 const GAME_BOARD = [
   ["Y","W","W","W","R","R","R","R","B","R","R","R","R","X","X","X","Z"],
-  ["F","T","T","T","P","P","P","P","P","P","P","P","P","T","T","T","F"],
-  ["F","T","T","T","P","P","P","P","P","P","P","P","P","T","T","T","F"],
-  ["F","T","T","T","P","P","P","P","P","P","P","P","P","T","T","T","F"],
-  ["F","T","T","T","P","P","P","P","P","P","P","P","P","T","T","T","F"],
-  ["F","T","T","T","P","P","P","P","P","P","P","P","P","T","T","T","F"],
-  ["F","T","T","T","P","P","P","P","P","P","P","P","P","T","T","T","F"],
-  ["F","T","T","T","P","P","P","P","P","P","P","P","P","T","T","T","F"],
-  ["F","T","T","T","P","P","P","P","P","P","P","P","P","T","T","T","F"],
-  ["U","D","D","D","P","P","P","P","P","P","P","P","P","D","D","D","U"],
-  ["M","M","M","M","N","N","N","N","E","N","N","N","N","M","M","M","M"],
+  ["F","T","T","T","P","P","P","P","P","P","P","P","P","M","M","M","G"],
+  ["F","T","T","T","P","P","P","P","P","P","P","P","P","M","M","M","G"],
+  ["F","T","T","T","P","P","P","P","P","P","P","P","P","M","M","M","G"],
+  ["F","T","T","T","P","P","P","P","P","P","P","P","P","M","M","M","G"],
+  ["F","T","T","T","P","P","P","P","P","P","P","P","P","M","M","M","G"],
+  ["F","T","T","T","P","P","P","P","P","P","P","P","P","M","M","M","G"],
+  ["F","T","T","T","P","P","P","P","P","P","P","P","P","M","M","M","G"],
+  ["F","T","T","T","P","P","P","P","P","P","P","P","P","M","M","M","G"],
+  ["U","D","D","D","P","P","P","P","P","P","P","P","P","N","N","N","H"],
+  ["A","A","A","A","B","B","B","B","G","B","B","B","B","A","A","A","A"],
 ]
 
 const TILE_TYPES = {
-  "Y": { name: "TopForestLeft", walkable: false, sprite: "forest-3.png" },
-  "Z": { name: "TopForestRight", walkable: false, sprite: "forest-4.png" },
-  "F": { name: "Forest", walkable: false, sprite: "forest-2.png" },
-  "U": { name: "BottomForest", walkable: false, sprite: "forest-1.png" },
-  "R": { name: "River", walkable: true, sprite: "water.png" },
-  "B": { name: "Bridge", walkable: true, sprite: "bridge.png" },
-  "T": { name: "Trees", walkable: false, sprite: "trees-2.png" },
-  "W": { name: "TopTreesLeft", walkable: false, sprite: "trees-3.png" },
-  "X": { name: "TopTreesRight", walkable: false, sprite: "trees-4.png" },
-  "D": { name: "BottomTrees", walkable: false, sprite: "trees-1.png" },
-  "S": { name: "Stumps", walkable: true, sprite: "stumps.png" },
-  "P": { name: "Path", walkable: true, sprites: ["dirt-1.png", "dirt-2.png", "dirt-3.png", "dirt-4.png"] },
-  "M": { name: "FenceGrass", walkable: false, sprite: "fence-1.png" },
-  "N": { name: "FencePath", walkable: false, sprite: "fence-2.png" },
-  "E": { name: "Exit", walkable: true, sprite: "gate.png" },
+  "Y": { name: "TopForestLeft", walkable: false, sprite: topLeftForestSrc },
+  "Z": { name: "TopForestRight", walkable: false, sprite: topRightForestSrc },
+  "F": { name: "Forest", walkable: false, sprite: midForestSrc },
+  "G": { name: "MirroredForest", walkable: false, sprite: midForestSrc },
+  "U": { name: "BottomForest", walkable: false, sprite: bottomForestSrc },
+  "H": { name: "MirroredBottomForest", walkable: false, sprite: bottomForestSrc },
+  "R": { name: "River", walkable: true, sprite: riverSrc },
+  "B": { name: "Bridge", walkable: true, sprite: bridgeSrc },
+  "T": { name: "Trees", walkable: false, sprite: midTreesSrc },
+  "M": { name: "MirroredTrees", walkable: false, sprite: midTreesSrc },
+  "W": { name: "TopTreesLeft", walkable: false, sprite: topLeftTreesSrc },
+  "X": { name: "TopTreesRight", walkable: false, sprite: topRightTreesSrc },
+  "D": { name: "BottomTrees", walkable: false, sprite: bottomTreesSrc },
+  "N": { name: "MirroredBottomTrees", walkable: false, sprite: bottomTreesSrc },
+  "S": { name: "Stumps", walkable: true, sprite: stumpsSrc},
+  "P": { name: "Path", walkable: true, sprites: [pathVar1Src, pathVar2Src, pathVar3Src, pathVar4Src] },
+  "A": { name: "FenceGrass", walkable: false, sprite: grassFenceSrc },
+  "B": { name: "FencePath", walkable: false, sprite: pathFenceSrc },
+  "G": { name: "Gate", walkable: true, sprite: gateSrc },
 };
 
 const INITIAL_GRID = [
