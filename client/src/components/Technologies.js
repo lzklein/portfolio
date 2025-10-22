@@ -2,7 +2,6 @@ import React from 'react'
 import JavaBadge from '../images/Java.jpg'
 
 const Technologies = () => {
-    // click to show gif/screenshot or something example of technology i did?
   return (
     <div>
     <h3>Technologies</h3>

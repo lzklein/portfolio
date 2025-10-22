@@ -2,8 +2,6 @@ import React from 'react'
 import Game from './td/Game.js';
 // TODO
 // !primary -- Content, basic appearances
-// ?secondary -- 3d fx, animations, arcade, 
-
 
 const Home = () => {
 

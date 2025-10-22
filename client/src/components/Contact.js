@@ -1,5 +1,6 @@
 import React from 'react'
 import Links from './Links.js'
+
 const Contact = () => {
   return (
     <div>
