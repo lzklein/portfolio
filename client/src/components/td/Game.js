@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from "react";
-import boardImg from "./assets/sprites/board.png";
 import impSheet from "./assets/sprites/imp-sheet.png";
 import eliteSheet from "./assets/sprites/elite-sheet.png";
 import fastSheet from "./assets/sprites/fast-sheet.png";
@@ -69,22 +68,22 @@ const GAME_BOARD = [
 ]
 
 const TILE_TYPES = {
-  "A": { name: "TopForestLeft", walkable: false, sprite: topLeftForestSrc },
-  "B": { name: "TopForestRight", walkable: false, sprite: topRightForestSrc },
+  "A": { name: "TopForestLeft", walkable: false, sprite: topLeftForestSrc, animated:true },
+  "B": { name: "TopForestRight", walkable: false, sprite: topRightForestSrc, animated:true  },
   "F": { name: "Forest", walkable: false, sprite: midForestSrc },
   "H": { name: "MirroredForest", walkable: false, sprite: midForestSrc, mirror: true },
   "Y": { name: "BottomForest", walkable: false, sprite: bottomForestSrc },
   "Z": { name: "MirroredBottomForest", walkable: false, sprite: bottomForestSrc, mirror: true },
 
-  "C": { name: "TopTreesLeft", walkable: false, sprite: topLeftTreesSrc },
-  "D": { name: "TopTreesRight", walkable: false, sprite: topRightTreesSrc },
+  "C": { name: "TopTreesLeft", walkable: false, sprite: topLeftTreesSrc, animated:true  },
+  "D": { name: "TopTreesRight", walkable: false, sprite: topRightTreesSrc, animated:true  },
   "T": { name: "Trees", walkable: false, sprite: midTreesSrc },
   "V": { name: "MirroredTrees", walkable: false, sprite: midTreesSrc, mirror: true },
   "W": { name: "BottomTrees", walkable: false, sprite: bottomTreesSrc },
   "X": { name: "MirroredBottomTrees", walkable: false, sprite: bottomTreesSrc, mirror: true },
   "S": { name: "Stumps", walkable: true, sprite: stumpsSrc},
 
-  "R": { name: "River", walkable: true, sprite: riverSrc },
+  "R": { name: "River", walkable: true, sprite: riverSrc, animated:true  },
   "E": { name: "Bridge", walkable: true, sprite: bridgeSrc },
 
   "P": { name: "Path", walkable: true, sprites: [pathVar1Src, pathVar2Src, pathVar3Src, pathVar4Src] },
@@ -325,6 +324,13 @@ export default function Game() {
   const [towers, setTowers] = useState([]);
   const [projectiles, setProjectiles] = useState([]);
 
+  let animTime = 0;
+  const pathVariants = GAME_BOARD.map(row =>
+    row.map(cell =>
+      TILE_TYPES[cell]?.sprites ? Math.floor(Math.random() * 4) : null
+    )
+  );
+
   // --- Pathfinding (BFS) ---
   function findPath(grid, start, goal) {
     const rows = grid.length;
@@ -373,7 +379,6 @@ export default function Game() {
     const ctx = canvas.getContext("2d");
     ctx.imageSmoothingEnabled = false;
 
-    const board = new Image(); board.src = boardImg;
     const impImg = new Image(); impImg.src = impSheet;
     const eliteImg = new Image(); eliteImg.src = eliteSheet;
     const fastImg = new Image(); fastImg.src = fastSheet;
@@ -403,7 +408,55 @@ export default function Game() {
       lastTime = timestamp;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(board, 0, 0, canvas.width, canvas.height);
+
+      animTime += delta;
+      const animFrame = Math.floor(animTime / 1500) % 2; //water animation timer (1.5s)
+
+      // -- Draw Game Board --
+      for (let y = 0; y < GAME_BOARD.length; y++) {
+        for (let x = 0; x < GAME_BOARD[y].length; x++) {
+          const tileKey = GAME_BOARD[y][x];
+          const tile = TILE_TYPES[tileKey];
+          if (!tile) continue;
+
+          let sprite;
+
+          if (Array.isArray(tile.sprites)) {
+            const randIndex = pathVariants[y][x];
+            sprite = tile.sprites[randIndex];
+          } else {
+            sprite = tile.sprite;
+          }
+
+          const img = new Image();
+          img.src = sprite;
+
+          if (tile.animated) {
+              const frameWidth = 32;
+              const frameHeight = 32; 
+              const frame = animFrame % 2;
+              const sx = frame * frameWidth;
+              const sy = 0;
+
+              ctx.drawImage(
+                img,
+                sx, sy, frameWidth, frameHeight, 
+                x * TILE_SIZE, y * TILE_SIZE,
+                TILE_SIZE, TILE_SIZE
+              );
+          } else {
+            if (tile.mirror) {
+              ctx.save();
+              ctx.scale(-1, 1);
+              ctx.drawImage(img, -((x + 1) * TILE_SIZE), y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+              ctx.restore();
+            } else {
+              ctx.drawImage(img, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            }
+          }
+        }
+      }
+
 
       // !(TEMP) ---  tower ranges ---
       towersRef.current.forEach((t) => {
