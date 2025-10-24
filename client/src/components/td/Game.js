@@ -273,7 +273,7 @@ const TOWER_TYPES = {
     bounce: 0,
     fireRate: 1200,
     buildable: true,
-    bulletSpeed: 1000,
+    bulletSpeed: Infinity,
     bulletSprite: "bullet"
   },
   buff: {
@@ -283,9 +283,9 @@ const TOWER_TYPES = {
     pierce: 0,
     aoe: 0,
     bounce: 0,
-    fireRate: 100,
+    fireRate: 1000,
     buildable: true,
-    bulletSpeed: 100,
+    bulletSpeed: Infinity,
   },
 };
 
@@ -458,20 +458,20 @@ export default function Game() {
       }
 
 
-      // !(TEMP) ---  tower ranges ---
-      towersRef.current.forEach((t) => {
-        if (t.range && t.range > 0) {
-          const cx = t.x * TILE_SIZE + TILE_SIZE / 2;
-          const cy = t.y * TILE_SIZE + TILE_SIZE / 2;
-          ctx.beginPath();
-          ctx.arc(cx, cy, t.range, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-          ctx.fill();
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-          ctx.stroke();
-        }
-      });
+      // // !(TEMP) --- visual tower ranges ---
+      // towersRef.current.forEach((t) => {
+      //   if (t.range && t.range > 0) {
+      //     const cx = t.x * TILE_SIZE + TILE_SIZE / 2;
+      //     const cy = t.y * TILE_SIZE + TILE_SIZE / 2;
+      //     ctx.beginPath();
+      //     ctx.arc(cx, cy, t.range, 0, Math.PI * 2);
+      //     ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+      //     ctx.fill();
+      //     ctx.lineWidth = 2;
+      //     ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+      //     ctx.stroke();
+      //   }
+      // });
 
       // --- Draw HP ---
       const hpX = canvas.width - 150;
@@ -491,6 +491,9 @@ export default function Game() {
 
         if (now - tower.lastShotTime >= tower.fireRate) {
           tower.lastShotTime = now;
+
+          if (!tower.baseDamage) tower.baseDamage = tower.damage;
+          if (!tower.activeBuffs) tower.activeBuffs = []; 
 
           if (tower.sprite === "acid") {
               const inRange = entitiesRef.current.filter((e) => {
@@ -529,6 +532,24 @@ export default function Game() {
                 dy,
               });
             }
+          } else if (tower.sprite === "buff") {
+            towersRef.current.forEach((t) => {
+              if (t === tower) return;
+              const dx = (t.x - tower.x) * TILE_SIZE;
+              const dy = (t.y - tower.y) * TILE_SIZE;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+
+              if (dist <= tower.range) {
+                t.activeBuffs = t.activeBuffs || [];
+                if (!t.activeBuffs.includes(tower.id)) t.activeBuffs.push(tower.id);
+              } else {
+                t.activeBuffs = t.activeBuffs?.filter(id => id !== tower.id);
+              }
+
+              t.damage = t.baseDamage * (1 + 0.25 * (t.activeBuffs?.length || 0));
+              t.fireRate = TOWER_TYPES[t.sprite].fireRate / (1 + 0.25 * (t.activeBuffs?.length || 0));
+            });
+            return;
           } else if (tower.sprite === "sniper") {
             const inRange = entitiesRef.current;
             if (inRange.length === 0) return;
@@ -1158,6 +1179,7 @@ export default function Game() {
       enemy.slowUntil = Date.now() + SLOW_DURATION;
     }
 
+    console.log(proj.damage);
     enemy.hp -= proj.damage;
   };
 
