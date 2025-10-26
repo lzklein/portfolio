@@ -92,19 +92,12 @@ const TILE_TYPES = {
   "G": { name: "Gate", walkable: true, sprite: gateSrc },
 };
 
-const INITIAL_GRID = [
-  [1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1],
-  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
-  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
-  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
-  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
-  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
-  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
-  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
-  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
-  [1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1],
-  [1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1],
-];
+function getGridFromBoard(board) {
+  return board.map(row =>
+    row.map(tile => (TILE_TYPES[tile]?.walkable ? 0 : 1))
+  );
+}
+
 
 const NO_BUILD_TILES = [
   [8, 0],   // entrance
@@ -1102,7 +1095,7 @@ export default function Game() {
     if (!cfg) return;
 
     const id = nextId.current++;
-    const grid = INITIAL_GRID.map((row) => [...row]);
+    const grid = getGridFromBoard(GAME_BOARD).map((row) => [...row]);
     towersRef.current.forEach(({x: wx, y: wy}) => {
       if (wy >= 0 && wy < grid.length && wx >= 0 && wx < grid[0].length) grid[wy][wx] = 1;
     });
@@ -1144,7 +1137,7 @@ export default function Game() {
       if (!cfg) continue;
 
       const id = nextId.current++;
-      const grid = INITIAL_GRID.map((row) => [...row]);
+      const grid = getGridFromBoard(GAME_BOARD).map((row) => [...row]);
       towersRef.current.forEach(({x: wx, y: wy}) => {
         if (wy >= 0 && wy < grid.length && wx >= 0 && wx < grid[0].length) grid[wy][wx] = 1;
       });
@@ -1190,7 +1183,7 @@ export default function Game() {
       const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
       const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
 
-      if (y < 0 || y >= INITIAL_GRID.length || x < 0 || x >= INITIAL_GRID[0].length) return;
+      if (y < 0 || y >= getGridFromBoard(GAME_BOARD).length || x < 0 || x >= getGridFromBoard(GAME_BOARD)[0].length) return;
 
       if (!shootMode) {
         if (NO_BUILD_TILES.some(([nx, ny]) => nx === x && ny === y)) return;
@@ -1225,6 +1218,7 @@ export default function Game() {
     if (placeWallMode) {
       // forbidden tile zones
       if (NO_BUILD_TILES.some(([nx, ny]) => nx === x && ny === y)) return;
+      if (getGridFromBoard(GAME_BOARD)[y][x] !== 0) return;
 
       // occupied tiles check
       if (towersRef.current.some(t => t.x === x && t.y === y)) return;
