@@ -83,6 +83,7 @@ const TILE_TYPES = {
   "X": { name: "MirroredBottomTrees", walkable: false, sprite: bottomTreesSrc, mirror: true },
   "S": { name: "Stumps", walkable: true, sprite: stumpsSrc},
 
+  "R": { name: "River", walkable: false, sprite: riverSrc, animated:true  },
   "E": { name: "Bridge", walkable: true, sprite: bridgeSrc },
 
   "P": { name: "Path", walkable: true, sprites: [pathVar1Src, pathVar2Src, pathVar3Src, pathVar4Src] },
