@@ -1345,28 +1345,53 @@ export default function Game() {
   }
 
   // --- map upgrades ---
-  function handleUpgrade() {
-    setMapUpgrade(prev => prev + 1);
-    setBoard(upgradeMap(mapUpgrade));
-  }
+  function handleMapUpgrade() {
+    if(mapUpgrade>=3){
+      console.log("Map fully upgraded!");
+      return;
+    }
+    const upgradeCandidates = ["C", "T", "W", "D", "V", "X"];
+    const spreadSources = ["P", "S", "R"];
 
-  function upgradeMap(level) {
-    const newBoard = GAME_BOARD.map((row) => [...row]);
+    // copy board so we don’t modify while checking
+    const newBoard = GAME_BOARD.map(row => [...row]);
 
-    for (let r = 0; r < newBoard.length; r++) {
-      for (let c = 0; c < newBoard[r].length; c++) {
-        if (level === 0 && c >= 4 && c <= 6) {
-          if (["U","W","D"].includes(newBoard[r][c])) newBoard[r][c] = "C";
-        } else if (level === 1 && c >= 7 && c <= 9) {
-          if (["U","W","D"].includes(newBoard[r][c])) newBoard[r][c] = "C";
-        } else if (level === 2 && c >= 10 && c <= 12) {
-          if (["U","W","D"].includes(newBoard[r][c])) newBoard[r][c] = "C";
+    for (let y = 0; y < GAME_BOARD.length; y++) {
+      for (let x = 0; x < GAME_BOARD[y].length; x++) {
+        const tile = GAME_BOARD[y][x];
+        if (!upgradeCandidates.includes(tile)) continue;
+
+        // check 4 directions
+        const neighbors = [
+          GAME_BOARD[y - 1]?.[x],
+          GAME_BOARD[y + 1]?.[x],
+          GAME_BOARD[y]?.[x - 1],
+          GAME_BOARD[y]?.[x + 1],
+        ];
+
+        if (neighbors.some(n => spreadSources.includes(n))) {
+          if (tile === "C" || tile === "D") {
+            newBoard[y][x] = "R"; // river
+          } else {
+            newBoard[y][x] = "S"; // stumps
+          }
         }
       }
     }
 
-    return newBoard;
+    // mutate the original GAME_BOARD in place
+    for (let y = 0; y < GAME_BOARD.length; y++) {
+      for (let x = 0; x < GAME_BOARD[y].length; x++) {
+        GAME_BOARD[y][x] = newBoard[y][x];
+      }
+    }
+
+    setMapUpgrade(mapUpgrade+1);
+    console.log("Map upgraded!");
+    console.log(mapUpgrade);
   }
+
+
 
 
   return (
@@ -1409,6 +1434,8 @@ export default function Game() {
       <button onClick={fetchScore}>
             Fetch
       </button>
+      <button onClick={handleMapUpgrade}>Map Upgrade</button>
+
 
 
       {/* Tower Selection */}
