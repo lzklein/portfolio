@@ -546,7 +546,7 @@ export default function Game() {
                 t.activeBuffs = t.activeBuffs?.filter(id => id !== tower.id);
               }
 
-              t.damage = t.baseDamage * (1 + 0.25 * (t.activeBuffs?.length || 0));
+              t.damage = t.baseDamage * (1 + 0.5 * (t.activeBuffs?.length || 0));
               t.fireRate = TOWER_TYPES[t.sprite].fireRate / (1 + 0.25 * (t.activeBuffs?.length || 0));
             });
             return;
