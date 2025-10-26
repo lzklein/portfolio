@@ -1234,8 +1234,8 @@ export default function Game() {
       if (!towerCfg) return;
 
       // valid path check
-      if (INITIAL_GRID[y][x] === 0) {
-          const testGrid = INITIAL_GRID.map((row) => [...row]);
+      if (getGridFromBoard(GAME_BOARD)[y][x] === 0) {
+          const testGrid = getGridFromBoard(GAME_BOARD).map((row) => [...row]);
           towersRef.current.forEach(({x: wx, y: wy}) => {
             testGrid[wy][wx] = 1;
           });
