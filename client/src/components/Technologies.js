@@ -22,7 +22,7 @@ const Technologies = () => {
         C#
       </li>
       <li>
-        Java <img src={JavaBadge}/>
+        Java
       </li>
     </ul>
     </div>
