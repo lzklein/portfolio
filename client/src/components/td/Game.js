@@ -312,7 +312,6 @@ export default function Game() {
   const [selectedTower, setSelectedTower] = useState("wall");
   const [waveCount, setwaveCount] = useState(0);
   const [mapUpgrade, setMapUpgrade] = useState(0);
-  const [board, setBoard] = useState(GAME_BOARD);
 
   const [towers, setTowers] = useState([]);
   const [projectiles, setProjectiles] = useState([]);
