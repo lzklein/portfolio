@@ -50,8 +50,71 @@ const WAVE_TEMPLATES = [
   ['splitter'],
   ['flyer', 'flyer'],
   ['elite', 'flyer'],
-
 ];
+
+const CHALLENGE_WAVE_TEMPLATES = [
+  ['elite', 'elite'],
+  ['imp','imp','imp','imp','imp'],
+  ['flyer','flyer','flyer'],
+  ['boss'],
+  ['splitter','imp','splitter'],
+  ['fast','splitter','fast'],
+  ['elite','splitter','fast']
+]
+
+const REWARDS = [
+  ['acid',1],
+  ['slow', 1],
+  ['cannon',1],
+  ['arrow',2],
+  ['sniper',1],
+  ['buff',2],
+  ['chain',1],
+]
+
+const RARE_REWARDS = ['map','arrow','cannon','slow','sniper','buff','chain','acid']
+
+function generateBonusChallenges(waveCount) {
+  const challenges = [];
+
+  for (let i = 0; i < 3; i++) {
+    const bonusCount = Math.floor(waveCount / 3) + 1;
+
+    // Random roll for rare chance (1 out of 5)
+    const rareRoll = Math.floor(Math.random() * 5) + 1;
+    const isRare = rareRoll === 5;
+
+    // Pick random wave templates
+    const waves = [];
+    for (let w = 0; w < bonusCount; w++) {
+      const template = CHALLENGE_WAVE_TEMPLATES[
+        Math.floor(Math.random() * CHALLENGE_WAVE_TEMPLATES.length)
+      ];
+      waves.push(template);
+    }
+
+    // Generate reward
+    let reward;
+    if (isRare) {
+      const rareType = RARE_REWARDS[Math.floor(Math.random() * RARE_REWARDS.length)];
+      reward = { type: rareType, rare: true };
+    } else {
+      const [tower, qty] = REWARDS[Math.floor(Math.random() * REWARDS.length)];
+      reward = { type: tower, qty, rare: false };
+    }
+
+    challenges.push({
+      id: crypto.randomUUID(),
+      waves,
+      reward,
+      difficulty: isRare ? "rare" : "normal"
+    });
+  }
+
+  console.log(challenges);
+
+  return challenges;
+}
 
 const GAME_BOARD = [
   ["A","C","C","C","R","R","R","R","E","R","R","R","R","D","D","D","B"],
