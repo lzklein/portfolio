@@ -76,10 +76,10 @@ const RARE_REWARDS = ['map','arrow','cannon','slow','sniper','buff','chain','aci
 
 function generateBonusChallenges(waveCount) {
   const challenges = [];
-
+  console.log(waveCount);
   for (let i = 0; i < 3; i++) {
     const bonusCount = Math.floor(waveCount / 3) + 1;
-
+    console.log(bonusCount);
     // Random roll for rare chance (1 out of 5)
     const rareRoll = Math.floor(Math.random() * 5) + 1;
     const isRare = rareRoll === 5;
@@ -160,7 +160,6 @@ function getGridFromBoard(board) {
     row.map(tile => (TILE_TYPES[tile]?.walkable ? 0 : 1))
   );
 }
-
 
 const NO_BUILD_TILES = [
   [8, 0],   // entrance
@@ -345,6 +344,41 @@ const TOWER_TYPES = {
   },
 };
 
+const SPRITE_PATHS = {
+  imp: impSheet,
+  elite: eliteSheet,
+  fast: fastSheet,
+  splitter: splitterSheet,
+  flyer: flyerSheet,
+  boss: bossSheet,
+  wall: wallImgSrc,
+  arrow: arrowImgSrc,
+  cannon: cannonImgSrc,
+  slow: slowImgSrc,
+  acid: acidImgSrc,
+  chain: chainImgSrc,
+  sniper: sniperImgSrc,
+  buff: buffImgSrc,
+};
+
+
+function getSpritePath(type, category) {
+  const spriteName =
+    category === "enemy" ? ENEMY_TYPES[type]?.sprite : TOWER_TYPES[type]?.sprite;
+
+    // console.log(spriteName);
+  return spriteName ? SPRITE_PATHS[spriteName] || null : null;
+}
+
+
+function groupEnemies(waves) {
+  const counts = {};
+  waves.flat().forEach(enemy => {
+    counts[enemy] = (counts[enemy] || 0) + 1;
+  });
+  return Object.entries(counts);
+}
+
 const fetchScore = async () => {
   try {
     const response = await fetch("http://localhost:8080/api/scores");
@@ -357,7 +391,6 @@ const fetchScore = async () => {
     console.error("Failed to fetch scores:", error);
   }
 };
-
 
 export default function Game() {
   const canvasRef = useRef(null);
@@ -375,6 +408,9 @@ export default function Game() {
   const [selectedTower, setSelectedTower] = useState("wall");
   const [waveCount, setwaveCount] = useState(0);
   const [mapUpgrade, setMapUpgrade] = useState(0);
+  const [bonusChallenges, setBonusChallenges] = useState([]);
+  const [showBonusModal, setShowBonusModal] = useState(false);
+  const [selectedChallenges, setSelectedChallenges] = useState([]);
 
   const [towers, setTowers] = useState([]);
   const [projectiles, setProjectiles] = useState([]);
@@ -427,6 +463,11 @@ export default function Game() {
 
     return null;
   }
+
+  useEffect(() => {
+    const newChallenges = generateBonusChallenges(waveCount);
+    setBonusChallenges(newChallenges);
+  }, [waveCount]);
 
   // --- sprite drawing ---
   useEffect(() => {
@@ -511,7 +552,6 @@ export default function Game() {
           }
         }
       }
-
 
       // // !(TEMP) --- visual tower ranges ---
       // towersRef.current.forEach((t) => {
@@ -1351,12 +1391,20 @@ export default function Game() {
 
   function startWave() {
     const waveTemplate = generateWave(waveCount);
+    let nextWave = [...waveTemplate];
     let spawnIndex = 0;
     setwaveCount((prev) => prev + 1);
 
     if((waveCount+1) % 5 === 0){
       spawnEntity("boss");
     }
+
+    if (selectedChallenges && selectedChallenges.length > 0) {
+      const bonusEnemies = selectedChallenges.flatMap(ch => ch.waves).flat();
+      nextWave.push(...bonusEnemies);
+    }
+
+    setSelectedChallenges([]);
 
     const spawnInterval = setInterval(() => {
       if (spawnIndex >= waveTemplate.length) {
@@ -1446,7 +1494,19 @@ export default function Game() {
     console.log(mapUpgrade);
   }
 
+  function toggleChallengeSelection(challenge) {
+    setSelectedChallenges((prev) => {
+      const exists = prev.some((c) => c.id === challenge.id);
+      if (exists) {
+        return prev.filter((c) => c.id !== challenge.id);
+      }
+      return [...prev, challenge];
+    });
+  }
 
+  function confirmSelectedChallenges() {
+    setShowBonusModal(false);
+  }
 
 
   return (
@@ -1476,21 +1536,204 @@ export default function Game() {
         {demolishMode ? "Cancel Demolish" : "Demolish"}
       </button>
       <button
-        onClick={() => {
-          setShootMode((s) => !s);
-          setPlaceWallMode(false);
-          setDemolishMode(false);
-        }}
-        style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}
-      >
-        {shootMode ? "Shoot Mode: ON" : "Shoot Mode: OFF"}
+            onClick={() => {
+              setShootMode((s) => !s);
+              setPlaceWallMode(false);
+              setDemolishMode(false);
+            }}
+            style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}
+          >
+            {shootMode ? "Shoot Mode: ON" : "Shoot Mode: OFF"}
       </button>
-      <button onClick={startWave}>Start Next Wave (Wave {waveCount + 1})</button>
-      <button onClick={fetchScore}>
-            Fetch
-      </button>
-      <button onClick={handleMapUpgrade}>Map Upgrade</button>
+          <button onClick={startWave}>Start Next Wave (Wave {waveCount + 1})</button>
+          <button onClick={fetchScore}>
+                Fetch
+          </button>
+          <button onClick={handleMapUpgrade}>Map Upgrade</button>
+          <div className="controls">
+            <button onClick={() => setShowBonusModal(true)}>Bonus Challenge</button>
+          </div>
 
+      {showBonusModal && (
+        <div
+          className="bonus-modal"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              background: "#222",
+              color: "#fff",
+              padding: "20px",
+              borderRadius: "12px",
+              width: "400px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+          >
+            <h2 style={{ textAlign: "center", marginBottom: "10px" }}>
+              Bonus Challenges
+            </h2>
+
+            {bonusChallenges.map((challenge) => {
+              console.log(challenge);
+              const isSelected = selectedChallenges.some((c) => c.id === challenge.id);
+              return (
+                <label
+                  key={challenge.id}
+                  style={{
+                    display: "block",
+                    border: isSelected ? "2px solid #0f0" : "1px solid #555",
+                    borderRadius: "8px",
+                    padding: "10px",
+                    marginBottom: "10px",
+                    background: challenge.difficulty === "rare" ? "#4a236a" : "#333",
+                    boxShadow: "0 0 8px rgba(0,0,0,0.4)",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleChallengeSelection(challenge)}
+                    />
+                    <strong>{challenge.difficulty === "rare" ? "⭐ Rare Challenge" : "Challenge"}</strong>
+                  </div>
+
+                  {/* Enemy Groups */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "10px",
+                      marginTop: "6px",
+                    }}
+                  >
+                    {groupEnemies(challenge.waves).map(([enemy, count]) => {
+                      const imgSrc = getSpritePath(enemy, "enemy");
+                      return (
+                        <div
+                          key={enemy}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                        >
+                          {imgSrc && (
+                            <img
+                              src={imgSrc}
+                              alt={enemy}
+                              style={{
+                                width: 24,
+                                height: 24,
+                                imageRendering: "pixelated",
+                              }}
+                            />
+                          )}
+                          <span>x{count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Reward */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      marginTop: "8px",
+                    }}
+                  >
+                    {(() => {
+                      const { type, qty, rare } = challenge.reward;
+                      const imgSrc = getSpritePath(type, "tower");
+                      if (rare) {
+                        return (
+                          <>
+                            {imgSrc && (
+                              <img
+                                src={imgSrc}
+                                alt={type}
+                                style={{
+                                  width: 28,
+                                  height: 28,
+                                  imageRendering: "pixelated",
+                                }}
+                              />
+                            )}
+                            <span style={{ color: "#ffd700", fontWeight: "bold" }}>
+                              Rare Upgrade
+                            </span>
+                          </>
+                        );
+                      }
+                      return (
+                        <>
+                          {imgSrc && (
+                            <img
+                              src={imgSrc}
+                              alt={type}
+                              style={{
+                                width: 28,
+                                height: 28,
+                                imageRendering: "pixelated",
+                              }}
+                            />
+                          )}
+                          <span>x{qty}</span>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </label>
+              );
+            })}
+
+            <div style={{ textAlign: "center", marginTop: "10px" }}>
+              <button
+                onClick={confirmSelectedChallenges}
+                style={{
+                  marginRight: "10px",
+                  background: "#28a745",
+                  color: "#fff",
+                  border: "none",
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => setShowBonusModal(false)}
+                style={{
+                  background: "#666",
+                  color: "#fff",
+                  border: "none",
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
       {/* Tower Selection */}
