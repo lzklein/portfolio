@@ -76,10 +76,8 @@ const RARE_REWARDS = ['map','arrow','cannon','slow','sniper','buff','chain','aci
 
 function generateBonusChallenges(waveCount) {
   const challenges = [];
-  console.log(waveCount);
   for (let i = 0; i < 3; i++) {
     const bonusCount = Math.floor(waveCount / 3) + 1;
-    console.log(bonusCount);
     // Random roll for rare chance (1 out of 5)
     const rareRoll = Math.floor(Math.random() * 5) + 1;
     const isRare = rareRoll === 5;
@@ -110,9 +108,6 @@ function generateBonusChallenges(waveCount) {
       difficulty: isRare ? "rare" : "normal"
     });
   }
-
-  console.log(challenges);
-
   return challenges;
 }
 
@@ -365,8 +360,6 @@ const SPRITE_PATHS = {
 function getSpritePath(type, category) {
   const spriteName =
     category === "enemy" ? ENEMY_TYPES[type]?.sprite : TOWER_TYPES[type]?.sprite;
-
-    // console.log(spriteName);
   return spriteName ? SPRITE_PATHS[spriteName] || null : null;
 }
 
@@ -1490,8 +1483,6 @@ export default function Game() {
     }
 
     setMapUpgrade(mapUpgrade+1);
-    console.log("Map upgraded!");
-    console.log(mapUpgrade);
   }
 
   function toggleChallengeSelection(challenge) {
@@ -1586,7 +1577,6 @@ export default function Game() {
             </h2>
 
             {bonusChallenges.map((challenge) => {
-              console.log(challenge);
               const isSelected = selectedChallenges.some((c) => c.id === challenge.id);
               return (
                 <label
