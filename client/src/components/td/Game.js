@@ -1234,7 +1234,6 @@ export default function Game() {
       enemy.slowUntil = Date.now() + SLOW_DURATION;
     }
 
-    console.log(proj.damage);
     enemy.hp -= proj.damage;
   };
 
