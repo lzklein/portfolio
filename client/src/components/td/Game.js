@@ -1499,6 +1499,7 @@ export default function Game() {
     setShowBonusModal(false);
   }
 
+  
 
   return (
     <div style={{ textAlign: "center" }}>
@@ -1567,7 +1568,7 @@ export default function Game() {
               color: "#fff",
               padding: "20px",
               borderRadius: "12px",
-              width: "400px",
+              width: "80%",
               maxHeight: "80vh",
               overflowY: "auto",
             }}
@@ -1598,7 +1599,7 @@ export default function Game() {
                       checked={isSelected}
                       onChange={() => toggleChallengeSelection(challenge)}
                     />
-                    <strong>{challenge.difficulty === "rare" ? "⭐ Rare Challenge" : "Challenge"}</strong>
+                    <strong>{challenge.difficulty === "rare" ? "⭐ Challenge" : "Challenge"}</strong>
                   </div>
 
                   {/* Enemy Groups */}
@@ -1616,26 +1617,32 @@ export default function Game() {
                         <div
                           key={enemy}
                           style={{
-                            display: "flex",
+                            display: "flex",        // span + img in a row
                             alignItems: "center",
                             gap: "4px",
                           }}
                         >
+                          <span>{count}x</span>
                           {imgSrc && (
                             <img
                               src={imgSrc}
                               alt={enemy}
                               style={{
-                                width: 24,
-                                height: 24,
+                                height: "auto",
+                                width: "auto",
                                 imageRendering: "pixelated",
+                                objectFit: "none",
+                                clipPath: "inset(0 75% 0 0)", // left 25% of sprite
                               }}
                             />
                           )}
-                          <span>x{count}</span>
                         </div>
                       );
                     })}
+                  </div>
+
+                  <div style={{paddingTop:"20px"}}>
+                    <strong>Reward</strong>
                   </div>
 
                   {/* Reward */}
@@ -1665,7 +1672,7 @@ export default function Game() {
                               />
                             )}
                             <span style={{ color: "#ffd700", fontWeight: "bold" }}>
-                              Rare Upgrade
+                              Upgrade
                             </span>
                           </>
                         );
@@ -1706,19 +1713,6 @@ export default function Game() {
                 }}
               >
                 Confirm
-              </button>
-              <button
-                onClick={() => setShowBonusModal(false)}
-                style={{
-                  background: "#666",
-                  color: "#fff",
-                  border: "none",
-                  padding: "6px 12px",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                }}
-              >
-                Cancel
               </button>
             </div>
           </div>
