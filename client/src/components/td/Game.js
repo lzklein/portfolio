@@ -1503,50 +1503,64 @@ export default function Game() {
   
 
   return (
-    <div style={{ textAlign: "center" }}>
-      <button onClick={() => spawnEntity("imp")} style={{ marginBottom: 10, padding: "6px 12px" }}>
-        Spawn Imp
-      </button>
-      <button onClick={() => spawnEntity("elite")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
-        Spawn Elite
-      </button>
-      <button onClick={() => spawnEntity("fast")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
-        Spawn Fast
-      </button>
-      <button onClick={() => spawnEntity("splitter")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
-        Spawn Splitter
-      </button>
-      <button onClick={() => spawnEntity("flyer")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
-        Spawn Flyer
-      </button>
-      <button onClick={() => spawnEntity("boss")} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
-        Spawn Boss
-      </button>
-      <button onClick={() => setPlaceWallMode((m) => !m)} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
-        {placeWallMode ? "Exit Wall Mode" : "Wall Mode"}
-      </button>
-      <button onClick={() => { setDemolishMode(!demolishMode); setPlaceWallMode(false); }} style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}>
-        {demolishMode ? "Cancel Demolish" : "Demolish"}
-      </button>
-      <button
-            onClick={() => {
-              setShootMode((s) => !s);
-              setPlaceWallMode(false);
-              setDemolishMode(false);
-            }}
-            style={{ marginBottom: 10, marginLeft: 10, padding: "6px 12px" }}
-          >
-            {shootMode ? "Shoot Mode: ON" : "Shoot Mode: OFF"}
-      </button>
-          <button onClick={startWave}>Start Next Wave (Wave {waveCount + 1})</button>
-          <button onClick={fetchScore}>
-                Fetch
-          </button>
-          <button onClick={handleMapUpgrade}>Map Upgrade</button>
-          <div className="controls">
-            <button onClick={() => setShowBonusModal(true)}>Bonus Challenge</button>
-          </div>
+    <div style={{ textAlign: "center", position: "relative", display: "inline-block" }}>
+      {/* === CONTROLS === */}
+      <div style={{ marginBottom: 10 }}>
+        {/* Spawn Enemy Toggle */}
+        <button
+          onClick={() => setShowEnemyButtons((v) => !v)}
+          style={{ marginRight: 10, padding: "6px 12px" }}
+        >
+          {showEnemyButtons ? "Hide Enemies" : "Spawn Enemy"}
+        </button>
 
+        {/* Collapsible Enemy Buttons */}
+        {showEnemyButtons && (
+          <div style={{ marginTop: 6 }}>
+            <button onClick={() => spawnEntity("imp")} style={{ padding: "6px 12px" }}>Imp</button>
+            <button onClick={() => spawnEntity("elite")} style={{ marginLeft: 6, padding: "6px 12px" }}>Elite</button>
+            <button onClick={() => spawnEntity("fast")} style={{ marginLeft: 6, padding: "6px 12px" }}>Fast</button>
+            <button onClick={() => spawnEntity("splitter")} style={{ marginLeft: 6, padding: "6px 12px" }}>Splitter</button>
+            <button onClick={() => spawnEntity("flyer")} style={{ marginLeft: 6, padding: "6px 12px" }}>Flyer</button>
+            <button onClick={() => spawnEntity("boss")} style={{ marginLeft: 6, padding: "6px 12px" }}>Boss</button>
+          </div>
+        )}
+
+        <button
+          onClick={() => setPlaceWallMode((m) => !m)}
+          style={{ marginLeft: 10, padding: "6px 12px" }}
+        >
+          {placeWallMode ? "Exit Wall Mode" : "Wall Mode"}
+        </button>
+
+        <button
+          onClick={() => {
+            setDemolishMode(!demolishMode);
+            setPlaceWallMode(false);
+          }}
+          style={{ marginLeft: 10, padding: "6px 12px" }}
+        >
+          {demolishMode ? "Cancel Demolish" : "Demolish"}
+        </button>
+
+        <button
+          onClick={() => {
+            setShootMode((s) => !s);
+            setPlaceWallMode(false);
+            setDemolishMode(false);
+          }}
+          style={{ marginLeft: 10, padding: "6px 12px" }}
+        >
+          {shootMode ? "Shoot Mode: ON" : "Shoot Mode: OFF"}
+        </button>
+
+        <button onClick={startWave}>Start Next Wave (Wave {waveCount + 1})</button>
+        <button onClick={fetchScore}>Fetch</button>
+        <button onClick={handleMapUpgrade}>Map Upgrade</button>
+        <button onClick={() => setShowBonusModal(true)}>Bonus Challenge</button>
+      </div>
+
+      {/* === BONUS MODAL === */}
       {showBonusModal && (
         <div
           className="bonus-modal"
@@ -1554,13 +1568,14 @@ export default function Game() {
             position: "absolute",
             top: 0,
             left: 0,
-            width: "100%",
-            height: "100%",
+            width: "1088px",
+            height: "704px",
             background: "rgba(0,0,0,0.6)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             zIndex: 1000,
+            borderRadius: "4px",
           }}
         >
           <div
@@ -1574,9 +1589,7 @@ export default function Game() {
               overflowY: "auto",
             }}
           >
-            <h2 style={{ textAlign: "center", marginBottom: "10px" }}>
-              Bonus Challenges
-            </h2>
+            <h2 style={{ textAlign: "center", marginBottom: "10px" }}>Bonus Challenges</h2>
 
             {bonusChallenges.map((challenge) => {
               const isSelected = selectedChallenges.some((c) => c.id === challenge.id);
@@ -1603,98 +1616,112 @@ export default function Game() {
                     <strong>{challenge.difficulty === "rare" ? "⭐ Challenge" : "Challenge"}</strong>
                   </div>
 
-                  {/* Enemy Groups */}
+                  {/* === CHALLENGE & REWARD GRID === */}
                   <div
                     style={{
                       display: "flex",
+                      justifyContent: "space-between",
+                      gap: "20px",
+                      marginTop: "10px",
                       flexWrap: "wrap",
-                      gap: "10px",
-                      marginTop: "6px",
                     }}
                   >
-                    {groupEnemies(challenge.waves).map(([enemy, count]) => {
-                      const imgSrc = getSpritePath(enemy, "enemy");
-                      return (
-                        <div
-                          key={enemy}
-                          style={{
-                            display: "flex",        // span + img in a row
-                            alignItems: "center",
-                            gap: "4px",
-                          }}
-                        >
-                          <span>{count}x</span>
-                          {imgSrc && (
-                            <img
-                              src={imgSrc}
-                              alt={enemy}
+                    {/* LEFT: ENEMIES */}
+                    <div style={{ flex: "1 1 50%" }}>
+                      <strong>Enemies</strong>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(3, 1fr)",
+                          gridAutoRows: "min-content",
+                          gap: "6px",
+                          marginTop: "6px",
+                        }}
+                      >
+                        {groupEnemies(challenge.waves).map(([enemy, count], i) => {
+                          const imgSrc = getSpritePath(enemy, "enemy");
+                          return (
+                            <div
+                              key={enemy + i}
                               style={{
-                                height: "auto",
-                                width: "auto",
-                                imageRendering: "pixelated",
-                                objectFit: "none",
-                                clipPath: "inset(0 75% 0 0)", // left 25% of sprite
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "4px",
                               }}
-                            />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                            >
+                              <span>{count}x</span>
+                              {imgSrc && (
+                                <img
+                                  src={imgSrc}
+                                  alt={enemy}
+                                  style={{
+                                    height: "auto",
+                                    width: "auto",
+                                    imageRendering: "pixelated",
+                                    objectFit: "none",
+                                    clipPath: "inset(0 75% 0 0)",
+                                  }}
+                                />
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
 
-                  <div style={{paddingTop:"20px"}}>
-                    <strong>Reward</strong>
-                  </div>
-
-                  {/* Reward */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      marginTop: "8px",
-                    }}
-                  >
-                    {(() => {
-                      const { type, qty, rare } = challenge.reward;
-                      const imgSrc = getSpritePath(type, "tower");
-                      if (rare) {
-                        return (
-                          <>
-                            {imgSrc && (
-                              <img
-                                src={imgSrc}
-                                alt={type}
-                                style={{
-                                  width: 28,
-                                  height: 28,
-                                  imageRendering: "pixelated",
-                                }}
-                              />
-                            )}
-                            <span style={{ color: "#ffd700", fontWeight: "bold" }}>
-                              Upgrade
-                            </span>
-                          </>
-                        );
-                      }
-                      return (
-                        <>
-                          {imgSrc && (
-                            <img
-                              src={imgSrc}
-                              alt={type}
-                              style={{
-                                width: 28,
-                                height: 28,
-                                imageRendering: "pixelated",
-                              }}
-                            />
-                          )}
-                          <span>x{qty}</span>
-                        </>
-                      );
-                    })()}
+                    {/* RIGHT: REWARD */}
+                    <div style={{ flex: "1 1 40%" }}>
+                      <strong>Reward</strong>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          marginTop: "8px",
+                        }}
+                      >
+                        {(() => {
+                          const { type, qty, rare } = challenge.reward;
+                          const imgSrc = getSpritePath(type, "tower");
+                          if (rare) {
+                            return (
+                              <>
+                                {imgSrc && (
+                                  <img
+                                    src={imgSrc}
+                                    alt={type}
+                                    style={{
+                                      width: 28,
+                                      height: 28,
+                                      imageRendering: "pixelated",
+                                    }}
+                                  />
+                                )}
+                                <span style={{ color: "#ffd700", fontWeight: "bold" }}>
+                                  Upgrade
+                                </span>
+                              </>
+                            );
+                          }
+                          return (
+                            <>
+                              {imgSrc && (
+                                <img
+                                  src={imgSrc}
+                                  alt={type}
+                                  style={{
+                                    width: 28,
+                                    height: 28,
+                                    imageRendering: "pixelated",
+                                  }}
+                                />
+                              )}
+                              <span>x{qty}</span>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </div>
                   </div>
                 </label>
               );
@@ -1720,58 +1747,22 @@ export default function Game() {
         </div>
       )}
 
-
-      {/* Tower Selection */}
+      {/* === TOWER SELECTION === */}
       {placeWallMode && (
         <div style={{ marginTop: 10 }}>
-          <button
-            onClick={() => setSelectedTower("wall")}
-            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "wall" ? "bold" : "normal" }}
-          >
-            Wall
-          </button>
-          <button
-            onClick={() => setSelectedTower("arrow")}
-            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "arrow" ? "bold" : "normal" }}
-          >
-            Arrow
-          </button>
-          <button
-            onClick={() => setSelectedTower("cannon")}
-            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "cannon" ? "bold" : "normal" }}
-          >
-            Cannon
-          </button>
-          <button
-            onClick={() => setSelectedTower("slow")}
-            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "slow" ? "bold" : "normal" }}
-          >
-            Slow
-          </button>
-          <button
-            onClick={() => setSelectedTower("acid")}
-            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "acid" ? "bold" : "normal" }}
-          >
-            Acid
-          </button>
-          <button
-            onClick={() => setSelectedTower("chain")}
-            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "chain" ? "bold" : "normal" }}
-          >
-            Chain
-          </button>
-          <button
-            onClick={() => setSelectedTower("sniper")}
-            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "sniper" ? "bold" : "normal" }}
-          >
-            Sniper
-          </button>
-          <button
-            onClick={() => setSelectedTower("buff")}
-            style={{ marginRight: 10, padding: "6px 12px", fontWeight: selectedTower === "buff" ? "bold" : "normal" }}
-          >
-            Buff
-          </button>
+          {["wall", "arrow", "cannon", "slow", "acid", "chain", "sniper", "buff"].map((t) => (
+            <button
+              key={t}
+              onClick={() => setSelectedTower(t)}
+              style={{
+                marginRight: 10,
+                padding: "6px 12px",
+                fontWeight: selectedTower === t ? "bold" : "normal",
+              }}
+            >
+              {t.charAt(0).toUpperCase() + t.slice(1)}
+            </button>
+          ))}
         </div>
       )}
 
@@ -1785,4 +1776,5 @@ export default function Game() {
       />
     </div>
   );
+
 }
