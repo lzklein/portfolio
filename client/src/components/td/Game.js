@@ -78,11 +78,10 @@ function generateBonusChallenges(waveCount) {
   const challenges = [];
   for (let i = 0; i < 3; i++) {
     const bonusCount = Math.floor(waveCount / 3) + 1;
-    // Random roll for rare chance (1 out of 5)
+    // roll for rare chance (1 in 5)
     const rareRoll = Math.floor(Math.random() * 5) + 1;
     const isRare = rareRoll === 5;
 
-    // Pick random wave templates
     const waves = [];
     for (let w = 0; w < bonusCount; w++) {
       const template = CHALLENGE_WAVE_TEMPLATES[
@@ -91,7 +90,6 @@ function generateBonusChallenges(waveCount) {
       waves.push(template);
     }
 
-    // Generate reward
     let reward;
     if (isRare) {
       const rareType = RARE_REWARDS[Math.floor(Math.random() * RARE_REWARDS.length)];
@@ -157,10 +155,10 @@ function getGridFromBoard(board) {
 }
 
 const NO_BUILD_TILES = [
-  [8, 0],   // entrance
-  [8, 1],   // below entrance
-  [8, 9],   // above exit
-  [8, 10],  // exit
+  [8, 0],
+  [8, 1],
+  [8, 9],
+  [8, 10], 
 ];
 
 const START_TILE = [8, 0];
@@ -500,7 +498,7 @@ export default function Game() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       animTime += delta;
-      const animFrame = Math.floor(animTime / 1500) % 2; //water animation timer (1.5s)
+      const animFrame = Math.floor(animTime / 1500) % 2; //water animation 1.5s
 
       // -- Draw Game Board --
       for (let y = 0; y < GAME_BOARD.length; y++) {
@@ -700,7 +698,7 @@ export default function Game() {
               x: (tower.x + 0.5) * TILE_SIZE,
               y: (tower.y + 0.5) * TILE_SIZE,
               targetId: target.id,
-              speed: Infinity, // hitscan
+              speed: Infinity,
               damage: tower.damage,
               pierce: 0,
               aoe: 0,
@@ -1259,7 +1257,7 @@ export default function Game() {
   }
 
   const applyDamage = (enemy, proj) => {
-    if (proj.isSlow) { //apply slow
+    if (proj.isSlow) {
       const SLOW_AMOUNT = 0.5;
       const SLOW_DURATION = 2000;
       
@@ -1272,7 +1270,7 @@ export default function Game() {
   };
 
 
-  // --- Click Event ---
+  // --- Click Events ---
   function handleCanvasClick(e) {
     const rect = canvasRef.current.getBoundingClientRect();
       const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
@@ -1311,7 +1309,7 @@ export default function Game() {
       }
 
     if (placeWallMode) {
-      // forbidden tile zones
+      // forbidden tiles check
       if (NO_BUILD_TILES.some(([nx, ny]) => nx === x && ny === y)) return;
       if (getGridFromBoard(GAME_BOARD)[y][x] !== 0) return;
 
@@ -1337,7 +1335,6 @@ export default function Game() {
           }
       }
 
-      // place tower
       const newTower = {
         ...towerCfg, 
         type: selectedTower,
@@ -1362,14 +1359,14 @@ export default function Game() {
     }
   }
 
-  // --- handle waves ---
+  // --- spawn waves ---
   function generateWave(waveCount) {
     const spawnAmount = Math.min(1 + Math.floor(waveCount / 2), 10);
     const wave = [];
 
     for (let i = 0; i < spawnAmount; i++) {
       const allowedTemplates = WAVE_TEMPLATES.filter(pkg => {
-        // restrict 'fast' or 'flyer' until wave 5
+        // no 'fast' or 'flyer' until wave 5
         if (waveCount < 5 && (pkg.includes('fast') || pkg.includes('flyer'))) {
           return false;
         }
@@ -1384,8 +1381,7 @@ export default function Game() {
   }
 
   function startWave() {
-    const waveTemplate = generateWave(waveCount);
-    let nextWave = [...waveTemplate];
+    let nextWave = [...generateWave(waveCount)];
     let spawnIndex = 0;
     setwaveCount((prev) => prev + 1);
 
@@ -1401,12 +1397,12 @@ export default function Game() {
     setSelectedChallenges([]);
 
     const spawnInterval = setInterval(() => {
-      if (spawnIndex >= waveTemplate.length) {
+      if (spawnIndex >= nextWave.length) {
         clearInterval(spawnInterval);
         return;
       }
 
-      const type = waveTemplate[spawnIndex];
+      const type = nextWave[spawnIndex];
       spawnEntity(type);
 
       spawnIndex++;
@@ -1450,7 +1446,6 @@ export default function Game() {
     const upgradeCandidates = ["C", "T", "W", "D", "V", "X"];
     const spreadSources = ["P", "S", "R"];
 
-    // copy board so we don’t modify while checking
     const newBoard = GAME_BOARD.map(row => [...row]);
 
     for (let y = 0; y < GAME_BOARD.length; y++) {
@@ -1458,7 +1453,6 @@ export default function Game() {
         const tile = GAME_BOARD[y][x];
         if (!upgradeCandidates.includes(tile)) continue;
 
-        // check 4 directions
         const neighbors = [
           GAME_BOARD[y - 1]?.[x],
           GAME_BOARD[y + 1]?.[x],
@@ -1468,15 +1462,14 @@ export default function Game() {
 
         if (neighbors.some(n => spreadSources.includes(n))) {
           if (tile === "C" || tile === "D") {
-            newBoard[y][x] = "R"; // river
+            newBoard[y][x] = "R"; 
           } else {
-            newBoard[y][x] = "S"; // stumps
+            newBoard[y][x] = "S";
           }
         }
       }
     }
 
-    // mutate the original GAME_BOARD in place
     for (let y = 0; y < GAME_BOARD.length; y++) {
       for (let x = 0; x < GAME_BOARD[y].length; x++) {
         GAME_BOARD[y][x] = newBoard[y][x];
