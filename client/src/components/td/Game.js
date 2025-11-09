@@ -1519,34 +1519,6 @@ export default function Game() {
           </div>
         )}
 
-        <button
-          onClick={() => setPlaceWallMode((m) => !m)}
-          style={{ marginLeft: 10, padding: "6px 12px" }}
-        >
-          {placeWallMode ? "Exit Wall Mode" : "Wall Mode"}
-        </button>
-
-        <button
-          onClick={() => {
-            setDemolishMode(!demolishMode);
-            setPlaceWallMode(false);
-          }}
-          style={{ marginLeft: 10, padding: "6px 12px" }}
-        >
-          {demolishMode ? "Cancel Demolish" : "Demolish"}
-        </button>
-
-        <button
-          onClick={() => {
-            setShootMode((s) => !s);
-            setPlaceWallMode(false);
-            setDemolishMode(false);
-          }}
-          style={{ marginLeft: 10, padding: "6px 12px" }}
-        >
-          {shootMode ? "Shoot Mode: ON" : "Shoot Mode: OFF"}
-        </button>
-
         <button onClick={startWave}>Start Next Wave (Wave {waveCount + 1})</button>
         <button onClick={fetchScore}>Fetch</button>
         <button onClick={handleMapUpgrade}>Map Upgrade</button>
@@ -1740,7 +1712,16 @@ export default function Game() {
         </div>
       )}
 
-      {/* === TOWER SELECTION === */}
+      <br />
+      <canvas
+        ref={canvasRef}
+        width={1088}
+        height={704}
+        onClick={handleCanvasClick}
+        style={{ border: "2px solid black", imageRendering: "pixelated" }}
+      />
+
+            {/* === TOWER SELECTION === */}
       {placeWallMode && (
         <div style={{ marginTop: 10 }}>
           {["wall", "arrow", "cannon", "slow", "acid", "chain", "sniper", "buff"].map((t) => (
@@ -1758,15 +1739,33 @@ export default function Game() {
           ))}
         </div>
       )}
+              <button
+          onClick={() => setPlaceWallMode((m) => !m)}
+          style={{ marginLeft: 10, padding: "6px 12px" }}
+        >
+          {placeWallMode ? "Exit Wall Mode" : "Wall Mode"}
+        </button>
 
-      <br />
-      <canvas
-        ref={canvasRef}
-        width={1088}
-        height={704}
-        onClick={handleCanvasClick}
-        style={{ border: "2px solid black", imageRendering: "pixelated" }}
-      />
+        <button
+          onClick={() => {
+            setDemolishMode(!demolishMode);
+            setPlaceWallMode(false);
+          }}
+          style={{ marginLeft: 10, padding: "6px 12px" }}
+        >
+          {demolishMode ? "Cancel Demolish" : "Demolish"}
+        </button>
+
+        <button
+          onClick={() => {
+            setShootMode((s) => !s);
+            setPlaceWallMode(false);
+            setDemolishMode(false);
+          }}
+          style={{ marginLeft: 10, padding: "6px 12px" }}
+        >
+          {shootMode ? "Shoot Mode: ON" : "Shoot Mode: OFF"}
+        </button>
     </div>
   );
 
