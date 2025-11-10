@@ -406,6 +406,12 @@ export default function Game() {
   const [towerCounts, setTowerCounts] = useState({
     wall: 10,
     arrow: 3,
+    cannon: 0,
+    sniper: 0,
+    acid: 0,
+    buff: 0, 
+    slow: 0,
+    chain: 0
   });
 
   const [towers, setTowers] = useState([]);
