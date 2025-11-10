@@ -403,6 +403,10 @@ export default function Game() {
   const [showBonusModal, setShowBonusModal] = useState(false);
   const [selectedChallenges, setSelectedChallenges] = useState([]);
   const [showEnemyButtons, setShowEnemyButtons] = useState(false);
+  const [towerCounts, setTowerCounts] = useState({
+    wall: 10,
+    arrow: 3,
+  });
 
   const [towers, setTowers] = useState([]);
   const [projectiles, setProjectiles] = useState([]);
