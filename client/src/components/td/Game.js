@@ -555,20 +555,20 @@ export default function Game() {
         }
       }
 
-      // // !(TEMP) --- visual tower ranges ---
-      // towersRef.current.forEach((t) => {
-      //   if (t.range && t.range > 0) {
-      //     const cx = t.x * TILE_SIZE + TILE_SIZE / 2;
-      //     const cy = t.y * TILE_SIZE + TILE_SIZE / 2;
-      //     ctx.beginPath();
-      //     ctx.arc(cx, cy, t.range, 0, Math.PI * 2);
-      //     ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-      //     ctx.fill();
-      //     ctx.lineWidth = 2;
-      //     ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-      //     ctx.stroke();
-      //   }
-      // });
+      // !(TEMP) --- visual tower ranges ---
+      towersRef.current.forEach((t) => {
+        if (t.range && t.range > 0) {
+          const cx = t.x * TILE_SIZE + TILE_SIZE / 2;
+          const cy = t.y * TILE_SIZE + TILE_SIZE / 2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, t.range, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+          ctx.stroke();
+        }
+      });
 
       // --- Draw HP ---
       const hpX = canvas.width - 150;
