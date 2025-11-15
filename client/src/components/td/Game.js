@@ -1734,17 +1734,17 @@ export default function Game() {
             {/* === TOWER SELECTION === */}
       {placeWallMode && (
         <div style={{ marginTop: 10 }}>
-          {["wall", "arrow", "cannon", "slow", "acid", "chain", "sniper", "buff"].map((t) => (
+          {["wall", "arrow", "cannon", "slow", "acid", "chain", "sniper", "buff"].map((tower) => (
             <button
-              key={t}
-              onClick={() => setSelectedTower(t)}
+              key={tower}
+              onClick={() => setSelectedTower(tower)}
               style={{
                 marginRight: 10,
                 padding: "6px 12px",
-                fontWeight: selectedTower === t ? "bold" : "normal",
+                fontWeight: selectedTower === tower ? "bold" : "normal",
               }}
             >
-              {t.charAt(0).toUpperCase() + t.slice(1)}
+              {tower.charAt(0).toUpperCase() + tower.slice(1) + ` ${towerCounts[tower]}`}
             </button>
           ))}
         </div>
