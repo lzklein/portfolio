@@ -26,9 +26,11 @@ const projects = () => {
         <h4>ReactJS - ExpressJS</h4>
         <p>Set up pickup orders</p>
         <p>Manage inventory as an employee</p>
+
         {/* 3 bullet points of site function, technology used */}
         {/* maybe technology used as separate thing */}
         {/* hard code or auto components? */}
+        
       </div>
       <div  className='project-card'>
         <h2>WangusBot</h2>
