@@ -2,6 +2,7 @@
 @import './style/Contact.css';
 @import './style/Footer.css';
 @import './style/Header.css';
+@import './style/Project.css';
 
 .App {
   text-align: center;
