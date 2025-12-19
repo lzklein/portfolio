@@ -6,10 +6,15 @@
   display: flex;
   gap: 2rem;
   overflow-x: auto;
-  padding: 1rem 0 2rem;
+  padding: 2rem 0;
   scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
+
+  /* center-mode behavior */
+  justify-content: flex-start;
+  scroll-padding-left: 50%;
+  scroll-padding-right: 50%;
 }
+
 
 .projects-carousel::-webkit-scrollbar {
   height: 8px;
@@ -21,13 +26,15 @@
 }
 
 .project-card {
-  flex: 0 0 80%;
-  max-width: 80%;
+  flex: 0 0 70%;
+  max-width: 70%;
+
+  scroll-snap-align: center;
+
   background: #fff;
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-  scroll-snap-align: start;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
