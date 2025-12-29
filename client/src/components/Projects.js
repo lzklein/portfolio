@@ -1,18 +1,60 @@
-import React from 'react'
+import { useRef } from "react";
 import DiscordBot from '../images/Wangusbot.png';
 import DiscordBot2 from '../images/Wangusbot-2.png';
 import Smokeplus from '../images/Smokeplus.png';
 import PlaylistCrusader from '../images/PlaylistCrusader.png';
 
-// have side nav thing to jump around the page with project name, https://brittanychiang.com/ like this thing
-// 3d effect, put projects in cards and hover moves card forward?
-const projects = () => {
+const Projects = () => {
+  const scrollerRef = useRef(null);
+  const scrollTimeout = useRef();
 
-return (
+  const handleScroll = () => {
+    if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+
+    // 150ms after last input
+    scrollTimeout.current = setTimeout(() => {
+      centerNearestCard();
+    }, 150);
+  };
+
+  const centerNearestCard = () => {
+    const container = scrollerRef.current;
+    const cards = container.querySelectorAll(".project-card");
+
+    const containerCenter = container.scrollLeft + container.offsetWidth / 2;
+
+    let closestCard = null;
+    let closestDistance = Infinity;
+
+    cards.forEach((card) => {
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const distance = Math.abs(containerCenter - cardCenter);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestCard = card;
+      }
+    });
+
+    if (closestCard) {
+      const cardCenter = closestCard.offsetLeft + closestCard.offsetWidth / 2;
+      const scrollTo = cardCenter - container.offsetWidth / 2;
+
+      container.scrollTo({
+        left: scrollTo,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  return (
     <div className="projects-page">
       <h1>Projects</h1>
 
-      <div className="projects-carousel">
+      <div
+        className="projects-carousel"
+        ref={scrollerRef}
+        onScroll={handleScroll}   // attach scroll listener
+      >
         <div className="project-card">
           <h2>Playlist Crusader</h2>
           <img src={PlaylistCrusader} style={{ maxWidth: "60%" }} />
@@ -45,4 +87,4 @@ return (
   );
 };
 
-export default projects
+export default Projects;
