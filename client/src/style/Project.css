@@ -52,3 +52,7 @@
   transform: translateY(-6px) scale(1.02);
   box-shadow: 0 14px 30px rgba(0,0,0,0.15);
 }
+
+.carousel-spacer {
+  flex: 0 0 15%; /* width of the side peek */
+}
