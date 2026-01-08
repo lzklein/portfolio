@@ -49,12 +49,14 @@ const Projects = () => {
   return (
     <div className="projects-page">
       <h1>Projects</h1>
-
       <div
         className="projects-carousel"
         ref={scrollerRef}
         onScroll={handleScroll}   // attach scroll listener
       >
+
+        <div className="carousel-spacer" />
+
         <div className="project-card">
           <h2>Playlist Crusader</h2>
           <img src={PlaylistCrusader} style={{ maxWidth: "60%" }} />
@@ -82,6 +84,8 @@ const Projects = () => {
           <p>Discord Music Bot</p>
           <p>Downloads and plays audio via YouTube link</p>
         </div>
+
+        <div className="carousel-spacer" />
       </div>
     </div>
   );
