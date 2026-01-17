@@ -1507,7 +1507,7 @@ export default function Game() {
 
   return (
     <div style={{ textAlign: "center", position: "relative", display: "inline-block" }}>
-      {/* === CONTROLS === */}
+      {/* --- CONTROLS --- */}
       <div style={{ marginBottom: 10 }}>
         {/* Spawn Enemy Toggle */}
         <button
@@ -1535,7 +1535,7 @@ export default function Game() {
         <button onClick={() => setShowBonusModal(true)}>Bonus Challenge</button>
       </div>
 
-      {/* === BONUS MODAL === */}
+      {/* --- BONUS MODAL --- */}
       {showBonusModal && (
         <div
           className="bonus-modal"
@@ -1591,7 +1591,7 @@ export default function Game() {
                     <strong>{challenge.difficulty === "rare" ? "⭐ Challenge" : "Challenge"}</strong>
                   </div>
 
-                  {/* === CHALLENGE & REWARD GRID === */}
+                  {/* --- CHALLENGE & REWARD GRID --- */}
                   <div
                     style={{
                       display: "flex",
@@ -1732,7 +1732,8 @@ export default function Game() {
       />
 
       <br/>
-            {/* === TOWER SELECTION === */}
+
+      {/* --- TOWER SELECTION --- */}
       {placeWallMode && (
         <div style={{ marginTop: 10 }}>
           {["wall", "arrow", "cannon", "slow", "acid", "chain", "sniper", "buff"].map((tower) => (
