@@ -1731,6 +1731,7 @@ export default function Game() {
         style={{ border: "2px solid black", imageRendering: "pixelated" }}
       />
 
+      <br/>
             {/* === TOWER SELECTION === */}
       {placeWallMode && (
         <div style={{ marginTop: 10 }}>
