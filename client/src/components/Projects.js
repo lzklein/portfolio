@@ -68,7 +68,7 @@ const Projects = () => {
         <div className="project-card">
           <h2>SmokePlus Online Storefront</h2>
           <a href="https://smokeplus.onrender.com/" target="_blank" rel="noreferrer">
-            <img src={Smokeplus} style={{ width: "800px" }} />
+            <img src={Smokeplus} style={{ width: "600px" }} />
           </a>
           <h4>ReactJS - ExpressJS</h4>
           <p>Set up pickup orders</p>
@@ -77,9 +77,9 @@ const Projects = () => {
 
         <div className="project-card">
           <h2>WangusBot</h2>
-          <img src={DiscordBot} />
+          <img src={DiscordBot} style={{maxWidth: "35%"}}/>
           <br />
-          <img src={DiscordBot2} style={{ maxWidth: "50%" }} />
+          <img src={DiscordBot2} style={{ maxWidth: "35%" }} />
           <h4>DiscordJS</h4>
           <p>Discord Music Bot</p>
           <p>Downloads and plays audio via YouTube link</p>
