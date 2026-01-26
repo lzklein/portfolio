@@ -2,14 +2,25 @@
   padding: 2rem;
 }
 
-.projects-carousel {
-  display: flex;
-  gap: 2rem;
-  overflow-x: auto;
-  padding: 2rem 0;
-  scroll-snap-type: x mandatory;
-  scroll-padding: 0 50%;
+/* ===========================
+   CAROUSEL
+=========================== */
 
+.projects-carousel {
+  display: grid;
+  grid-auto-flow: column;          /* horizontal flow */
+  grid-auto-columns: 65%;          /* card width */
+  gap: 2rem;
+
+  overflow-x: auto;
+  padding: 1.5rem 0 3rem 0;
+
+  scroll-padding: 0 50%;
+  scroll-behavior: smooth;
+
+  align-items: stretch;            /* equal heights */
+
+  /* edge fade */
   -webkit-mask-image: linear-gradient(
     to right,
     transparent 0%,
@@ -35,24 +46,72 @@
   border-radius: 4px;
 }
 
-.project-card {
-  flex: 0 0 70%;
-  max-width: 70%;
+/* ===========================
+   CARD
+=========================== */
 
+.project-card {
   scroll-snap-align: center;
 
   background: rgba(255, 255, 255, 0.82);
   border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  padding: 1rem 1.25rem;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;                   /* fill grid row height */
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .project-card:hover {
   transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 14px 30px rgba(0,0,0,0.15);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.15);
 }
 
+/* ===========================
+   IMAGE ALIGNMENT
+=========================== */
+
+.project-card img {
+  display: block;
+  max-height: 350px;
+  object-fit: contain;
+  margin: 0 auto 0.75rem;
+}
+
+.project-card a {
+  display: block;
+  text-align: center;   /* centers wrapped images */
+}
+
+/* ===========================
+   TEXT SPACING
+=========================== */
+
+.project-card h2 {
+  margin: 0 0 0.4rem;
+}
+
+.project-card h4 {
+  margin: 0 0 0.4rem;
+}
+
+.project-card p {
+  margin: 0 0 0.35rem;
+  line-height: 1.3;
+}
+
+/* push last element to bottom for consistency */
+.project-card > *:last-child {
+  margin-top: auto;
+}
+
+/* ===========================
+   SPACERS
+=========================== */
+
 .carousel-spacer {
-  flex: 0 0 15%; /* width of the side peek */
+  width: 15vw;   /* works better with grid than flex */
 }
