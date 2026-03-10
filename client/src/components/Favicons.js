@@ -1,9 +1,9 @@
 import React from 'react'
 
 // favicon icons
-import linkedinIcon from '../favicons/linkedin.png';
-import githubIcon from '../favicons/github.png';
-import emailIcon from '../favicons/email.png';
+import linkedinIcon from '../assets/favicons/linkedin.png';
+import githubIcon from '../assets/favicons/github.png';
+import emailIcon from '../assets/favicons/email.png';
 
 const Favicons = () => {
   return (

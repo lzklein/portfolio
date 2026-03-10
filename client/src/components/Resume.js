@@ -1,6 +1,6 @@
 import React from 'react'
-import MyResume from "../files/Resume.pdf";
-import JavaCert from '../files/JavaCert.pdf'
+import MyResume from "../assets/files/Resume.pdf";
+import JavaCert from '../assets/files/JavaCert.pdf'
 const Resume = () => {
   return (
     <div>

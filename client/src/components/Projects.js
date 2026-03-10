@@ -1,8 +1,8 @@
 import { useRef } from "react";
-import DiscordBot from '../images/Wangusbot.png';
-import DiscordBot2 from '../images/Wangusbot-2.png';
-import Smokeplus from '../images/Smokeplus.png';
-import PlaylistCrusader from '../images/PlaylistCrusader.png';
+import DiscordBot from '../assets/images/Wangusbot.png';
+import DiscordBot2 from '../assets/images/Wangusbot-2.png';
+import Smokeplus from '../assets/images/Smokeplus.png';
+import PlaylistCrusader from '../assets/images/PlaylistCrusader.png';
 
 const Projects = () => {
   const scrollerRef = useRef(null);
