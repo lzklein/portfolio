@@ -36,10 +36,11 @@ The frontend is a **React** application.
 
 **Folder structure:**
 
-client/
-- pages/       (About, Projects, Resume, Contact, Tower Defense Game page)
-- components/  (Reusable React components)
-- other React files
+client/src/
+- assets/       (Resume, Certification, Images, etc.)
+- components/  (React components)
+- hooks/ (Custome React hooks)
+- style/ (CSS Stylesheets)
 
 Current portfolio pages:
 - About Me
