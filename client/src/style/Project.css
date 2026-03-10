@@ -2,14 +2,10 @@
   padding: 2rem;
 }
 
-/* ===========================
-   CAROUSEL
-=========================== */
-
 .projects-carousel {
   display: grid;
-  grid-auto-flow: column;          /* horizontal flow */
-  grid-auto-columns: 65%;          /* card width */
+  grid-auto-flow: column;
+  grid-auto-columns: 65%;  /* card width */
   gap: 2rem;
 
   overflow-x: auto;
@@ -18,9 +14,8 @@
   scroll-padding: 0 50%;
   scroll-behavior: smooth;
 
-  align-items: stretch;            /* equal heights */
+  align-items: stretch;       
 
-  /* edge fade */
   -webkit-mask-image: linear-gradient(
     to right,
     transparent 0%,
@@ -46,20 +41,17 @@
   border-radius: 4px;
 }
 
-/* ===========================
-   CARD
-=========================== */
-
 .project-card {
   scroll-snap-align: center;
 
   background: rgba(255, 255, 255, 0.82);
   border-radius: 16px;
   padding: 1rem 1.25rem;
+  margin: 0 3rem;
 
   display: flex;
   flex-direction: column;
-  height: 100%;                   /* fill grid row height */
+  height: 100%;       
 
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -70,9 +62,6 @@
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.15);
 }
 
-/* ===========================
-   IMAGE ALIGNMENT
-=========================== */
 
 .project-card img {
   display: block;
@@ -83,12 +72,9 @@
 
 .project-card a {
   display: block;
-  text-align: center;   /* centers wrapped images */
+  text-align: center;
 }
 
-/* ===========================
-   TEXT SPACING
-=========================== */
 
 .project-card h2 {
   margin: 0 0 0.4rem;
@@ -103,15 +89,10 @@
   line-height: 1.3;
 }
 
-/* push last element to bottom for consistency */
 .project-card > *:last-child {
   margin-top: auto;
 }
 
-/* ===========================
-   SPACERS
-=========================== */
-
 .carousel-spacer {
-  width: 15vw;   /* works better with grid than flex */
+  width: 15vw; 
 }
