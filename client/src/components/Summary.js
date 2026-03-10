@@ -1,5 +1,4 @@
 import React from 'react'
-import Technologies from './Technologies';
 
 // maybe don't need / put this in home page
 const Summary = () => {
@@ -10,7 +9,6 @@ const Summary = () => {
       {/* transitions while scrolling down, maybe changing bg images */}
       {/* font size change for focus? */}
       <p>Blurb</p>
-      <Technologies/>
     </div>
   )
 }
