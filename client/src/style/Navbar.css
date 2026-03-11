@@ -1,3 +1,47 @@
+.navbar {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  padding: 24px 0;
+  width: 100%;
+  margin-top: 10px;
+}
+
 .navlink {
-    margin: 10px 40px 60px 40px;
+  text-decoration: none;
+  color: #94a3b8;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  position: relative;
+  transition: color 0.2s;
+  flex: 1;
+  text-align: center;
+  margin:5%;
+}
+
+.navlink::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0%;
+  height: 2px;
+  background: #6366f1;
+  transition: width 0.25s ease;
+}
+
+.navlink:hover::after {
+  width: 100%;
+}
+
+.navlink.active::after {
+  width: 100%;
+}
+  
+.navlink.active {
+  color: white;
+}
+
+.navlink:hover {
+  color: white;
 }
