@@ -7,7 +7,7 @@ const Home = () => {
 
   return (
     <div>
-      <h1>Louis Klein</h1>
+      <h1 style={{marginTop:"35px", marginBottom:"5px"}}>Louis  Klein</h1>
       <h3>Software Engineer</h3>
       {/* td game */}
       {/* scavenger hunt towers */}
