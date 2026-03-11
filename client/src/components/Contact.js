@@ -2,6 +2,7 @@ import React from 'react'
 import Links from './Links.js'
 
 const Contact = () => {
+  // replace just links with email form + email api to send to myself
   return (
     <div>
       <h2>Contact Me</h2>
