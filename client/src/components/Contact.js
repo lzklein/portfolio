@@ -4,7 +4,7 @@ import Links from './Links.js'
 const Contact = () => {
   return (
     <div>
-      <h1>Contact Me</h1>
+      <h2>Contact Me</h2>
       <Links />
     </div>
   )

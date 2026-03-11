@@ -48,7 +48,7 @@ const Projects = () => {
 
   return (
     <div className="projects-page">
-      <h1>Projects</h1>
+      <h2>Projects</h2>
       <div
         className="projects-carousel"
         ref={scrollerRef}

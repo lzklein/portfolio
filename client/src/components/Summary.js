@@ -5,7 +5,7 @@ const Summary = () => {
   return (
     <div>
       {/* use intro transition with h1 fade to p? */}
-      <h1>About Me</h1>
+      <h2>About Me</h2>
       {/* transitions while scrolling down, maybe changing bg images */}
       {/* font size change for focus? */}
       <p>Blurb</p>
