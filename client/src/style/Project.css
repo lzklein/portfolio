@@ -1,20 +1,26 @@
 .projects-page {
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .projects-carousel {
+  width: 100%;
+
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 65%;  /* card width */
+  grid-auto-columns: 65%;
   gap: 2rem;
 
   overflow-x: auto;
-  padding: 1.5rem 0 3rem 0;
 
-  scroll-padding: 0 50%;
+  padding: 1.5rem calc((100% - 65%) / 2) 3rem calc((100% - 65%) / 2);
+
+  scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
 
-  align-items: stretch;       
+  align-items: stretch;
 
   -webkit-mask-image: linear-gradient(
     to right,
@@ -37,7 +43,7 @@
 }
 
 .projects-carousel::-webkit-scrollbar-thumb {
-  background: #99bad586;
+  background: #99bad5;
   border-radius: 4px;
 }
 
@@ -46,12 +52,11 @@
 
   background: rgba(255, 255, 255, 0.163);
   border-radius: 16px;
-  padding: 1rem 1.25rem;
-  margin: 0 3rem;
+  padding: 1rem;
 
   display: flex;
   flex-direction: column;
-  height: 100%;       
+  height: 100%;
 
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -61,7 +66,6 @@
   transform: translateY(-6px) scale(1.02);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.15);
 }
-
 
 .project-card img {
   display: block;
@@ -74,7 +78,6 @@
   display: block;
   text-align: center;
 }
-
 
 .project-card h2 {
   margin: 0 0 0.4rem;
@@ -91,8 +94,4 @@
 
 .project-card > *:last-child {
   margin-top: auto;
-}
-
-.carousel-spacer {
-  width: 15vw; 
 }
