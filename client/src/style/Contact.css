@@ -1,3 +1,10 @@
+.contact-page {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .contact-link {
     margin:10px;
 }

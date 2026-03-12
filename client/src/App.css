@@ -3,6 +3,10 @@
 @import './style/Footer.css';
 @import './style/Header.css';
 @import './style/Project.css';
+@import './style/Summary.css';
+@import './style/Resume.css';
+
+
 
 .App {
   text-align: center;
