@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import ProjectCard from "./ProjectCard";
 import DiscordBot from '../assets/images/Wangusbot.png';
 import Smokeplus from '../assets/images/Smokeplus.png';
@@ -9,6 +9,10 @@ import PokeTeamBuilder from '../assets/images/PokeTeamBuilder.png'
 const Projects = () => {
   const scrollerRef = useRef(null);
   const scrollTimeout = useRef();
+
+  useEffect(()=>{
+    centerNearestCard();
+  },[])
 
   const projects = [
     {
@@ -89,7 +93,7 @@ const Projects = () => {
 
   return (
     <div className="projects-page">
-      <h2>Projects</h2>
+      <h2>My Projects</h2>
       <div
         className="projects-carousel"
         ref={scrollerRef}
