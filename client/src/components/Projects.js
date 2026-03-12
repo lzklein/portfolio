@@ -1,12 +1,53 @@
 import { useRef } from "react";
+import ProjectCard from "./ProjectCard";
 import DiscordBot from '../assets/images/Wangusbot.png';
-import DiscordBot2 from '../assets/images/Wangusbot-2.png';
 import Smokeplus from '../assets/images/Smokeplus.png';
 import PlaylistCrusader from '../assets/images/PlaylistCrusader.png';
+import Calculator from '../assets/images/Calculator.png'
+import PokeTeamBuilder from '../assets/images/PokeTeamBuilder.png'
 
 const Projects = () => {
   const scrollerRef = useRef(null);
   const scrollTimeout = useRef();
+
+  const projects = [
+    {
+      title: "Playlist Crusader",
+      image: PlaylistCrusader,
+      tech: "ReactJS - Java",
+      description: "Music Playlist Social Platform",
+      extra: "Fully customizable playlists with like functionality",
+    },
+    {
+      title: "SmokePlus Online Storefront",
+      image: Smokeplus,
+      tech: "ReactJS - ExpressJS",
+      description: "Set up pickup orders",
+      extra: "Manage inventory as an employee",
+      link: "https://smokeplus.onrender.com/",
+    },
+    {
+      title: "WangusBot",
+      image: DiscordBot,
+      tech: "DiscordJS",
+      description: "Discord Music Bot",
+      extra: "Downloads and plays audio via YouTube link",
+    },
+    {
+      title: "BitCalculator",
+      image: Calculator,
+      tech: "C++",
+      description : "Calculator app built in C++",
+      extra: "GUI built using SFML library and self drawn assets",
+    },
+    {
+      title: "Poké Team Builder",
+      image: PokeTeamBuilder,
+      tech: "ReactJS",
+      description : "Pokémon team building tool",
+      extra: "Powered by PokeAPI",
+    },
+  ];
 
   const handleScroll = () => {
     if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
@@ -57,33 +98,9 @@ const Projects = () => {
 
         <div className="carousel-spacer" />
 
-        <div className="project-card">
-          <h2>Playlist Crusader</h2>
-          <img src={PlaylistCrusader} style={{ maxWidth: "60%" }} />
-          <h4>ReactJS - Java</h4>
-          <p>Music Playlist Social Platform</p>
-          <p>Fully customizable playlists with like functionality</p>
-        </div>
-
-        <div className="project-card">
-          <h2>SmokePlus Online Storefront</h2>
-          <a href="https://smokeplus.onrender.com/" target="_blank" rel="noreferrer">
-            <img src={Smokeplus} style={{ width: "600px" }} />
-          </a>
-          <h4>ReactJS - ExpressJS</h4>
-          <p>Set up pickup orders</p>
-          <p>Manage inventory as an employee</p>
-        </div>
-
-        <div className="project-card">
-          <h2>WangusBot</h2>
-          <img src={DiscordBot} style={{maxWidth: "35%"}}/>
-          <br />
-          <img src={DiscordBot2} style={{ maxWidth: "35%" }} />
-          <h4>DiscordJS</h4>
-          <p>Discord Music Bot</p>
-          <p>Downloads and plays audio via YouTube link</p>
-        </div>
+        {projects.map((project, ind)=>{
+          return <ProjectCard key={ind} {...project}/>
+        })}
 
         <div className="carousel-spacer" />
       </div>
