@@ -21,6 +21,7 @@ const Projects = () => {
       tech: "ReactJS - Java",
       description: "Music Playlist Social Platform",
       extra: "Fully customizable playlists with like functionality",
+      link: "https://github.com/lzklein/playlist-crusaders"
     },
     {
       title: "SmokePlus Online Storefront",
@@ -36,6 +37,7 @@ const Projects = () => {
       tech: "DiscordJS",
       description: "Discord Music Bot",
       extra: "Downloads and plays audio via YouTube link",
+      link: "https://github.com/lzklein/Wangus-Bot-II"
     },
     {
       title: "BitCalculator",
@@ -43,6 +45,7 @@ const Projects = () => {
       tech: "C++",
       description : "Calculator app built in C++",
       extra: "GUI built using SFML library and self drawn assets",
+      link: "https://github.com/lzklein/calculator"
     },
     {
       title: "Poké Team Builder",
@@ -50,6 +53,7 @@ const Projects = () => {
       tech: "ReactJS",
       description : "Pokémon team building tool",
       extra: "Powered by PokeAPI",
+      link: "https://github.com/lzklein/poke-teambuilder"
     },
   ];
 
