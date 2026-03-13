@@ -23,20 +23,20 @@
   </properties>
 
   <dependencies>
-    <!-- Core Spring Boot Web (REST API, Tomcat, Jackson, etc.) -->
+    <!-- Core Spring Boot Web  -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
-    <!-- Optional: CSV parsing -->
+    <!-- CSV parsing -->
     <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>5.9</version>
     </dependency>
 
-    <!-- Testing (JUnit 5, MockMvc, AssertJ, etc.) -->
+    <!-- Testing -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -46,6 +46,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
+    </dependency>
+    
+    <!-- Spring Boot Email -->
+    <dependency>  
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-mail</artifactId>
     </dependency>
   </dependencies>
 
