@@ -92,7 +92,7 @@ const Projects = () => {
   };
 
   return (
-    <div className="projects-page">
+    <div className="page">
       <h2>My Projects</h2>
       <div
         className="projects-carousel"

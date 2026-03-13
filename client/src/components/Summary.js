@@ -2,7 +2,7 @@ import React from 'react'
 
 const Summary = () => {
   return (
-    <div className="summary-page">
+    <div className="page">
 
       <h2>About Me</h2>
 
