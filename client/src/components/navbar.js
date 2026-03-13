@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 
 const navbar = () => {
   return (
-      <nav>
+      <nav className="navbar">
         <NavLink to="/" className='navlink'>Home</NavLink>
         <NavLink to="/about" className='navlink'>About</NavLink>
         <NavLink to="/projects" className='navlink'>Projects</NavLink>
