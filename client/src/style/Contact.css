@@ -78,8 +78,23 @@
   background: rgba(255, 255, 255, 0.355);
 
   font-size: 0.95rem;
+  
 
   box-sizing: border-box;
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.763);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.contact-form input:focus::placeholder,
+.contact-form textarea:focus::placeholder {
+  color: rgb(29, 29, 29);
+  font-style: italic;
+  font-weight: 400;
 }
 
 .contact-form input:focus,
