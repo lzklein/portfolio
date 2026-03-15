@@ -6,6 +6,7 @@ import githubIcon from '../assets/favicons/github.png';
 import emailIcon from '../assets/favicons/email.png';
 
 const Favicons = () => {
+  //! add bg color or white outline or something, cant see against dark bg
   return (
     <div>
       <a href="https://www.linkedin.com/in/louis-klein-audio/" target="_blank" rel="noreferrer" className='icon-container'>
