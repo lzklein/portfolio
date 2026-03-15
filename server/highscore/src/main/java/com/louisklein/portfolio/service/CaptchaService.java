@@ -13,12 +13,20 @@ public class CaptchaService {
     private String secret;
 
     public boolean verify(String token) {
-        String url = "https://www.google.com/recaptcha/api/siteverify?secret=" + secret + "&response=" + token;
+
+        String url = "https://www.google.com/recaptcha/api/siteverify"
+                + "?secret=" + secret
+                + "&response=" + token;
+
         RestTemplate restTemplate = new RestTemplate();
-        Map<String, Object> response = restTemplate.postForObject(url, null, Map.class);
-        if(response!=null){
-            return (Boolean) response.get("success");
+
+        Map<String, Object> response =
+                restTemplate.postForObject(url, null, Map.class);
+
+        if (response != null && response.containsKey("success")) {
+            return Boolean.TRUE.equals(response.get("success"));
         }
+
         return false;
     }
 }
