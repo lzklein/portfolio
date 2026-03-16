@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public class ScoreFileRepository implements ScoreRepository {
-    private static final String CSV_FILE_PATH = "src/main/java/resources/data.csv";
+    private static final String CSV_FILE_PATH = "src/main/resources/data.csv";
 
     @Override
     public List<Score> findAll() {
