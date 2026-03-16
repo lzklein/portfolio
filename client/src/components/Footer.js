@@ -4,8 +4,10 @@ import Favicons from './Favicons';
 const Footer = () => {
   return (
     <div className='footer'>
-      {/* <p>copyright? more links? credits?</p> */}
       <Favicons/>
+      <p className="footer-text">
+        © {new Date().getFullYear()} Louis Klein · Built with React & Spring Boot
+      </p>
     </div>
   )
 }
