@@ -47,12 +47,13 @@
 
   background: rgba(255, 255, 255, 0.12);
   border-radius: 18px;
-
+  position: relative;
   padding: 2rem;
 
   backdrop-filter: blur(8px);
 
   box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  overflow: hidden;
 }
 
 .contact-note {
@@ -127,4 +128,23 @@
   box-shadow: 0 6px 14px rgba(0,0,0,0.15);
   background: #89a8c2;
 
+}
+
+.loader {
+  width: 60px;
+  aspect-ratio: 1;
+  --_g: no-repeat radial-gradient(farthest-side,#000 90%,#0000);
+  background: var(--_g), var(--_g), var(--_g);
+  background-size: 25% 25%;
+  animation: l17 1s infinite;
+}
+
+@keyframes l17{ 
+  0%     {background-position: 0% -100%,50% -100%,100% -100%}
+  16.67% {background-position: 0%   50%,50% -100%,100% -100%}
+  33.33% {background-position: 0%   50%,50%   50%,100% -100%}
+  45%,55%{background-position: 0%   50%,50%   50%,100%   50%}
+  66.67% {background-position: 0%  200%,50%   50%,100%   50%}
+  83.33% {background-position: 0%  200%,50%  200%,100%   50%}
+  100%   {background-position: 0%  200%,50%  200%,100%  200%}
 }
