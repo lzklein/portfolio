@@ -1,3 +1,35 @@
 .footer {
-    padding-top:20px;
+    padding-top:15px;
+    text-align: center;
+}
+
+.footer-text {
+  margin-top: 15px;
+  font-size: 12px;
+  color: #888;
+}
+
+.footer-icons {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+.icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 10px;
+}
+
+.favicon {
+  width: 24px;
+  height: 24px;
+  filter: brightness(0) invert(1);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.icon-container:hover .favicon {
+  transform: scale(1.15);
+  opacity: 0.8;
 }
