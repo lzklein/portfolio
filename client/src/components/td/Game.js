@@ -393,6 +393,7 @@ export default function Game() {
   const nextId = useRef(0);
   const healthRef = useRef(INITIAL_HEALTH);
 
+  const [showRange, setShowRange]= useState(false);
   const [placeWallMode, setPlaceWallMode] = useState(false);
   const [demolishMode, setDemolishMode] = useState(false);
   const [shootMode, setShootMode] = useState(false);
@@ -416,6 +417,11 @@ export default function Game() {
 
   const [towers, setTowers] = useState([]);
   const [projectiles, setProjectiles] = useState([]);
+  const showRangeRef = useRef(showRange);
+
+  useEffect(() => {
+    showRangeRef.current = showRange;
+  }, [showRange]);
 
   let animTime = 0;
   const pathVariants = GAME_BOARD.map(row =>
@@ -557,9 +563,10 @@ export default function Game() {
 
       // !(TEMP) --- visual tower ranges ---
       towersRef.current.forEach((t) => {
-        if (t.range && t.range > 0) {
+        if ((t.range && t.range > 0) && showRangeRef.current) {
           const cx = t.x * TILE_SIZE + TILE_SIZE / 2;
           const cy = t.y * TILE_SIZE + TILE_SIZE / 2;
+
           ctx.beginPath();
           ctx.arc(cx, cy, t.range, 0, Math.PI * 2);
           ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
@@ -1777,6 +1784,9 @@ export default function Game() {
           style={{ marginLeft: 10, padding: "6px 12px" }}
         >
           {shootMode ? "Shoot Mode: ON" : "Shoot Mode: OFF"}
+        </button>
+        <button onClick={() => setShowRange(v => !v)}>
+          Show Range
         </button>
     </div>
   );
