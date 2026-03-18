@@ -28,18 +28,15 @@ public class EmailController {
             @RequestBody ContactForm form,
             HttpServletRequest request) {
 
-        // 1️⃣ Honeypot check
         if (form.getCompany() != null && !form.getCompany().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
 
-        // 2️⃣ Detect real IP (proxy safe)
         String ip = request.getHeader("X-Forwarded-For");
         if (ip == null || ip.isEmpty()) {
             ip = request.getRemoteAddr();
         }
 
-        // 3️⃣ Rate limit check
         Bucket bucket = rateLimitService.resolveBucket(ip);
 
         if (!bucket.tryConsume(1)) {
@@ -48,14 +45,12 @@ public class EmailController {
                     .body("Rate limit exceeded. Try again later.");
         }
 
-        // 4️⃣ CAPTCHA verification
         if (!captchaService.verify(form.getCaptchaToken())) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Captcha verification failed");
         }
 
-        // 5️⃣ Send email
         emailService.sendContactEmail(
                 form.getEmail(),
                 form.getSubject(),
