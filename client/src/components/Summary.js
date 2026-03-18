@@ -15,7 +15,7 @@ const Summary = () => {
         <li><strong>Languages:</strong> Java, JavaScript, Python, C++</li>
         <li><strong>Frontend:</strong> React, HTML5, CSS3, Bootstrap</li>
         <li><strong>Backend:</strong> Spring Boot, Express.js, Node.js, REST APIs</li>
-        <li><strong>Databases:</strong> MySQL, SQLite, Azure SQL Database</li>
+        <li><strong>Databases:</strong> MySQL, SQLite, SQL Server, Azure SQL Database</li>
         <li><strong>Data Engineering:</strong> Azure Data Factory, Databricks, Azure Blob Storage, ETL Pipelines</li>
         <li><strong>Data Tools:</strong> Pandas, SQLAlchemy</li>
         <li><strong>Analytics:</strong> Power BI</li>
