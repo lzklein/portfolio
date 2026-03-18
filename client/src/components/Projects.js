@@ -51,7 +51,7 @@ const Projects = () => {
       title: "Poké Team Builder",
       image: PokeTeamBuilder,
       tech: "ReactJS",
-      description : "Pokémon team building tool",
+      description : "Pokémon team building, customization, analysis tool",
       extra: "Powered by PokeAPI",
       link: "https://github.com/lzklein/poke-teambuilder"
     },
