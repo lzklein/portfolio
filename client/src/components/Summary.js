@@ -24,9 +24,8 @@ const Summary = () => {
 
       <h3>Current/Planned projects</h3>
       <ul>
-        <li>Manga translation tool (OpenCV)</li>
-        <li>Whiteboarding tool (Live Multi-User)</li>
-        <li>Finishing this</li>
+        <li>Manga translation tool (Python)</li>
+        <li>Trello Rip Off (React-Spring Boot)</li>
       </ul>
 
     </div>
