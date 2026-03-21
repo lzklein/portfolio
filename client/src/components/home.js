@@ -1,7 +1,5 @@
 import React from 'react'
-import Game from './td/Game.js';
-// TODO
-// !primary -- Content, basic appearances
+import GameContainer from './td/GameContainer.js';
 
 const Home = () => {
 
@@ -14,7 +12,7 @@ const Home = () => {
       {/* td game */}
       {/* scavenger hunt towers */}
       <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
-        <Game />
+        <GameContainer />
       </div>    
     </div>
   )
