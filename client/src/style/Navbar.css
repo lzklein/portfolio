@@ -4,6 +4,13 @@
   gap: 40px;
   width: 100%;
   margin-top:-50px;
+    background: linear-gradient(
+    to bottom,
+  rgba(0, 0, 0, 0.55) 0%,
+  rgba(0, 0, 0, 0.35) 25%,
+  rgba(0, 0, 0, 0.12) 55%,
+  rgba(0, 0, 0, 0.0) 100%
+  );
 }
 
 .navlink {
