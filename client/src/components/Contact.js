@@ -102,7 +102,7 @@ const Contact = () => {
         )}
 
         <Links/>
-        <p className="contact-note">Socials are also available in the footer.</p>
+        <p className="contact-note">Socials also available below in the footer</p>
 
         <form className="contact-form" onSubmit={handleSubmit}>
           <input
