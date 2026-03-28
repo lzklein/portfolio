@@ -2,6 +2,7 @@
 import './App.css';
 import React from 'react';
 import {Routes, Route} from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 
 // components
 import Header from './components/Header';
@@ -15,6 +16,7 @@ import Resume from './components/Resume';
 function App() {
   return (
     <div className="App">
+      <Analytics /> 
       <Header/>
       <Routes>
         <Route path="/projects" element={<Projects/>}/>
