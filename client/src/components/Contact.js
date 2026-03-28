@@ -9,7 +9,7 @@ const Contact = () => {
   const [obviousBotTrap, setObviousBotTrap] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [loading, setLoading] = useState(false);
-  const API_URL = process.env.API_URL;
+  const API_URL =  process.env.REACT_APP_API_URL
 
   const recaptchaRef = useRef(null);
 
@@ -41,7 +41,7 @@ const Contact = () => {
   try {
     const token = recaptchaRef.current.getValue();
 
-    const response = await fetch(`${API_URL}api/email`, {
+    const response = await fetch(`${API_URL}/api/email`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
