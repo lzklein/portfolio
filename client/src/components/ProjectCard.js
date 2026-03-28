@@ -7,10 +7,10 @@ const ProjectCard = ({ title, image, tech, description, extra, link }) => {
 
       {link ? (
         <a href={link} target="_blank" rel="noreferrer">
-          <img src={image} style={{ maxWidth: "90%" }} />
+          <img src={image} style={{ maxWidth: "90%" }} alt="project-image"/>
         </a>
       ) : (
-        <img src={image} style={{ maxWidth: "90%" }} />
+        <img src={image} style={{ maxWidth: "90%" }} alt="project-image"/>
       )}
 
       <h4>{tech}</h4>

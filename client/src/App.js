@@ -1,7 +1,7 @@
 // imports
 import './App.css';
-import React, {createContext, useState, useEffect} from 'react';
-import {Routes, Route, useNavigate} from 'react-router-dom';
+import React from 'react';
+import {Routes, Route} from 'react-router-dom';
 
 // components
 import Header from './components/Header';
