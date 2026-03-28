@@ -1,5 +1,5 @@
 import React from 'react'
-import GameContainer from './td/GameContainer.js';
+import GameContainer from './td/GameContainer';
 
 const Home = () => {
 
