@@ -65,6 +65,7 @@
   max-height: 350px;
   object-fit: contain;
   margin: 0 auto 0.75rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 .project-card a {
@@ -73,7 +74,7 @@
 }
 
 .project-card h2 {
-  margin: 0 0 0.4rem;
+  margin: .8rem 0 1rem;
 }
 
 .project-card h4 {
