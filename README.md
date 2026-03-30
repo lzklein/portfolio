@@ -219,12 +219,6 @@ Runs on: http://localhost:3000
 
 ---
 
-## 📸 Screenshots / Demos
-
-(Add screenshots or GIFs here)
-
----
-
 ## 📬 Live Site
 
 https://louisklein.dev  
