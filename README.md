@@ -14,7 +14,6 @@ This project showcases the ability to design, build, and deploy a full-stack app
 - Abuse prevention (rate limiting, CAPTCHA, honeypotting)  
 - Deployment and networking (DNS, reverse proxy, tunneling)  
 - Persistent backend data handling  
-- Performance-conscious frontend architecture  
 
 ---
 
@@ -27,16 +26,16 @@ The backend is built with **Spring Boot (Java)** using an MVC architecture and i
 server/highscore/  
 - src/main/java/...          (Controllers, Services, Models)  
 - src/test/java/...          (Unit tests)  
-- resources/leaderboard.csv  (Top 5 scores)  
+- resources/data.csv  (Top 5 scores)  
 
 ### Core Functionality
 
 - REST API for:
   - High score retrieval  
   - Score submission  
-  - Automatic leaderboard sorting (top 5 only)  
-- CSV-based persistence (lightweight storage)  
-- Service layer tested with JUnit  
+  - Automatic leaderboard sorting  
+- CSV lightweight storage  
+- unit testing with JUnit  
 
 ---
 
@@ -61,8 +60,8 @@ The frontend is built with **React (Create React App)**.
 
 **Folder structure:**
 
-client/src/  
-- assets/       (Resume, images, etc.)  
+client/src/
+- assets/       (files, images, etc.)  
 - components/   (React components)  
 - hooks/        (Custom hooks)  
 - style/        (CSS)  
@@ -180,7 +179,7 @@ Runs on: http://localhost:3000
 |--------------------------------|------------------------------|
 | Backend high score API         | ✅ Functional                |
 | Email service + security       | ✅ Functional                |
-| Portfolio pages (React)        | ⚠️ Minimal styling (WIP)     |
+| Portfolio pages (React)        | ✅ Functional                |
 | Tower defense mechanics        | ⚠️ WIP (debug mode)          |
 | Game ↔ backend integration     | ⚠️ Partial                   |
 | Deployment (full stack)        | ✅ Live                      |
@@ -212,9 +211,9 @@ Runs on: http://localhost:3000
 ## 📌 Future Improvements
 
 - Complete tower defense gameplay loop (mouse interaction, UI polish)  
-- Implement reward systems for challenge modifiers  
-- Expand backend beyond CSV (database integration)  
-- Improve mobile responsiveness and UI/UX  
+- Refactor TD game code into clean sections
+- Expand backend beyond CSV (database integration -> MongoDB maybe)  
+- Create mobile mode
 - Add more interactive portfolio projects  
 
 ---
