@@ -3,8 +3,9 @@ import ProjectCard from "./ProjectCard";
 import DiscordBot from '../assets/images/Wangusbot.png';
 import Smokeplus from '../assets/images/Smokeplus.png';
 import PlaylistCrusader from '../assets/images/PlaylistCrusader.png';
-import Calculator from '../assets/images/Calculator.png'
-import PokeTeamBuilder from '../assets/images/PokeTeamBuilder.png'
+import Calculator from '../assets/images/Calculator.png';
+import PokeTeamBuilder from '../assets/images/PokeTeamBuilder.png';
+import Portfolio from '../assets/images/Portfolio.png';
 
 const Projects = () => {
   const scrollerRef = useRef(null);
@@ -18,15 +19,23 @@ const Projects = () => {
     {
       title: "Playlist Crusader",
       image: PlaylistCrusader,
-      tech: "ReactJS - Java",
+      tech: "ReactJS • Java",
       description: "Music Playlist Social Platform",
       extra: "Fully customizable playlists with like functionality",
       link: "https://github.com/lzklein/playlist-crusaders"
     },
     {
+      title: "This Website",
+      image: Portfolio,
+      tech: "ReactJS • Spring Boot",
+      description: "Production-deployed full-stack portfolio",
+      extra: "Secure custom email handling, self-hosted backend with Nginx and Cloudflare",
+      link: "https://github.com/lzklein/portfolio"
+    },
+    {
       title: "SmokePlus Online Storefront",
       image: Smokeplus,
-      tech: "ReactJS - ExpressJS",
+      tech: "ReactJS • ExpressJS",
       description: "Set up pickup orders",
       extra: "Manage inventory as an employee",
       link: "https://smokeplus.onrender.com/",
