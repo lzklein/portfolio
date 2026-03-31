@@ -148,3 +148,24 @@
   83.33% {background-position: 0%  200%,50%  200%,100%   50%}
   100%   {background-position: 0%  200%,50%  200%,100%  200%}
 }
+
+@media (max-width: 768px) {
+  .contact-card {
+    width: 96%;
+    max-width: 520px;
+
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    position: relative;
+    padding: 2rem;
+
+    backdrop-filter: blur(8px);
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    overflow: hidden;
+  }
+
+  .contact-note {
+    font-size: 19px;
+  }
+}
