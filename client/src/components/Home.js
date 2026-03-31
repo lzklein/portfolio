@@ -1,8 +1,9 @@
 import React from 'react'
 import GameContainer from './td/GameContainer';
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const Home = () => {
-
+  const isMobile = useIsMobile();
   return (
     <div>
       <div className="title-container">
@@ -10,10 +11,11 @@ const Home = () => {
         <h3>Software Engineer</h3>
       </div>
       {/* td game */}
-      {/* scavenger hunt towers */}
-      <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
+      {isMobile?null
+      :<div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
         <GameContainer />
       </div>    
+      }
     </div>
   )
 }
