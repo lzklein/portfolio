@@ -1,6 +1,10 @@
 import React from 'react'
 import GameContainer from './td/GameContainer';
 import { useIsMobile } from "../hooks/useIsMobile";
+import Contact from './Contact';
+import Summary from './Summary';
+import Projects from './Projects';
+import Resume from './Resume';
 
 const Home = () => {
   const isMobile = useIsMobile();
@@ -9,6 +13,10 @@ const Home = () => {
       <div className="title-container">
         <h1>Louis  Klein</h1>
         <h3>Software Engineer</h3>
+        <Summary/>
+        <Projects/>
+        <Resume/>
+        <Contact/>
       </div>
       {/* td game */}
       {isMobile?null
