@@ -15,7 +15,7 @@ const ProjectCard = ({ title, image, tech, description, extra, link }) => {
 
       <h4>{tech}</h4>
       <p>{description}</p>
-      {extra && <p>{extra}</p>}
+      {extra && <p className="extra-text">{extra}</p>}
     </div>
   );
 }
