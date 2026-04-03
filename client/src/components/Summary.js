@@ -26,7 +26,7 @@ const Summary = () => {
       <h3>Current/Planned projects</h3>
       <ul>
         <li>Manga translation tool (Python)</li>
-        <li>Trello Rip Off (React-Spring Boot)</li>
+        <li>Finance Price Tracker (React-Spring Boot)</li>
       </ul>
 
     </div>
