@@ -13,13 +13,15 @@ const Home = () => {
       <div className="title-container">
         <h1>Louis  Klein</h1>
         <h3>Software Engineer</h3>
-        <Summary/>
-        <Projects/>
-        <Resume/>
-        <Contact/>
       </div>
       {/* td game */}
-      {isMobile?null
+      {isMobile?
+        <>
+          <Summary/>
+          <Projects/>
+          <Resume/>
+          <Contact/>
+        </>       
       :<div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
         <GameContainer />
       </div>    
