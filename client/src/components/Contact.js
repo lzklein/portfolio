@@ -71,7 +71,7 @@ const Contact = () => {
 
   } catch (err) {
     console.error(err);
-    alert("An error occurred. Please try again.");
+    alert("An error occurred. Please try again later, or use email button in the footer.");
   } finally {
     setLoading(false);
   }
