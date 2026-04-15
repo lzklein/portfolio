@@ -7,7 +7,7 @@ const Summary = () => {
       <h2>About Me</h2>
 
       <p>
-        Blurb about myself. I'll write it eventually.
+        I'm a software developer with a focus on full-stack development and experience in cloud computing and data engineering. Over the past 2 years I've worked with technologies spanning frontend, backend, cloud, and analytics. I'm currently expanding my skills through personal projects in areas I'm passionate about.
       </p>
 
       <h3>Technologies</h3>
